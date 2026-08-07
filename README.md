@@ -1,8 +1,27 @@
-# Saikat Das · portfolio
+<h1 align="center">Saikat Das · portfolio</h1>
 
-An English-only personal portfolio at `/en`, built around a tactile reading
-experience, a halftone portrait, selected projects, and a private content
-system for the owner.
+<p align="center">
+  <img src="./docs/readme/portfolio-system.svg" alt="Editorial system map for the Saikat Das portfolio" width="960" />
+</p>
+
+<p align="center">
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16.3.0-201D1A?style=for-the-badge&logo=nextdotjs&logoColor=F4EFE6" alt="Next.js 16.3.0" /></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19.2.8-1F6F5B?style=for-the-badge&logo=react&logoColor=F4EFE6" alt="React 19.2.8" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-7.0.2-6F6257?style=for-the-badge&logo=typescript&logoColor=F4EFE6" alt="TypeScript 7.0.2" /></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-4.3.3-B8643A?style=for-the-badge&logo=tailwindcss&logoColor=F4EFE6" alt="Tailwind CSS 4.3.3" /></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/X-Saikat-93/portfolio-v3/commits/main"><img src="https://img.shields.io/github/last-commit/X-Saikat-93/portfolio-v3?style=flat-square&color=B8643A&label=last%20commit" alt="Last commit" /></a>
+  <a href="https://github.com/X-Saikat-93/portfolio-v3/graphs/commit-activity"><img src="https://img.shields.io/github/commit-activity/m/X-Saikat-93/portfolio-v3?style=flat-square&color=1F6F5B&label=commit%20rhythm" alt="Commit activity" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/github/license/X-Saikat-93/portfolio-v3?style=flat-square&color=6F6257&label=license" alt="MIT License" /></a>
+</p>
+
+<p align="center">
+  An English-first personal portfolio at <code>/en</code>, built around a tactile
+  reading experience, a halftone portrait, selected projects, and a private
+  content system for the owner.
+</p>
 
 > Public content stays deliberately honest: writing, books, music, and photos
 > remain empty until real material is supplied.
@@ -32,6 +51,19 @@ details.
 - Cloudinary delivery for published media, with a local avatar preview for
   development.
 
+## Repository pulse
+
+<p align="center">
+  <a href="https://github.com/X-Saikat-93/portfolio-v3"><img src="https://github-readme-stats.vercel.app/api/pin/?username=X-Saikat-93&repo=portfolio-v3&show_owner=true&hide_border=true&bg_color=F4EFE6&title_color=201D1A&text_color=6F6257&icon_color=B8643A" alt="Pinned repository card for portfolio-v3" width="49%" /></a>
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=X-Saikat-93&layout=compact&langs_count=6&hide_border=true&bg_color=F4EFE6&title_color=201D1A&text_color=6F6257&icon_color=B8643A" alt="Language mix across public repositories" width="49%" />
+</p>
+
+<p align="center">
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=X-Saikat-93&repo=portfolio-v3&bg_color=F4EFE6&color=201D1A&line=B8643A&point=1F6F5B&area_color=E7D9C8&area=true&hide_border=true&custom_title=Portfolio%20commit%20rhythm" alt="Portfolio commit activity graph" width="100%" />
+</p>
+
+<p align="center"><sub>Live GitHub snapshots; the cards may load a moment after the README text.</sub></p>
+
 ## Architecture
 
 | Layer | Choice |
@@ -43,6 +75,30 @@ details.
 | Protection | Upstash Redis for shared mutation and contact rate limits |
 | Notifications | SMTP contact delivery with a Neon-backed private inbox |
 | Social data | Live GitHub data with committed fallback content |
+
+### Runtime map
+
+```mermaid
+flowchart LR
+    visitor["Visitor"] --> public["/en · public surface"]
+    public --> github["GitHub snapshot"]
+    public --> cloudinary["Cloudinary media"]
+    public --> neon["Neon / Drizzle records"]
+    owner["Owner"] --> admin["/admin · owner-only"]
+    admin --> auth["Better Auth"]
+    admin --> neon
+    admin --> cloudinary
+    contact["/en/contact"] --> limit["Upstash rate limit"]
+    limit --> smtp["SMTP delivery"]
+    contact --> neon
+
+    classDef surface fill:#201D1A,color:#F4EFE6,stroke:#201D1A
+    classDef service fill:#E7D9C8,color:#201D1A,stroke:#B8A795
+    classDef private fill:#B8643A,color:#F4EFE6,stroke:#201D1A
+    class public,contact surface
+    class github,cloudinary,neon,limit,smtp service
+    class owner,admin,auth private
+```
 
 ## Local setup
 
