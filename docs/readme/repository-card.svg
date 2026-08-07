@@ -1,0 +1,33 @@
+<svg width="900" height="280" viewBox="0 0 900 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Pinned repository card for portfolio-v3</title>
+  <desc id="desc">A stable repository overview graphic for the Saikat Das portfolio.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" stroke="#D7CABB" stroke-width="1" opacity="0.48"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="280" rx="20" fill="#F4EFE6"/>
+  <rect x="12" y="12" width="876" height="256" rx="14" stroke="#201D1A" stroke-width="2"/>
+  <rect x="28" y="28" width="844" height="224" rx="10" fill="url(#grid)"/>
+
+  <text x="56" y="68" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="3">PINNED / REPOSITORY</text>
+  <text x="56" y="126" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" letter-spacing="-1">portfolio-v3</text>
+  <text x="58" y="158" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="17">X-Saikat-93  /  Saikat Das</text>
+
+  <line x1="56" y1="184" x2="598" y2="184" stroke="#C5B5A2" stroke-width="2"/>
+  <text x="56" y="218" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1">NEXT.JS 16</text>
+  <text x="174" y="218" fill="#B8A795" font-family="Arial, Helvetica, sans-serif" font-size="14">/</text>
+  <text x="198" y="218" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1">REACT 19</text>
+  <text x="304" y="218" fill="#B8A795" font-family="Arial, Helvetica, sans-serif" font-size="14">/</text>
+  <text x="328" y="218" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1">TYPESCRIPT</text>
+  <text x="468" y="218" fill="#B8A795" font-family="Arial, Helvetica, sans-serif" font-size="14">/</text>
+  <text x="492" y="218" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1">NEON</text>
+
+  <g transform="translate(700 58)">
+    <circle cx="72" cy="72" r="72" fill="#B8643A"/>
+    <circle cx="72" cy="72" r="72" stroke="#201D1A" stroke-width="2"/>
+    <circle cx="72" cy="72" r="8" fill="#F4EFE6"/>
+    <path d="M72 28V56M72 88V116M28 72H56M88 72H116" stroke="#F4EFE6" stroke-width="2" opacity="0.82"/>
+    <text x="-12" y="178" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">MAIN / ACTIVE</text>
+  </g>
+</svg>

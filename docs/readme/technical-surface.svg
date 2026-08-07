@@ -1,0 +1,46 @@
+<svg width="900" height="280" viewBox="0 0 900 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Technical surface for portfolio-v3</title>
+  <desc id="desc">A stable technical stack graphic showing the main runtime layers of the portfolio.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" stroke="#D7CABB" stroke-width="1" opacity="0.48"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="280" rx="20" fill="#F4EFE6"/>
+  <rect x="12" y="12" width="876" height="256" rx="14" stroke="#201D1A" stroke-width="2"/>
+  <rect x="28" y="28" width="844" height="224" rx="10" fill="url(#grid)"/>
+
+  <text x="56" y="68" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="3">TECHNICAL SURFACE / CURRENT BASELINE</text>
+  <text x="56" y="116" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">The system behind the surface</text>
+
+  <g transform="translate(56 146)">
+    <rect width="240" height="34" rx="6" fill="#201D1A"/>
+    <text x="16" y="22" fill="#F4EFE6" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">APP</text>
+    <text x="72" y="22" fill="#F4EFE6" font-family="Arial, Helvetica, sans-serif" font-size="13">Next.js 16 / React 19</text>
+    <rect y="42" width="240" height="34" rx="6" fill="#E7D9C8" stroke="#C5B5A2"/>
+    <text x="16" y="64" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">DATA</text>
+    <text x="72" y="64" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="13">Neon / Drizzle</text>
+    <rect y="84" width="240" height="34" rx="6" fill="#E7D9C8" stroke="#C5B5A2"/>
+    <text x="16" y="106" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">MEDIA</text>
+    <text x="72" y="106" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="13">Cloudinary delivery</text>
+  </g>
+
+  <g transform="translate(328 146)">
+    <rect width="240" height="34" rx="6" fill="#E7D9C8" stroke="#C5B5A2"/>
+    <text x="16" y="22" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">AUTH</text>
+    <text x="72" y="22" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="13">Better Auth / owner</text>
+    <rect y="42" width="240" height="34" rx="6" fill="#E7D9C8" stroke="#C5B5A2"/>
+    <text x="16" y="64" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">EDGE</text>
+    <text x="72" y="64" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="13">CSP / rate limits</text>
+    <rect y="84" width="240" height="34" rx="6" fill="#E7D9C8" stroke="#C5B5A2"/>
+    <text x="16" y="106" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1">MAIL</text>
+    <text x="72" y="106" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="13">SMTP / private inbox</text>
+  </g>
+
+  <g transform="translate(628 146)">
+    <circle cx="72" cy="54" r="54" fill="#B8643A"/>
+    <circle cx="72" cy="54" r="54" stroke="#201D1A" stroke-width="2"/>
+    <path d="M42 54H102M72 24V84" stroke="#F4EFE6" stroke-width="2" opacity="0.86"/>
+    <text x="-12" y="138" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">PUBLIC / PRIVATE</text>
+  </g>
+</svg>

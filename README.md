@@ -54,15 +54,15 @@ details.
 ## Repository pulse
 
 <p align="center">
-  <a href="https://github.com/X-Saikat-93/portfolio-v3"><img src="https://github-readme-stats.vercel.app/api/pin/?username=X-Saikat-93&repo=portfolio-v3&show_owner=true&hide_border=true&bg_color=F4EFE6&title_color=201D1A&text_color=6F6257&icon_color=B8643A" alt="Pinned repository card for portfolio-v3" width="49%" /></a>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=X-Saikat-93&layout=compact&langs_count=6&hide_border=true&bg_color=F4EFE6&title_color=201D1A&text_color=6F6257&icon_color=B8643A" alt="Language mix across public repositories" width="49%" />
+  <a href="https://github.com/X-Saikat-93/portfolio-v3"><img src="./docs/readme/repository-card.svg" alt="Pinned repository card for portfolio-v3" width="49%" /></a>
+  <img src="./docs/readme/technical-surface.svg" alt="Technical surface for portfolio-v3" width="49%" />
 </p>
 
 <p align="center">
   <img src="https://github-readme-activity-graph.vercel.app/graph?username=X-Saikat-93&repo=portfolio-v3&bg_color=F4EFE6&color=201D1A&line=B8643A&point=1F6F5B&area_color=E7D9C8&area=true&hide_border=true&custom_title=Portfolio%20commit%20rhythm" alt="Portfolio commit activity graph" width="100%" />
 </p>
 
-<p align="center"><sub>Live GitHub snapshots; the cards may load a moment after the README text.</sub></p>
+<p align="center"><sub>Repository cards are committed SVGs; the activity graph below remains a live GitHub snapshot.</sub></p>
 
 ## Architecture
 
