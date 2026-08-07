@@ -45,7 +45,7 @@ details.
 ## Design direction
 
 - Warm paper surfaces, fine linework, and restrained typography.
-- Open Runde and Frex Sans GB font assets with a compact editorial rhythm.
+- Geist for Latin text, with Frex Sans GB assets for locale and OG rendering.
 - A halftone portrait that reveals a hidden topographic field through motion.
 - Dock navigation, subtle route transitions, and small data-like visual marks.
 - Cloudinary delivery for published media, with a local avatar preview for
@@ -186,6 +186,18 @@ db/                Drizzle schema, migrations, and local database tests
 lib/               Route, auth, media, CMS, collection, contact, and SEO logic
 public/images/     Local avatar preview only
 ```
+
+## Repository documents
+
+- [Contributing](CONTRIBUTING.md) — local workflow, migrations, verification,
+  and senior-level commit conventions.
+- [Design](DESIGN.md) — product-level visual and interaction contract.
+- [Architecture](docs/architecture.md) — route, module, data, and trust boundaries.
+- [Design language](docs/design-language.md) — tokens, motion, layering, and UI rules.
+- [Operations](docs/operations.md) — environment, bootstrap, release, and safe-change guidance.
+- [Security](SECURITY.md) and [Code of Conduct](CODE_OF_CONDUCT.md) — project trust policies.
+- [Support](SUPPORT.md) and [Changelog](CHANGELOG.md) — issue routing and repository history notes.
+- [License](LICENSE) — MIT application source terms and content ownership note.
 
 ## Content and media boundaries
 
