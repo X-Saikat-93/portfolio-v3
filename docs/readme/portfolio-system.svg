@@ -1,0 +1,69 @@
+<svg width="1600" height="640" viewBox="0 0 1600 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Saikat Das portfolio system</title>
+  <desc id="desc">An editorial system map for the Saikat Das portfolio, showing the English public surface, private owner tools, and the services behind them.</desc>
+  <defs>
+    <pattern id="paper-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" stroke="#D7CABB" stroke-width="1" opacity="0.46"/>
+    </pattern>
+    <pattern id="dot-field" width="14" height="14" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="2.1" fill="#F4EFE6" opacity="0.82"/>
+    </pattern>
+    <clipPath id="field-clip">
+      <circle cx="1280" cy="270" r="180"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1600" height="640" rx="28" fill="#F4EFE6"/>
+  <rect x="24" y="24" width="1552" height="592" rx="18" stroke="#201D1A" stroke-width="2"/>
+  <rect x="48" y="48" width="1504" height="544" rx="12" fill="url(#paper-grid)"/>
+
+  <path d="M-30 450C150 368 266 520 442 430C617 340 694 386 844 298C1005 204 1109 270 1284 180C1390 125 1492 142 1630 86" stroke="#C5B5A2" stroke-width="2" opacity="0.72"/>
+  <path d="M-40 488C142 406 278 560 458 468C632 379 712 424 867 334C1024 243 1136 304 1302 216C1424 151 1510 173 1640 112" stroke="#C5B5A2" stroke-width="2" opacity="0.54"/>
+  <path d="M-40 526C134 444 287 599 476 502C650 413 733 456 892 370C1041 290 1164 337 1324 251C1438 189 1521 211 1640 156" stroke="#C5B5A2" stroke-width="2" opacity="0.34"/>
+
+  <g transform="translate(92 92)">
+    <text fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="5">SAIKAT DAS / PORTFOLIO V3</text>
+    <text y="82" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="700" letter-spacing="-3">A tactile portfolio</text>
+    <text y="148" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="700" letter-spacing="-3">for selected work.</text>
+    <text y="208" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="22" letter-spacing="1">ENGLISH-FIRST  /  EMPTY-SAFE  /  OWNER-EDITABLE</text>
+  </g>
+
+  <g transform="translate(92 394)">
+    <rect width="690" height="116" rx="12" fill="#201D1A"/>
+    <text x="28" y="34" fill="#D8C8B6" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="3">PUBLIC SURFACE</text>
+    <text x="28" y="78" fill="#F4EFE6" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">/en</text>
+    <text x="114" y="78" fill="#F4EFE6" font-family="Arial, Helvetica, sans-serif" font-size="24">profile  ·  projects  ·  writing  ·  contact</text>
+    <circle cx="638" cy="58" r="17" fill="#B8643A"/>
+    <path d="M631 58H645M638 51V65" stroke="#F4EFE6" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(820 394)">
+    <rect width="330" height="116" rx="12" fill="#E7D9C8" stroke="#201D1A" stroke-width="2"/>
+    <text x="28" y="34" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="3">PRIVATE SURFACE</text>
+    <text x="28" y="78" fill="#201D1A" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">/admin</text>
+    <text x="28" y="101" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="15">CMS  ·  media  ·  inbox</text>
+  </g>
+
+  <g transform="translate(1190 90)">
+    <circle cx="90" cy="180" r="180" fill="#B8643A"/>
+    <circle cx="90" cy="180" r="180" fill="url(#dot-field)" opacity="0.24"/>
+    <g clip-path="url(#field-clip)" transform="translate(-1190 -90)">
+      <path d="M1142 253C1201 200 1251 213 1302 249C1350 282 1401 280 1467 232" stroke="#F4EFE6" stroke-width="3" opacity="0.82"/>
+      <path d="M1124 280C1190 222 1248 237 1304 273C1364 311 1417 304 1485 250" stroke="#F4EFE6" stroke-width="3" opacity="0.66"/>
+      <path d="M1110 309C1180 248 1241 267 1308 301C1374 335 1432 328 1500 272" stroke="#F4EFE6" stroke-width="3" opacity="0.5"/>
+      <path d="M1132 346C1191 296 1245 303 1307 330C1370 357 1424 358 1478 316" stroke="#F4EFE6" stroke-width="3" opacity="0.38"/>
+    </g>
+    <circle cx="90" cy="180" r="180" stroke="#201D1A" stroke-width="2"/>
+    <text x="-18" y="414" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="3">HALFTONE / TOPOGRAPHIC FIELD</text>
+  </g>
+
+  <g transform="translate(92 560)">
+    <text fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="2">NEXT.JS 16</text>
+    <text x="132" fill="#C5B5A2" font-family="Arial, Helvetica, sans-serif" font-size="14">/</text>
+    <text x="154" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="2">NEON</text>
+    <text x="246" fill="#C5B5A2" font-family="Arial, Helvetica, sans-serif" font-size="14">/</text>
+    <text x="268" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="2">CLOUDINARY</text>
+    <text x="438" fill="#C5B5A2" font-family="Arial, Helvetica, sans-serif" font-size="14">/</text>
+    <text x="460" fill="#6F6257" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="2">BETTER AUTH</text>
+  </g>
+</svg>
