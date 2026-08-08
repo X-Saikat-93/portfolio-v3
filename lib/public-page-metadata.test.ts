@@ -38,11 +38,38 @@ describe('public page metadata copy', () => {
       title: 'Now',
       description: 'A current snapshot of what Saikat Das is building, learning, reading, and open to.',
     })
+    expect(publicPageMetadata.resume.en).toEqual({
+      title: 'Resume',
+      description: 'Resume for Saikat Das, Product Engineer.',
+    })
+    expect(publicPageMetadata.contact.en).toEqual({
+      title: 'Contact',
+      description: 'Send a private message to Saikat Das.',
+    })
+    expect(publicPageMetadata.privacy.en).toEqual({
+      title: 'Privacy policy',
+      description:
+        'How Saikat Das’s portfolio handles contact messages, analytics, browser preferences, and service providers.',
+    })
   })
 
   it('keeps section descriptions within social preview budgets', () => {
-    for (const section of ['blog', 'photos', 'books', 'music', 'projects', 'now'] as const) {
+    for (const section of [
+      'blog',
+      'photos',
+      'books',
+      'music',
+      'projects',
+      'now',
+      'resume',
+      'contact',
+      'privacy',
+    ] as const) {
       expect(publicPageMetadata[section].en.description.length, section).toBeLessThanOrEqual(160)
     }
+  })
+
+  it('contains only Saikat Das brand language', () => {
+    expect(JSON.stringify(publicPageMetadata).toLowerCase()).not.toContain('cali')
   })
 })

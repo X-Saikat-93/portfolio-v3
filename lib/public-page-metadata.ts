@@ -53,6 +53,38 @@ export const publicPageMetadata = {
       description: 'A current snapshot of what Saikat Das is building, learning, reading, and open to.',
     },
   },
+  resume: {
+    zh: {
+      title: 'Resume',
+      description: 'Resume for Saikat Das, Product Engineer.',
+    },
+    en: {
+      title: 'Resume',
+      description: 'Resume for Saikat Das, Product Engineer.',
+    },
+  },
+  contact: {
+    zh: {
+      title: 'Contact',
+      description: 'Send a private message to Saikat Das.',
+    },
+    en: {
+      title: 'Contact',
+      description: 'Send a private message to Saikat Das.',
+    },
+  },
+  privacy: {
+    zh: {
+      title: 'Privacy policy',
+      description:
+        'How Saikat Das’s portfolio handles contact messages, analytics, browser preferences, and service providers.',
+    },
+    en: {
+      title: 'Privacy policy',
+      description:
+        'How Saikat Das’s portfolio handles contact messages, analytics, browser preferences, and service providers.',
+    },
+  },
 } as const
 
 export type PublicSection = Exclude<keyof typeof publicPageMetadata, 'home'>
