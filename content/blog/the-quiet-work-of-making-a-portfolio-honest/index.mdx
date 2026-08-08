@@ -1,0 +1,63 @@
+---
+title: The Quiet Work of Making a Portfolio Honest
+description: A portfolio gets better when every public detail has a source, an owner, and a reason to be there.
+category: Build notes
+date: 2026-08-04
+readingMinutes: 7
+coverFile: the-quiet-work-of-making-a-portfolio-honest.png
+coverSlug: the-quiet-work-of-making-a-portfolio-honest
+coverAlt: Editorial illustration of a portfolio assembled from traceable records and images
+---
+
+A portfolio is a small website with an unusually high temptation to pretend.
+
+The blank space makes the temptation worse. A missing project can be replaced with a polished sentence. An empty books page can be filled with a list that looks plausible. A stock photograph can make a page feel finished before the person behind it has decided what the page is for.
+
+I wanted this site to have a stricter rule: if something is public, it should have a source. That source might be a repository, a database record, a Cloudinary asset, or a sentence I have actually written. If none of those exists, the right interface is an empty state.
+
+That sounds like a content rule, but it changed the engineering.
+
+## The empty state is part of the product
+
+Most sites treat an empty collection as a temporary failure. The component is built for a full list, then a conditional message is added at the bottom. It is usually the least considered part of the page.
+
+Here the empty state has to be able to ship. The home page, books, music, and photos are all allowed to have no records. Public queries are filtered to published rows and fail safely when the database is unavailable. That means the page can be useful before the content system is full, without inventing content to cover the gap.
+
+There is a practical benefit to this. An empty page tells me exactly what still needs a decision. A fabricated page hides the work under a layer of false confidence.
+
+The same rule applies to writing. The CMS can hold a draft, but a draft is not a public post. The public blog only reads entries with a published status. The distinction is simple enough to explain to myself at 3am, which is a good test for a data model.
+
+## A source of truth is also a writing habit
+
+The public site reads from Neon because the owner panel needs to edit and publish content. The posts also live in the repository as MDX seed material. That split is intentional.
+
+The repository version is the part I can review, diff, and keep with the rest of the site. Neon is the part the running application can query. The seed command connects the two without making either one pretend to be the other. It is idempotent: running it again updates the entries with the same slugs and leaves unrelated records alone.
+
+This is less glamorous than a content pipeline with a dozen concepts, but it gives each piece one job:
+
+- MDX holds the readable source.
+- Neon holds the published record.
+- The owner CMS controls the publication boundary.
+- The public route only exposes known, published slugs.
+
+The route allowlist is worth calling out. A dynamic route can make every string look like a page. That is convenient until an old URL, a copied slug, or a typo starts rendering something it should not. The blog index, feed, sitemap, and proxy share the same small list of published post slugs. It is a little repetitive by design. Public content should be explicit.
+
+## The page should not oversell the person
+
+The homepage has a portrait, a short introduction, experience, projects, writing, and collections. Each section has a different burden of proof.
+
+GitHub data can be fetched live, with a committed fallback for when the network is quiet. A book entry needs a title, an author, and a link that can be checked. A personal claim needs to be mine. A photograph needs an actual asset rather than an attractive stand-in.
+
+This makes the page quieter. It also makes the remaining details more valuable. A small sentence is doing real work when it is not surrounded by ten invented ones.
+
+The design follows the same logic. The halftone portrait is a real local or Cloudinary-backed asset. The interaction reveals a field that belongs to the portrait rather than adding an unrelated animation. The navigation count comes from actual records. The visual language can be expressive, but it should not be a disguise for missing material.
+
+## Shipping the honest version
+
+There is a common fear that an unfinished site looks unprofessional. Sometimes it does. But the fix is usually not to add more words. The fix is to make the boundary clear and make the existing material easy to read.
+
+That means a useful empty state, a clear admin path, and a content model that can grow without being rewritten. It means not putting an “About me” paragraph on the page until I know what I want it to say. It means keeping media in the media system, not hiding random URLs in a component. It means testing that private routes stay private and unknown posts stay unknown.
+
+The quiet work is mostly subtraction. Remove the placeholder that sounds like a biography. Remove the card that needs a photograph I do not have. Remove the generic sentence that could belong to anyone.
+
+What remains is smaller, but it is mine. That is the useful kind of polish for a portfolio.

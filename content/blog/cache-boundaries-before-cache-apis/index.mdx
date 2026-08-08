@@ -1,0 +1,107 @@
+---
+title: Choose Cache Boundaries Before Cache APIs
+description: A cache is safe when its owner, key, freshness window, invalidation event, and failure behavior are decided before its implementation.
+category: Web architecture
+date: 2026-07-31
+readingMinutes: 9
+coverFile: cache-boundaries-before-cache-apis.png
+coverSlug: cache-boundaries-before-cache-apis
+coverAlt: Editorial illustration of data crossing several clearly marked cache boundaries
+---
+
+Caching advice often begins with an API: add a directive, wrap a function, set a revalidation interval. The code is usually the easy part. The difficult part is deciding which two moments are allowed to disagree.
+
+Every cache creates a period in which the value being served may differ from the current source. That can be harmless for a public article count and unacceptable for an account balance. The boundary is a product decision expressed through infrastructure.
+
+Before I add a cache, I want five answers: who owns the value, what makes one value distinct from another, how old it may become, which event makes it invalid, and what the user sees when the cache cannot be refreshed.
+
+## Classify the read first
+
+“Database query” is not a useful caching category. Two queries against the same table can have completely different consistency needs.
+
+I start with a small classification:
+
+- **Published public content:** shared broadly, changes through an explicit publish operation, tolerates bounded staleness.
+- **Derived public aggregates:** shared, potentially expensive, can often be recomputed after a short interval.
+- **User-specific preferences:** scoped to an identity, may tolerate staleness but must never cross users.
+- **Authorization and entitlements:** current state is part of the security decision; default to a direct authoritative read or a deliberately designed security cache.
+- **Transactional state:** payment, inventory, booking, or workflow status where the mutation must define what the next read means.
+
+The classification determines whether a shared cache is allowed at all. It also exposes a common mistake: putting personalized data behind a key that does not include every piece of identity and policy context that shaped the result.
+
+## Draw the request path
+
+A modern web request may encounter a browser cache, CDN, framework render cache, application data cache, Redis, and a database buffer cache. Saying “it is cached” does not identify which copy answered.
+
+Write the path down. For each layer, record:
+
+| Layer | Key | Owner | Freshness rule | Invalidated by |
+| --- | --- | --- | --- | --- |
+| CDN | URL + representation headers | delivery platform | 10 minutes | purge or expiry |
+| application | article slug | publishing service | 1 hour maximum | publish event |
+| browser | URL | browser | response policy | navigation or expiry |
+
+The exact table is less important than making overlap visible. Two layers with independent one-hour lifetimes do not necessarily create a one-hour freshness guarantee. A stale application result can be cached again at the edge.
+
+This map also clarifies where observability belongs. If the response does not reveal which layer served it, a stale-value report becomes guesswork.
+
+## Design the key as part of the data model
+
+A cache key is a compressed description of all inputs that affect a result. Locale, tenant, feature flags, permissions, currency, preview mode, and data version can matter as much as the obvious record ID.
+
+Leaving one out creates a correctness bug that usually appears intermittent. The same request works in development because only one identity or locale is present, then leaks the wrong representation under production traffic.
+
+Prefer structured key builders over string assembly scattered across call sites. Version the key when the serialized value or business interpretation changes. Old entries can then expire naturally instead of being read by code that no longer understands them.
+
+Do not put raw secrets or personal data into observable keys. A stable opaque identifier is easier to invalidate and safer to inspect.
+
+## Give time and events different jobs
+
+Time-based expiry is a useful safety net. Event-based invalidation is how a product keeps a promise after a known change.
+
+For published content, the write path knows when an article moves from draft to published. It can invalidate the article key, the index, the feed, and any aggregate that includes the article. Waiting for a timer after a successful publish makes the interface report success before the public system agrees.
+
+Tags help express this relationship. A single article can carry `article:{slug}` and `articles:index`; the publish path can invalidate both without knowing every physical cache entry. Tag design should follow domain events, not component names. `homepage-card-3` describes a layout accident. `articles:index` describes data.
+
+Expiry still protects against a lost event or an abandoned key. It should be chosen from the maximum tolerable staleness, not from a round number that looks conventional.
+
+## Read-your-own-write is a separate requirement
+
+A user who just changed a value has a different expectation from an unrelated visitor. Even if public propagation is allowed to take a minute, the editor should see the saved version immediately.
+
+Possible designs include updating the relevant cache synchronously, bypassing shared cache for the post-write redirect, or returning the committed representation directly. The important part is to name the guarantee. “Eventually consistent” is too vague when the actual experience is a form that appears not to save.
+
+For multi-step operations, prefer the database result as the authoritative acknowledgement. Optimistic UI can improve responsiveness, but it needs a clear reconciliation path when the commit fails or returns a different state.
+
+## Use framework caching deliberately
+
+Next.js 16 makes caching opt-in through Cache Components and the [`use cache` directive](https://nextjs.org/docs/app/api-reference/directives/use-cache). That is a useful forcing function: the code identifies a cacheable boundary instead of assuming all server work has one lifetime.
+
+The framework APIs still need domain decisions. `cacheLife` can describe a freshness profile, `cacheTag` can associate a result with data identities, and invalidation APIs can react to writes. None of them can decide whether the current user is part of the key or whether a booking status may be stale.
+
+Keep cached functions narrow and explicit about arguments. Passing a large implicit request context makes key behavior difficult to review. Keep session-dependent reads outside shared cache unless the scope is intentionally private and represented in the design.
+
+## Make failure boring
+
+A cache should improve the system without becoming the only path to the data.
+
+Decide whether a cache outage causes a direct source read, a bounded stale response, a reduced feature, or an error. A fallback to the database needs concurrency protection; otherwise one expired hot key can turn into a surge of identical queries. Request coalescing, jittered expiry, and stale-while-revalidate behavior can reduce that stampede.
+
+Negative results deserve care too. Caching “not found” can protect a source from repeated misses, but a long negative lifetime can hide a record immediately after creation. Give absence a shorter, deliberate policy.
+
+## Measure correctness as well as hits
+
+A high hit rate can describe a fast system serving the wrong value.
+
+Track hit, miss, stale serve, refresh duration, refresh failure, evictions, and source load. Add a cache status and data version to internal diagnostics or traces. For critical transitions, run synthetic checks that write a known value and measure when each read path observes it.
+
+The cache is successful when it reduces latency or load while preserving the named consistency contract. If the contract cannot be written down, the implementation is not ready for an API yet.
+
+That is why cache boundaries come first. They turn a bag of performance tricks into an understandable part of the system.
+
+## Further reading
+
+- [Next.js: `use cache`](https://nextjs.org/docs/app/api-reference/directives/use-cache)
+- [Next.js: Cache Components configuration](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents)
+- [The Work Between a Click and a Database Row](/en/blog/the-work-between-a-click-and-a-database-row)
+

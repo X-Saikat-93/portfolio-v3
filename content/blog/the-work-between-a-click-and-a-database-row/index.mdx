@@ -1,0 +1,62 @@
+---
+title: The Work Between a Click and a Database Row
+description: A save button is the visible end of a chain that includes validation, ownership, persistence, cache invalidation, and a public read.
+category: Build notes
+date: 2026-06-24
+readingMinutes: 7
+coverFile: the-work-between-a-click-and-a-database-row.png
+coverSlug: the-work-between-a-click-and-a-database-row
+coverAlt: Editorial illustration tracing a request from an interface control to a database row
+---
+
+The save button is the smallest part of a content system.
+
+It is the part a person sees, which is why it gets most of the attention. The real feature continues after the click: the request must be shaped, authorized, written, made visible to the next public read, and still understandable when something fails.
+
+The portfolio admin is intentionally plain. A title, slug, description, body, category, reading time, status, and a button. The simplicity of the form is useful only because the work behind it is explicit.
+
+## Validate at the edge
+
+The CMS API validates the slug pattern, title length, description length, body size, category, reading time, and publication status. The collection API does the same for kind, title, creator, year, URLs, image IDs, and ordering.
+
+The browser inputs help a person avoid obvious mistakes, but the API is the trust boundary. A request can be written by a script, a stale tab, or a client that does not use the form at all. The server should receive a known shape before it touches Neon.
+
+Validation is not a replacement for good copy. It simply prevents a bad shape from becoming a permanent part of the public surface.
+
+## Authorize before the write
+
+The admin API goes through the owner request boundary before it creates, updates, or deletes a row. A session cookie can get someone to the admin shell, but the route checks the owner again before the mutation.
+
+That distinction is easy to overlook in a personal site because there is one owner and no public signup. The absence of a multi-tenant organization model does not remove the need for a mutation boundary. It makes the boundary smaller and easier to audit.
+
+The public pages never call the admin endpoints. They read through server-only repositories that select published records. The direction of the dependency matters: the public surface can consume content, but it cannot become an accidental editor.
+
+## Persistence is only half of publication
+
+A successful insert is not yet a visible article. The public blog reads cached published entries. After a CMS mutation, the repository revalidates the blog index tag and the affected post tag.
+
+That gives publication a readable sequence:
+
+1. Validate the request.
+2. Confirm the owner.
+3. Write the row.
+4. Invalidate the public tag.
+5. Let the next public read render the new state.
+
+The sequence does not promise that every browser updates in the same millisecond. It promises something more useful for a personal site: a published change has a defined path to the public page.
+
+## Media has another write path
+
+Book covers do not travel through the CMS body. The original illustrations are uploaded to Cloudinary, their immutable public IDs are recorded in the media table, and the book row stores the ID it needs for delivery.
+
+This keeps a media failure separate from a text failure. If a cover cannot load, the title and description still have a place to render. If a book is unpublished, its cover record can remain in the media library without making the book public.
+
+The same boundary applies to the resume and portrait. A database row can describe the asset, but it should not become the asset store by accident.
+
+## Small systems deserve real paths
+
+It is tempting to skip the middle because the site is small. That is exactly when the middle is easiest to keep understandable.
+
+There is no queue, event bus, or generic workflow engine here. There are a few protected routes, two server repositories, a migration, and an idempotent content seed. The system is small enough to trace from a button to a row and back to a public page.
+
+That trace is the feature. When the next post or book is added, the work should feel like a content decision, not a new architecture project.

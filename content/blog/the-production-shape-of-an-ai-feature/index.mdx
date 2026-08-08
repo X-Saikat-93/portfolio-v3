@@ -1,0 +1,118 @@
+---
+title: The Production Shape of an AI Feature
+description: A practical architecture for taking an AI feature from a convincing demo to a system with boundaries, evidence, budgets, and a safe way out.
+category: AI systems
+date: 2026-08-08
+readingMinutes: 11
+coverFile: the-production-shape-of-an-ai-feature.png
+coverSlug: the-production-shape-of-an-ai-feature
+coverAlt: Editorial illustration of an AI system moving through guarded production stages
+---
+
+A demo asks whether a model can do the thing once. A production system has to answer a less glamorous set of questions: when should it do the thing, what evidence may it use, how expensive can the attempt become, and what happens when the answer is wrong?
+
+That difference is the architecture.
+
+The model is only one boundary in an AI feature. Around it sit product policy, retrieval, tool permissions, validation, observability, and a deterministic path for the cases that should never have been probabilistic. If those pieces remain implicit, the prompt slowly becomes the application. Every exception turns into another paragraph of instructions, and nobody can say which change caused the quality to move.
+
+The healthier shape is a small, testable system in which the model is allowed to be uncertain without making the rest of the product uncertain too.
+
+## Start with an acceptance contract
+
+Before choosing a model or writing a system prompt, define what an acceptable result means. “Helpful” is not a contract. “Return one of these six support intents, include the source document IDs used, and abstain when confidence is below the review threshold” is much closer.
+
+I write the contract in four parts:
+
+1. **Eligible inputs.** Which requests belong to this feature, and which must be routed elsewhere?
+2. **Required evidence.** What data must be present before the system may answer or act?
+3. **Allowed outputs.** Is the result free text, a typed object, a recommendation, or a side effect?
+4. **Failure behavior.** Can the interface ask a follow-up question, fall back to search, or hand the case to a person?
+
+This contract becomes the shared language for product review, evaluation data, and runtime validation. Without it, one team tunes for fluency while another expects factual completeness.
+
+## Keep uncertainty behind a typed boundary
+
+Model output should cross into application code through a narrow schema. If the application needs a candidate score, rationale, and list of supporting observations, ask for that structure and validate every field. Do not parse a paragraph later and hope the same headings remain.
+
+Schema validation does not make a judgment correct. It does make malformed output visible. That distinction matters. A production AI feature normally needs at least three separate checks:
+
+- **Shape:** does the output conform to the contract?
+- **Grounding:** can the claims be traced to permitted evidence?
+- **Policy:** is the proposed answer or action allowed in this context?
+
+These checks belong in ordinary code where possible. A date range, currency amount, account ID, permission, or inventory state should be validated by the system that owns it. Asking a model to remember a fact the database can verify is an expensive way to weaken an invariant.
+
+## Treat tools as privileged APIs
+
+The moment a model can call a tool, the feature is no longer only generating text. It is exercising authority.
+
+A tool definition should therefore look like a careful internal API: a single responsibility, explicit input schema, bounded output, authorization at execution time, and an idempotency story. Names such as `manage_account` hide too much. `draft_address_change` and `confirm_address_change` expose the difference between proposing an operation and committing it.
+
+The executor must not trust the model's claim that a user is authorized. It receives the real session, loads the current resource, performs the normal policy check, and records the attempt. Sensitive operations need a confirmation boundary that the model cannot satisfy on the user's behalf.
+
+This is the same principle described in [The First Boundary Is the Browser](/en/blog/the-first-boundary-is-the-browser): the interface can communicate intent, but the system of record still decides what is permitted.
+
+## Build evaluations before prompt folklore
+
+Prompt changes are easy to make and difficult to reason about from a few hand-picked conversations. A useful evaluation set contains ordinary cases, boundary cases, hostile inputs, and examples where abstaining is the correct result.
+
+The dataset should preserve the reason each example exists. A row called “refund question” is weak. A row stating “policy changed after purchase; answer must use the policy version active on the order date” captures the condition that previously failed.
+
+Run at least two kinds of measurement:
+
+- deterministic checks for schemas, citations, tool arguments, forbidden operations, and latency budgets;
+- reviewed judgments for qualities that genuinely require interpretation, using a written rubric rather than preference alone.
+
+An aggregate score can hide a serious regression. Segment results by intent, language, source age, tool path, and risk level. A five-point gain on common questions does not compensate for a new failure on account deletion.
+
+[OpenAI's evaluation guide](https://platform.openai.com/docs/guides/evals) is a useful starting point for turning examples and graders into a repeatable loop. The important step is not the framework choice. It is making quality executable before the feature accumulates users.
+
+## Trace decisions, not private thought
+
+An AI trace should make the system debuggable without storing unnecessary sensitive content. Useful events include the request ID, prompt and policy versions, retrieved document IDs, model and parameters, tool calls, validation failures, token usage, latency by stage, and the final disposition.
+
+That is enough to answer practical questions:
+
+- Did retrieval return the wrong source, or did generation ignore the right one?
+- Did a tool fail, time out, or return stale state?
+- Did a model version change alter only one intent?
+- Was the expensive path selected for a request the deterministic path could handle?
+
+Logging hidden reasoning is neither required nor a substitute for this evidence. Production debugging needs observable inputs, outputs, transitions, and policy decisions.
+
+## Give cost and latency an architecture
+
+Cost is not a bill to inspect after launch. It is part of request design.
+
+Set budgets for the whole attempt: maximum model calls, tool calls, retrieved context, tokens, and wall-clock time. Choose what the system drops first when a budget is reached. It might return the best grounded partial answer, ask the user to narrow the request, or queue a deeper analysis outside the interaction.
+
+The cheapest call is often the one the system does not make. Exact lookups, cached classifications, policy checks, and known empty states can bypass the model. Smaller models can handle constrained routing while a larger model is reserved for the step that benefits from it. This is not only optimization. Fewer probabilistic stages mean fewer places for behavior to drift.
+
+## Roll out by authority, not excitement
+
+I prefer an authority ladder:
+
+1. observe and log a proposed answer;
+2. show a draft to an internal reviewer;
+3. show a draft to the user with an explicit confirmation;
+4. perform a reversible low-risk action;
+5. consider broader autonomy only after the earlier stages have evidence.
+
+Each rung changes the cost of being wrong. The evaluation threshold, monitoring, and rollback plan should change with it.
+
+A kill switch is useful, but a deterministic fallback is better. If the AI path is unavailable, the product should still explain what the user can do. Search can remain search. A form can remain a form. A recommendation can disappear without taking the underlying workflow with it.
+
+## The model should be replaceable
+
+The final test of the design is uncomfortable: how much of the feature would survive if the model disappeared tomorrow?
+
+The input contract, permissions, evidence store, tools, validation, traces, and user workflow should remain. Only the uncertain transformation in the middle should need replacement. That structure makes model upgrades safer, but it also produces a better product today. It keeps business rules where they can be inspected and gives uncertainty a specific place to live.
+
+The production shape of an AI feature is not a large prompt attached to a button. It is a conventional software system with one probabilistic dependency, measured with unusual care.
+
+## Further reading
+
+- [OpenAI: Evaluating model performance](https://platform.openai.com/docs/guides/evals)
+- [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
+- [Designing an Agent Loop That Can Stop](/en/blog/designing-an-agent-loop-that-can-stop)
+

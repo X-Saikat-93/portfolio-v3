@@ -1,0 +1,115 @@
+---
+title: The Boring Architecture of Reliable Real-Time Systems
+description: Real-time interfaces become dependable when sockets carry hints, durable state stays authoritative, and reconnect is treated as a normal event.
+category: Distributed systems
+date: 2026-07-24
+readingMinutes: 11
+coverFile: the-boring-architecture-of-reliable-real-time-systems.png
+coverSlug: the-boring-architecture-of-reliable-real-time-systems
+coverAlt: Editorial illustration of ordered real-time events traveling between durable system nodes
+---
+
+A real-time demo needs two browser windows and a socket. Change a status in one window, watch it appear in the other, and the architecture feels finished.
+
+Production starts when one window sleeps, a mobile network changes, a worker restarts, and the user performs the same action twice because the first acknowledgement never arrived. The hard part is not making an event fast. It is making the system understandable when events are late, repeated, missing, or observed in a different order.
+
+The reliable design is deliberately boring: durable state is authoritative, events describe committed changes, clients can catch up, and every write has an identity.
+
+## A socket is a delivery path, not the record
+
+The database should answer “what is the booking status?” or “which stage is this candidate in?” A socket should answer “something changed; here is enough information to update or refetch.”
+
+When the live connection becomes the only record of a transition, a disconnected client has no way to recover. Keeping an ever-growing in-memory event list only moves the problem to process lifetime.
+
+Commit the business change first. Then publish an event tied to that commit. For changes where losing the notification is unacceptable, an outbox record written in the same database transaction gives a publisher durable work to deliver. The consumer can safely receive the event more than once because the event has a stable ID.
+
+This separation also keeps HTTP and real-time views consistent. A page loaded after the transition reads the same state that caused the event.
+
+## Put meaning in the event envelope
+
+An event called `update` forces every consumer to rediscover what happened. A useful envelope carries explicit semantics:
+
+```ts
+type DomainEvent<T> = {
+  id: string
+  type: 'booking.status.changed'
+  aggregateId: string
+  aggregateVersion: number
+  occurredAt: string
+  actorId?: string
+  payload: T
+}
+```
+
+The event ID supports deduplication. The type allows versioned handling. The aggregate ID scopes ordering. The version lets a client detect a gap rather than applying state blindly.
+
+Payloads should contain enough data for the intended consumer, but they should not become unbounded snapshots of internal rows. Sensitive fields do not become safe because they travel over an authenticated socket. Authorize subscriptions and shape payloads for the audience.
+
+## Order only what needs ordering
+
+Global ordering is expensive and rarely necessary. A user normally needs changes to one booking, conversation, or candidate pipeline to be observed in order. Independent aggregates can progress concurrently.
+
+Assign a monotonically increasing version within that boundary. A client holding version 12 can apply version 13, ignore a duplicate version 12, and recognize that version 15 implies a gap. On a gap, it fetches a fresh snapshot instead of guessing how to merge unknown history.
+
+Wall-clock timestamps are poor ordering keys. Clocks differ, equal timestamps occur, and a delayed event can carry an earlier time. Timestamps remain useful for presentation and diagnostics, while sequence or version numbers carry ordering semantics.
+
+## Make every write idempotent
+
+The client may send a command, lose the acknowledgement, reconnect, and send it again. That is expected behavior, not misuse.
+
+Give the logical operation an idempotency key and store its outcome with the write. A repeat returns the original result. This is essential for payments and messages, but it also prevents duplicate notes, interviews, or status transitions from ordinary retries.
+
+Optimistic interfaces need a client-generated operation ID too. The temporary item shown locally can be reconciled with the committed event carrying that ID. Without the link, the confirmed item may appear beside its optimistic copy.
+
+Idempotency does not mean every command is valid forever. Authorization and current-state checks still run. It means the same accepted operation does not produce the effect twice.
+
+## Reconnect is a protocol
+
+“The socket reconnects automatically” describes transport behavior, not state recovery.
+
+On reconnect, the client needs a cursor or known aggregate version. The server can replay retained events after that point, or tell the client that the history window has expired and a fresh snapshot is required. The client applies the snapshot, records its version, then resumes live events.
+
+A good sequence is:
+
+1. connect and authenticate;
+2. subscribe with the last observed cursor;
+3. receive replay or a snapshot instruction;
+4. catch up to a declared high-water mark;
+5. switch to live delivery without a gap.
+
+This handshake should be tested with disconnects at each boundary. Otherwise the tiny interval between snapshot and subscription becomes the place where updates disappear.
+
+## Backpressure belongs in the product
+
+A server can produce updates faster than a slow client can process them. Buffering forever turns one connection into a memory leak. Dropping arbitrary events breaks state.
+
+Choose behavior by event type. Presence and pointer movement are ephemeral; newer state can replace older state. A workflow transition is durable; it must be replayable or force a snapshot. Large fan-out feeds may need batching and pagination instead of one socket message per database row.
+
+Set message size, queue depth, heartbeat, and idle limits. Disconnect a client that cannot keep up, with enough information for it to resume. That is safer than pretending an overloaded connection is still live.
+
+Platforms with long-lived stateful connections provide useful primitives, but application semantics remain necessary. Cloudflare's [Durable Objects WebSocket guidance](https://developers.cloudflare.com/durable-objects/best-practices/websockets/) is a good example of transport lifecycle and hibernation concerns that sit below domain recovery.
+
+## Presence is a lease, not a fact
+
+“Online” is inferred from a recent connection or heartbeat. It should expire. If a process dies before sending a disconnect event, a permanent presence row becomes fiction.
+
+Represent presence as a short lease with a last-seen time and device or session identity. Aggregate it for the interface. Be conservative in the language: “active recently” may be more truthful than a green dot that implies immediate attention.
+
+For multi-device users, disconnecting one socket should not mark the person offline while another remains active.
+
+## Observe the lifecycle
+
+Request logs do not describe a persistent connection well. Track active connections, authentication failures, subscribe and unsubscribe rates, reconnect frequency, delivery lag, replay size, queue depth, dropped ephemeral messages, snapshot fallbacks, and acknowledgement latency.
+
+Attach a connection ID and event ID to traces without logging private payloads by default. When a user says an update arrived twice, the team should be able to distinguish duplicate publication, duplicate delivery, and duplicate rendering.
+
+Test with faults that match the medium: suspend a tab, switch networks, restart a node, delay one event, duplicate another, and reconnect beyond the replay window. The expected result is not that the connection stays perfect. It is that the state converges without inventing an action.
+
+Real-time systems feel immediate because the recovery architecture is patient. Durable state, versioned events, idempotent writes, and explicit reconnect make the socket the least interesting part. That is a good outcome.
+
+## Further reading
+
+- [Cloudflare: Use WebSockets with Durable Objects](https://developers.cloudflare.com/durable-objects/best-practices/websockets/)
+- [Designing Data-Intensive Applications](https://dataintensive.net/?lang=en)
+- [Database Migrations Are Product Changes](/en/blog/database-migrations-are-product-changes)
+

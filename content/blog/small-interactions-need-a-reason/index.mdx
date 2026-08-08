@@ -1,0 +1,62 @@
+---
+title: Small Interactions Need a Reason
+description: The best motion on a personal site explains where something came from, where it is going, or why it is worth noticing.
+category: Interface notes
+date: 2026-07-28
+readingMinutes: 6
+coverFile: small-interactions-need-a-reason.png
+coverSlug: small-interactions-need-a-reason
+coverAlt: Editorial illustration of interface elements moving along deliberate paths
+---
+
+Small interactions are easy to add and hard to justify.
+
+The web makes it possible to animate almost any surface. A link can tilt, a list can slide, and a page can arrive through a dozen layers of opacity. The result can feel expensive for about ten seconds. Then the visitor has to use it.
+
+For this portfolio, I am trying to keep motion attached to meaning. The portrait has a hidden field, so a pointer movement can reveal it. A list has an order, so rows can settle in sequence. A route changes, so the page transition can acknowledge the change without taking control away from the browser.
+
+The rule is not “use no animation.” The rule is “know what the animation is saying.”
+
+## The portrait is an interaction, not a decoration
+
+The halftone portrait is the most obvious visual on the home page. It could have stayed a static image. Instead, it has a second layer: a topographic field that appears through movement.
+
+That second layer gives the interaction a job. It rewards curiosity without hiding the face, and it makes the image feel like part of the site rather than a profile picture pasted into a template. The effect is deliberately bounded. It does not need a game loop, a shader framework, or a full-screen takeover. It needs a pointer position, a mask, and a way to stop being clever when the device cannot support it.
+
+The fallback matters as much as the reveal. If Cloudinary is not configured, the local preview still renders. If a visitor uses a keyboard or a screen reader, the image still has an accessible name. If motion is reduced, the content should not depend on the effect to be understandable.
+
+That is a useful design test: if removing the animation removes the meaning, the meaning was probably not strong enough yet.
+
+## Lists are where rhythm earns its place
+
+The writing index is a list of titles and dates. It does not need a carousel. It does benefit from a little rhythm.
+
+Rows can enter in document order, with the first item arriving before the second. A print-like thumbnail can make the row feel like a piece of paper without becoming a fake cover image. The dotted leader gives the date a place to sit on a wide screen and collapses cleanly on a narrow one.
+
+None of those details should slow down finding a title. The title remains a link. The date remains text. The list remains a list in the DOM.
+
+This is the part I check when an interaction looks good in a screenshot: can I still tab through it, select the text, open it in a new tab, and understand it with the motion turned off? If not, the visual treatment has become the feature instead of supporting the feature.
+
+## Motion has a budget
+
+Motion spends attention. A page that animates every element asks the visitor to watch the interface before they can read it. A page that animates only the relevant change gives attention back quickly.
+
+The site uses a few different timings because the moments are different. Entrance motion establishes the page. Scroll reveal handles long prose below the fold. The portrait responds continuously because its meaning is tied to the pointer. These are separate jobs, so they should not share one giant animation abstraction.
+
+There is also a hard budget for reduced motion. The CSS and reveal code need to leave content visible when the visitor has asked the operating system for less movement. That is not a special “accessible version.” It is the same page with the unnecessary movement removed.
+
+## A good effect leaves evidence
+
+The easiest way to make motion feel arbitrary is to use it only for arrival. An element fades in because that is what elements do. The visitor cannot infer anything from the fade.
+
+I prefer effects that leave a trace of the underlying structure. A page transition can make the route change feel continuous. A list reveal can expose order. A hover state can show that something is actionable. A portrait field can point back to the image itself.
+
+The effect does not need to explain itself with a label. It should simply make the existing relationship easier to notice.
+
+This is also why I keep interactions local. A row should not know about the entire page's animation state. The portrait should not control the navigation dock. Local behavior is easier to disable, test, and repair. It also makes a broken effect less damaging: the page still works because the content was never inside the effect.
+
+## The restraint is the point
+
+Personal sites are a good place to practice restraint because there is no product funnel demanding a new flourish every week. The interface can be particular without being noisy.
+
+I want someone to remember a sentence, a project, or a detail from the site—not the number of things that moved while they were trying to read it. The best interaction is the one that makes the page feel more like itself, then gets out of the way.

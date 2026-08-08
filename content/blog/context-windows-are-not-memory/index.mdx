@@ -1,0 +1,121 @@
+---
+title: A Context Window Is Not a Memory System
+description: LLM context windows are request payloads, not durable memory; reliable AI features need explicit memory ownership, retrieval rules, forgetting, and user control.
+category: AI systems
+date: 2026-08-07
+readingMinutes: 10
+coverFile: context-windows-are-not-memory.png
+coverSlug: context-windows-are-not-memory
+coverAlt: Editorial illustration separating a temporary AI context window from a durable memory archive
+keywords:
+  - AI memory
+  - LLM context window
+  - context engineering
+  - conversational AI
+  - agent memory
+  - AI architecture
+  - retrieval systems
+---
+
+An LLM can appear to remember something because the application keeps sending the thing back to it. That is not memory. It is a request payload that happens to contain yesterday's conversation.
+
+The distinction matters as soon as an AI feature has more than one session, more than one user, or more than one kind of truth. A chat transcript, a preference, a retrieved document, an approval, and the current workflow state do not have the same owner or the same lifetime. Putting all of them into a larger context window does not make the system coherent. It makes the boundary harder to see.
+
+The context window is a useful working surface. A memory system is a product and data design problem.
+
+## Separate transcript, memory, evidence, and state
+
+I like to start with four different nouns:
+
+- **Transcript** is what was said in a particular interaction.
+- **Memory** is a durable fact the product has decided may be useful later.
+- **Evidence** is material retrieved for this request and should be cited or inspected as evidence.
+- **State** is where a workflow is right now: waiting for approval, processing a file, or finished.
+
+They can all be represented as text, which is why they are so easy to conflate. Their behavior is different.
+
+A transcript belongs to a conversation. A memory belongs to a user, workspace, or account. Evidence belongs to a source and a retrieval event. State belongs to a process. The retention period, access policy, correction path, and deletion behavior should follow that ownership.
+
+One possible record makes those decisions visible:
+
+~~~ts
+type MemoryRecord = {
+  id: string
+  ownerId: string
+  value: string
+  kind: 'preference' | 'profile' | 'decision'
+  sourceTurnId: string
+  createdAt: string
+  updatedAt: string
+  expiresAt?: string
+  confirmedByUserAt?: string
+}
+~~~
+
+The point is not the exact schema. The point is that ownerId, sourceTurnId, and the correction path exist outside the model's prose. If a memory cannot be attributed, edited, or removed, it is not ready to be a product record.
+
+## Retrieval is a policy, not a similarity search
+
+The phrase “retrieve relevant memories” hides several decisions:
+
+1. Relevant to which user and workspace?
+2. Relevant for which task?
+3. Fresh enough for which decision?
+4. Safe to show to which person?
+5. Important enough to spend context and latency on?
+
+Vector similarity can help rank candidates. It cannot answer those questions by itself.
+
+A safe retrieval path usually combines ownership filters, explicit metadata, recency, and semantic similarity. It should also be allowed to return nothing. Empty retrieval is often the correct answer when the system has no memory that is both relevant and permitted.
+
+This is the same boundary described in [RAG Is a Data Product Before It Is an AI Product](/en/blog/rag-is-a-data-product): the retrieval index is not the source of truth. It is a view with an owner, an ingestion path, and a way to measure whether it helped.
+
+## Write after an outcome, not after every sentence
+
+Automatic memory writes are tempting because they make a demo feel alive. They also turn guesses, jokes, temporary plans, and quoted text into durable user facts.
+
+A better write path is selective:
+
+- detect a possible memory;
+- classify its kind and owner;
+- check whether it contradicts an existing record;
+- ask for confirmation when the consequence is meaningful;
+- write a versioned record only after the product accepts it.
+
+The model can propose “the user prefers concise weekly reports.” The application should decide whether that is a durable preference, whether the user can see it, and whether it should expire. A proposed memory is not a committed memory.
+
+For low-risk preferences, a product may choose a quiet confirmation such as “I’ll keep that in mind.” For identity, financial, health, employment, or permission-related information, explicit confirmation and a visible edit path are more appropriate. The right threshold depends on the cost of being wrong.
+
+## Forgetting is part of remembering
+
+Memory design often focuses on recall quality and forgets correction. A user needs to know what the system believes, where it came from, and how to change it.
+
+Every durable memory should have a lifecycle:
+
+- **candidate** while it is only a suggestion;
+- **confirmed** after the product accepts it;
+- **superseded** when a newer fact replaces it;
+- **expired** when its useful lifetime ends;
+- **deleted** when the owner asks for removal.
+
+Do not silently overwrite a fact that affects behavior. Keep enough history to explain the change, subject to the product's privacy and retention requirements. A support engineer should be able to answer “why did the assistant do that?” without asking the model to reconstruct its own past.
+
+Forgetting also needs to reach derived stores. Deleting a row from the primary database while leaving a vector embedding, cache entry, analytics payload, or exported artifact is not deletion from the user's point of view.
+
+## Measure memory with correction, not just recall
+
+“Did the assistant remember?” is too small a metric. Test whether it remembered the right thing, for the right owner, at the right time, and whether it stopped using a fact after correction.
+
+Useful cases include:
+
+- a preference that changes;
+- two users with similar wording but different permissions;
+- a fact that expires;
+- a user asking why a memory was used;
+- a prompt that quotes another person's information;
+- an empty result where guessing would sound helpful.
+
+The strongest memory feature may be the one that declines to use a candidate. That restraint is not a failure of the model. It is evidence that the application knows the difference between a conversation and a record.
+
+The context window is where a model works. Memory is what a product is willing to carry forward. Treating those as different systems makes the AI feature easier to explain, test, and trust.
+

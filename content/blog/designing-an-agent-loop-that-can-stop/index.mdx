@@ -1,0 +1,123 @@
+---
+title: Designing an Agent Loop That Can Stop
+description: Agent reliability depends less on an elaborate prompt than on explicit state, typed tools, strict budgets, and testable stop conditions.
+category: AI systems
+date: 2026-08-02
+readingMinutes: 10
+coverFile: designing-an-agent-loop-that-can-stop.png
+coverSlug: designing-an-agent-loop-that-can-stop
+coverAlt: Editorial illustration of an agent loop with checkpoints and a clearly marked exit
+---
+
+The smallest useful agent loop is easy to sketch: give a model a goal, let it choose a tool, append the result, and repeat until it returns an answer. The loop becomes dangerous at exactly the same speed that it becomes useful.
+
+Each iteration can spend money, mutate state, expose data, or move farther from the original request. “Until done” is not a stopping rule. It is the absence of one.
+
+A reliable agent is not a chat completion with recursive enthusiasm. It is a state machine whose uncertain decisions are surrounded by conventional controls.
+
+## Use a workflow until it stops fitting
+
+Many tasks described as agents are known workflows. Extract fields, fetch an account, apply a policy, produce a draft, request approval. If the steps and branches are understood, code them. A workflow is cheaper to test, easier to observe, and less likely to invent a new path at 2 a.m.
+
+An agent earns its place when the system cannot know the useful sequence in advance: investigation across heterogeneous sources, recovery from variable tool results, or planning where the next action depends on evidence discovered during execution.
+
+Even then, the agent does not need authority over the entire product. It can choose among a small set of bounded operations inside a larger deterministic workflow. [Anthropic's guide to effective agents](https://www.anthropic.com/engineering/building-effective-agents) makes a similar distinction between predefined workflows and systems where a model dynamically directs its own process.
+
+## Make the loop state explicit
+
+Do not let the message array become the only record of execution. Store a typed run state:
+
+```ts
+type AgentRun = {
+  goal: string
+  status: 'running' | 'waiting_for_approval' | 'succeeded' | 'failed'
+  step: number
+  tokenBudgetRemaining: number
+  deadlineAt: string
+  observations: Observation[]
+  pendingAction?: ProposedAction
+  result?: AgentResult
+}
+```
+
+The exact fields differ by product, but the principle is stable. The runtime, not the model, owns status, budget, deadline, and permission state. A persisted checkpoint makes a run inspectable and resumable. It also prevents a process restart from turning an already completed side effect into a mystery.
+
+Keep the state compact. Raw tool payloads can live in an artifact store with references in the run. Repeatedly feeding an entire execution history back to the model increases cost and makes old noise compete with current facts.
+
+## Tools should expose outcomes, not implementation accidents
+
+A model chooses tools more reliably when each one has a narrow purpose and a discriminated result. A search tool should not sometimes return a result list, sometimes a rendered sentence, and sometimes throw a human-readable error into the transcript.
+
+Prefer results such as:
+
+```ts
+type ToolResult<T> =
+  | { ok: true; data: T; observedAt: string }
+  | { ok: false; code: 'not_found' | 'forbidden' | 'retryable'; detail: string }
+```
+
+The executor validates arguments, checks authorization with current server-side state, applies timeouts, and limits response size. The model can propose a tool call. It cannot grant itself access.
+
+Tool descriptions also need to state when *not* to call the tool. If two tools overlap, the model spends iterations discovering a distinction the API should have made obvious.
+
+## Design side effects for retries
+
+An agent may repeat an action after a timeout because it does not know whether the first attempt completed. That makes idempotency a baseline requirement for write tools.
+
+Generate an operation key from the run and logical action. Pass it through to the service performing the write. If the same request arrives again, return the prior result instead of charging the card, sending the message, or creating the record twice.
+
+For consequential actions, split proposal from commit. The agent prepares a typed change and explains the evidence. A deterministic policy gate or a person approves it. Only then does a separate commit tool execute the operation. Approval is tied to the exact payload, so the agent cannot alter the amount or recipient after confirmation.
+
+## Put hard budgets outside the prompt
+
+Telling an agent to “be concise” is not a budget. The runtime should enforce limits for:
+
+- total iterations;
+- model and tool calls;
+- tokens and estimated cost;
+- elapsed time;
+- repeated calls with equivalent arguments;
+- consecutive failures or no-progress steps.
+
+When a limit is reached, the run enters a terminal state with a useful reason. It can return gathered evidence, ask for narrower scope, or move to review. Silently extending the budget makes incidents expensive and impossible to compare.
+
+A no-progress detector is particularly valuable. Hash a normalized representation of recent actions and observations. If the loop is asking the same question and receiving the same answer, another iteration is not exploration.
+
+## Define success in executable terms
+
+The model can suggest that it is finished, but the runtime decides whether the result satisfies the acceptance contract.
+
+For research, completion may require at least two permitted sources, citations for each material claim, and no unresolved high-priority questions. For a data change, it may require a successful commit result and a read-after-write verification. For triage, it may require one valid category, a confidence band, and a review flag for sensitive classes.
+
+Stop conditions should include failure and handoff states, not only success. “Required evidence unavailable” is a better terminal result than five speculative searches. “Approval expired” should not fall through to another attempt.
+
+## Evaluate trajectories, not only final prose
+
+Two runs can produce the same answer with very different risk. One uses two relevant searches. The other scans private data, retries a failed write, and reaches the answer by accident.
+
+Agent evaluation therefore needs to inspect the path:
+
+- Was the selected tool appropriate for the state?
+- Were tool arguments valid and minimally scoped?
+- Did the run respect permissions and approval boundaries?
+- Did it recover from a retryable failure without duplicating effects?
+- Did it stop when success, failure, or budget exhaustion became clear?
+
+Final-answer quality still matters, but trajectory checks reveal whether the architecture can be trusted at scale. [Anthropic's practical guide to agent evaluations](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) provides a useful vocabulary for tasks, trials, graders, transcripts, and outcome metrics.
+
+## Make interruption ordinary
+
+Long-running agents should expect cancellation, deployment, network loss, and human intervention. Persist after meaningful transitions, not only at the end. Give every run a cancellation flag checked before the next model or tool call. Use leases if several workers can claim the same run.
+
+Resuming should reconstruct state from durable facts rather than replaying side effects. A completed tool call is an observation. It is not an invitation to call the tool again.
+
+This design looks less magical than a recursive prompt, which is precisely why it works. The model chooses where uncertainty is useful. The runtime owns time, money, authority, and the meaning of done.
+
+An agent that can stop is not a limited agent. It is one whose capabilities have a shape the rest of the system can safely depend on.
+
+## Further reading
+
+- [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
+- [Anthropic: Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+- [The Production Shape of an AI Feature](/en/blog/the-production-shape-of-an-ai-feature)
+

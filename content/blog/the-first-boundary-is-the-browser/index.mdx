@@ -1,0 +1,55 @@
+---
+title: The First Boundary Is the Browser
+description: Before a request reaches a database, the interface has already decided what can be clicked, focused, opened, and understood.
+category: Interface notes
+date: 2026-07-08
+readingMinutes: 6
+coverFile: the-first-boundary-is-the-browser.png
+coverSlug: the-first-boundary-is-the-browser
+coverAlt: Editorial illustration of a browser window acting as a guarded boundary
+---
+
+Security discussions often start at the server because that is where the serious checks live. They should. But the browser is the first boundary a visitor meets, and it shapes whether those checks are visible or merely theoretical.
+
+A link that looks like a button, a page that does not expose its current section, or a form that accepts a value it will later reject all create confusion before the request exists.
+
+That confusion is not just a design problem. It makes the system harder to reason about.
+
+## A link should reveal its destination
+
+The public site uses links for public navigation and external reading. An article title is a link to a stable route. A book row links to the source page for that book. The browser can open either in a new tab, copy the address, or preserve the destination in its history.
+
+This is less flashy than turning every row into a click handler, but the browser already knows how to handle links. Keeping that behavior means keyboard users get a focus target, screen readers get a name, and a visitor can see the destination before clicking.
+
+The visual treatment can still be particular. The book cover lifts slightly. The writing row reveals its ink lane. The interaction is attached to a semantic link instead of replacing it.
+
+## Focus is an active state
+
+Hover is easy to notice while designing. Focus is easier to forget because it belongs to someone navigating with a keyboard, a switch, or a browser feature that moves focus for them.
+
+The shelf uses the same cover movement for hover and focus-visible. The focused book gets an outline with enough space around it to survive the print-like frame. The writing list keeps the title as the focus target while the hidden ink stage responds to the focused row.
+
+This gives the interface one visual language for “the browser is currently here.” It also avoids a common trap: adding a hover effect that makes a card feel interactive while leaving keyboard focus invisible.
+
+## The client cannot be the only boundary
+
+The admin surface has an optimistic redirect when a session cookie is absent, but the page and API validate the owner session again. The public CMS queries filter for published rows. The article page returns not found when the slug is not a published record.
+
+The browser can make the safe path easy. It cannot decide whether a draft is public. It cannot authorize a mutation. It cannot be trusted to enforce a URL rule just because the UI does not render a link.
+
+The useful division is straightforward:
+
+- The browser exposes valid actions and destinations.
+- The route handles public rendering and not-found behavior.
+- The repository selects published data.
+- The server authorizes changes.
+
+Each layer does a smaller job, which makes a failure easier to locate.
+
+## Motion should not hide state
+
+The hidden list stage adds an ink-like response to a writing row, but the row itself is present before the field mounts. The book cover lifts on hover, but its title, creator, year, and description remain ordinary text. Reduced motion removes the movement without removing the action.
+
+That order matters. If the animation is necessary to discover what can be clicked, the interface has made a decorative layer responsible for information architecture.
+
+The browser boundary should be boring enough to trust. Once that is true, the visual layer can be expressive without becoming a second application sitting on top of the first.

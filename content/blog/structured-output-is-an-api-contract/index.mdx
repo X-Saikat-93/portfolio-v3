@@ -1,0 +1,133 @@
+---
+title: Structured Output Is an API Contract, Not a Prompt Trick
+description: Reliable LLM features treat structured output as a versioned API with schemas, validation, retries, migrations, and fallbacks outside the model.
+category: AI systems
+date: 2026-08-05
+readingMinutes: 9
+coverFile: structured-output-is-an-api-contract.png
+coverSlug: structured-output-is-an-api-contract
+coverAlt: Editorial illustration of an AI output pipeline passing through a schema validation gate
+keywords:
+  - structured outputs
+  - JSON schema
+  - LLM API
+  - AI reliability
+  - schema validation
+  - function calling
+  - TypeScript AI
+---
+
+The first time a model returns valid JSON, it is easy to mistake the result for an API. It is not an API yet. It is an untrusted response that happened to resemble one.
+
+Production software needs stronger guarantees than “the prompt asked nicely.” A structured AI output has to survive model changes, malformed responses, partial failures, new fields, retries, adversarial input, and the awkward space between syntactic validity and semantic correctness.
+
+The schema is not decoration around the prompt. It is the contract between an uncertain producer and a deterministic application.
+
+## Parseability is the first gate, not the last
+
+There are at least three different questions hiding inside “is this JSON valid?”
+
+1. Can the bytes be parsed?
+2. Does the value satisfy the expected shape and types?
+3. Does the value make sense for this request and the current business rules?
+
+Those gates should be visible in code. A small TypeScript example might look like this:
+
+~~~ts
+const CandidateSummary = z.object({
+  version: z.literal('candidate-summary.v1'),
+  recommendation: z.enum(['advance', 'hold', 'review']),
+  reasons: z.array(z.string()).min(1).max(5),
+  evidenceIds: z.array(z.string()).max(20),
+})
+
+const result = CandidateSummary.safeParse(modelOutput)
+
+if (!result.success) {
+  return { status: 'needs_review', code: 'invalid_shape' }
+}
+~~~
+
+The model does not get to choose what happens after validation fails. The runtime returns a typed outcome that the UI, queue, or reviewer workflow understands.
+
+## Version the shape like any other public boundary
+
+Schemas change. A field that is optional in a prototype becomes required when a downstream report depends on it. A string becomes an enum. A team learns that a free-form explanation is too difficult to audit and replaces it with evidence references.
+
+Put a version in the output contract and keep the migration path explicit:
+
+~~~ts
+type Output =
+  | { version: 'candidate-summary.v1'; recommendation: string; reasons: string[] }
+  | { version: 'candidate-summary.v2'; recommendation: string; reasons: string[]; evidenceIds: string[] }
+~~~
+
+The application can normalize both versions into one internal type while old queued jobs drain. Without a version, a model response has no declared relationship to the code that will consume it.
+
+Prompt versions deserve the same treatment. Store the prompt or template identifier with the run, not just the rendered text in a log. When behavior changes, you need to compare the output contract, model, prompt version, retrieved context, and policy version together.
+
+## A valid shape can still be wrong
+
+Schema validation cannot tell you whether the model selected the correct candidate, cited the right document, or interpreted a request in context. It only prevents the response from violating the structural contract.
+
+Semantic validation belongs after parsing:
+
+- Does every evidenceId exist in the allowed retrieval set?
+- Is the recommendation permitted for this workflow state?
+- Are dates inside the requested range?
+- Does the result reference the current record version?
+- Is a review required for this category?
+
+These are ordinary application checks. Keeping them outside the model makes them reviewable and testable. The model can suggest a transition; the domain layer still decides whether that transition is legal.
+
+## Repair should be bounded and observable
+
+One retry for a malformed response can be useful. An unbounded “please return valid JSON” loop is just a hidden agent loop.
+
+If repair is allowed, define it:
+
+- one maximum repair attempt;
+- a smaller response budget;
+- the same input and schema version;
+- a distinct trace event;
+- a terminal result when repair fails.
+
+Do not silently parse with a permissive fallback that drops fields. If the application turns an invalid response into an empty array, it may appear successful while losing the information that should have triggered review.
+
+The useful failure is not “JSON parse error.” It is something the product can act on: invalid_shape, unknown_evidence, policy_blocked, repair_exhausted, or model_timeout.
+
+## Partial output needs a contract too
+
+Streaming and long-running generation create another edge. The user may see a partial answer before the final structured object exists. That partial view is not automatically safe to store or act on.
+
+Separate the states:
+
+~~~ts
+type GenerationState =
+  | { status: 'running'; textPreview: string }
+  | { status: 'validated'; value: CandidateSummary }
+  | { status: 'failed'; code: string; textPreview?: string }
+~~~
+
+Only the validated state should cross a write boundary. A preview can help a person understand that work is happening, but it should not become a database row because it looked complete on screen.
+
+This is also why [the production shape of an AI feature](/en/blog/the-production-shape-of-an-ai-feature) keeps evidence, validation, and authority outside the probabilistic step. Structured output is one boundary in that larger system.
+
+## Test the contract with ugly inputs
+
+Happy-path examples are not enough. Build a fixture set that includes:
+
+- extra keys;
+- missing keys;
+- wrong types;
+- empty arrays;
+- invalid enum values;
+- extremely long strings;
+- duplicate identifiers;
+- evidence from another tenant;
+- a valid structure with an impossible business outcome.
+
+Property-based tests can explore combinations that handwritten examples miss. Snapshot tests can protect normalized output, but avoid treating a model's entire response as a golden string. Test invariants: required fields, allowed transitions, evidence ownership, and safe terminal states.
+
+Structured output makes an AI feature more dependable because it narrows the uncertain surface. It does not remove uncertainty. It gives the rest of the system a place to reject it, explain it, and recover from it.
+

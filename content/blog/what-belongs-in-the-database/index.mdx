@@ -1,0 +1,64 @@
+---
+title: What Belongs in the Database
+description: A small portfolio still needs clear boundaries between content, media, authentication, and the public pages that consume them.
+category: System notes
+date: 2026-07-21
+readingMinutes: 7
+coverFile: what-belongs-in-the-database.png
+coverSlug: what-belongs-in-the-database
+coverAlt: Editorial illustration of carefully sorted records entering a database
+---
+
+“Put it in the database” is often used as a synonym for “we will need this later.” That is how small sites acquire tables nobody can explain.
+
+For a portfolio, the better question is narrower: what must the owner edit, what must the public query, and what already has a better home somewhere else?
+
+The answer here is not a giant content model. It is a few records with firm boundaries.
+
+## Content is a record, not a component
+
+Writing lives in `cms_entries`. A row has a slug, title, description, body, publication status, date, category, and reading time. The public page does not need to know how the row was created. It only needs a published record with a safe route.
+
+That separation keeps the article page boring in a good way. The repository handles the query. The route handles not-found behavior and metadata. The MDX renderer handles headings, lists, links, and code. The page composes those pieces into the editorial layout.
+
+The owner panel can edit the body without asking a developer to change a React component. A draft can exist without leaking into the public index. Publishing is a state change, not a side effect of saving a form.
+
+There is no need to store every presentation decision in the row. The print-like index thumbnail is a page treatment. The title card is a page treatment. They should be allowed to change without a migration.
+
+## Media has a different lifecycle
+
+Images and PDFs are not good candidates for a text column in the CMS. Published media belongs in Cloudinary, while Neon stores the application record and public ID needed to refer to it.
+
+This gives uploads their own lifecycle: signed owner-only upload, media record, delivery transformation, and a fallback when the asset is not configured. It also prevents a blog edit from becoming an accidental file-management operation.
+
+The distinction is especially useful for the portrait and resume. They are not arbitrary article decorations. They are published assets with different requirements from a paragraph of Markdown. Treating them as media makes their security and failure behavior visible.
+
+## Collections are not blog posts
+
+Books, music, and photos use `portfolio_items` with a `kind`, publication status, sort order, and collection-specific fields. A book needs a title, creator, year, description, and optionally a link or image. A photo needs a different kind of record even if both appear as cards in the interface.
+
+It would be possible to put books into CMS entries and add a `type` column. That would make the first insert look flexible and the next admin screen harder to understand. Separate collection records keep the owner panel close to the way the public pages think about them.
+
+The table is still small. The important part is that it says what the data is for.
+
+## The public read path is narrower than the owner write path
+
+The admin side has to list drafts, publish entries, update records, and delete them. The public side should do much less: read published rows, render known routes, and return an empty result when the dependency is unavailable.
+
+That narrow path is enforced in more than one place. The repository filters by published status. The blog index only links to known slugs. The proxy rewrites unknown blog paths to not-found. The feed and sitemap use the same published set. The admin API checks the owner boundary before any mutation.
+
+This is not needless duplication. Each boundary has a different failure mode. A repository filter protects data selection. A route allowlist protects navigation. An owner check protects mutation. If one layer changes, the others still describe their own rule.
+
+## Caching should follow publication
+
+Public blog reads are cacheable because visitors do not need a fresh database connection for every title. The repository tags the index and each post. A CMS mutation revalidates those tags after the write succeeds.
+
+The useful property is not that the site is “fast” in the abstract. It is that a published edit has a clear path to becoming visible: update the row, invalidate the relevant tag, render the next request from the database. That is a smaller promise than instant global consistency, and it is the right promise for a personal site.
+
+The safe read helpers also turn an unavailable database into an empty public state. That does not hide a problem from the owner—the admin surface can report its own error—but it keeps a temporary dependency failure from turning the public homepage into a stack trace.
+
+## The model should stop here for now
+
+There is no author table because there is one owner. There is no taxonomy table because a short category string is enough. There is no revision history because the repository contains the seed source and the CMS is not pretending to be a publishing company.
+
+Those omissions are deliberate. A database schema is a set of promises. Every extra table creates a future admin screen, migration, failure mode, and explanation. The smallest useful model is the one that makes the current promises clear and leaves room to add the next real need when it arrives.

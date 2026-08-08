@@ -1,0 +1,105 @@
+---
+title: RAG Is a Data Product Before It Is an AI Product
+description: Reliable retrieval-augmented generation begins with source ownership, versioned ingestion, measurable retrieval, and honest abstention.
+category: AI systems
+date: 2026-08-06
+readingMinutes: 11
+coverFile: rag-is-a-data-product.png
+coverSlug: rag-is-a-data-product
+coverAlt: Editorial illustration of documents moving through a retrieval pipeline into a grounded answer
+---
+
+Retrieval-augmented generation is often introduced as a short pipeline: split documents, create embeddings, search a vector index, and place the nearest chunks in a prompt. That is enough to demonstrate the mechanism. It is not enough to operate a source of answers.
+
+The difficult part starts before the embedding call. Someone must decide which sources are authoritative, how a document is versioned, what “deleted” means, and how quickly a correction becomes visible. Those are data product decisions. If they are unresolved, a fluent answer only makes the uncertainty harder to notice.
+
+A useful RAG system is a publishing and retrieval system with a model at the end. Its quality ceiling is set by the evidence it can find.
+
+## Name the source of truth
+
+Every indexed object needs a stable identity outside the vector database. A policy page, ticket, product record, or technical document should carry its source ID, version, owner, effective dates, access scope, and canonical URL. The index is a projection of that source, not a second truth.
+
+This distinction solves several operational problems. When a source changes, the ingestion job can replace a known version instead of appending near-duplicates. When a user loses access, filtering can be applied against current permissions. When a document is removed, all derived chunks can be found and deleted.
+
+I treat provenance as required output from retrieval. A chunk without a source identity is unsuitable evidence, even if its text looks relevant.
+
+## Ingestion should be repeatable
+
+The ingestion pipeline needs the same properties expected from any data pipeline: idempotency, checkpoints, observable failures, and a way to replay.
+
+A practical record might include:
+
+- source ID and version;
+- content checksum;
+- parser and chunker versions;
+- embedding model and dimensions;
+- ingestion time and status;
+- the IDs of every derived chunk.
+
+The checksum avoids rebuilding unchanged material. Versioned transformations make a quality change auditable. If a new chunker improves tables but damages headings, the team can compare two known projections instead of wondering what changed in place.
+
+Retries must be safe. A timeout after the vector store accepted a batch should not duplicate that batch on the next run. Stable chunk IDs, derived from the source version and chunk position or semantic key, make upserts and cleanup much easier.
+
+## Chunking is a content decision
+
+Fixed token windows are a baseline, not a universal strategy. The useful unit of retrieval depends on the source.
+
+A support article may need its heading path attached to each paragraph. An API reference should keep a method signature with its parameter table. A policy document may require section numbers and effective dates. A conversation might need a bounded turn window plus the case metadata that gives it meaning.
+
+Large chunks preserve context but reduce retrieval precision and consume prompt space. Small chunks match exact phrases but can sever qualifications from claims. Overlap can hide a poor boundary while increasing duplicate results.
+
+The right test is not whether chunks look tidy in the database. It is whether a query retrieves enough evidence to answer without importing unrelated text. [Microsoft's advanced RAG guidance](https://learn.microsoft.com/en-us/azure/developer/ai/advanced-retrieval-augmented-generation) describes several useful approaches to chunking, alignment, query preprocessing, and post-retrieval filtering. The architecture still needs to be tested against the shape of the actual documents.
+
+## Measure retrieval separately from generation
+
+When a final answer is wrong, the first diagnostic question is whether the required evidence was present in the retrieved set.
+
+That creates two evaluation layers:
+
+1. **Retrieval:** did the expected source appear in the top results, and how much irrelevant context arrived with it?
+2. **Generation:** given adequate evidence, did the answer use it faithfully and satisfy the response contract?
+
+If these layers are combined into one “answer quality” score, prompt work can consume days while the retrieval index remains the real problem.
+
+For a labeled query set, I track recall at a small `k`, ranking position of the expected source, duplicates, and zero-result rate. I also inspect results by source type and freshness. A global average can look healthy while newly published policies are consistently absent.
+
+Generation evaluation then checks citation support, completeness, contradiction, and correct abstention. The grader must see the same evidence the system saw; otherwise it may reward a fact the model happened to know from elsewhere.
+
+## Search is more than vector similarity
+
+Users do not always phrase a query in the language used by the source. Product codes, names, dates, exact error messages, and rare terms often benefit from lexical search. Semantic similarity is strong when wording differs but meaning aligns. Combining the two, then reranking a small candidate set, is frequently more reliable than treating either method as complete.
+
+Query shaping also deserves an explicit stage. The system may extract filters, resolve a date range, expand an acronym, or split a compound question. Each transformation should preserve the original query and be visible in the trace. An imaginative rewrite that silently changes the user's intent is not retrieval improvement.
+
+Metadata filters should happen as early as the search backend allows. Pulling unauthorized candidates and asking the model to ignore them is not access control.
+
+## Freshness and deletion are user-facing features
+
+Teams discuss ingestion throughput while users experience staleness. Define a freshness target from source publication to searchable evidence, and monitor it. If a critical policy must appear within five minutes, a nightly rebuild is not an implementation detail. It is a product defect.
+
+Deletion deserves the same care. Removing a source should remove its chunks, caches, generated summaries, and any intermediate projection. Tombstones can help downstream jobs distinguish an intentional deletion from a temporary fetch failure.
+
+The interface should expose source dates when recency matters. A citation to an obsolete page is technically grounded and still operationally wrong.
+
+## Abstention needs a designed path
+
+“I do not have enough evidence” is a successful result when evidence is missing. It becomes useful only when the product offers a next step.
+
+The response can ask a clarifying question, show the most relevant source links, fall back to conventional search, or route the case for review. The system should never fill an evidence gap with a more assertive tone.
+
+Thresholds alone do not solve abstention. Similarity scores are index-specific and can remain high for the wrong material. Use signals such as missing required source types, conflicting versions, weak reranker scores, and unsupported claims in the draft. Then evaluate these cases deliberately.
+
+## Assign an owner to the evidence
+
+An AI team cannot quietly become the owner of every document it indexes. Source owners need a way to see what is published, correct it, and understand how quickly the correction propagates. The RAG service owns ingestion and retrieval behavior. The domain team owns the meaning and lifecycle of its source.
+
+This boundary resembles the one in [What Belongs in the Database](/en/blog/what-belongs-in-the-database): storage is not ownership. A vector record is useful because it points back to a maintained fact, not because it can outlive one.
+
+Once source identity, lifecycle, retrieval measurement, and abstention are in place, model work becomes far more productive. The prompt is no longer being asked to compensate for an unknowable corpus. It receives a small set of evidence with a history, an owner, and a reason to be trusted.
+
+## Further reading
+
+- [Microsoft: Advanced retrieval-augmented generation](https://learn.microsoft.com/en-us/azure/developer/ai/advanced-retrieval-augmented-generation)
+- [OpenAI: Evaluating model performance](https://platform.openai.com/docs/guides/evals)
+- [The Production Shape of an AI Feature](/en/blog/the-production-shape-of-an-ai-feature)
+

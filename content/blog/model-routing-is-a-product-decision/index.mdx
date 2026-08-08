@@ -1,0 +1,120 @@
+---
+title: Model Routing Is a Product Decision
+description: Choosing an LLM per request is a quality, latency, cost, and trust decision; model routing needs explicit budgets, fallback semantics, and outcome metrics.
+category: AI systems
+date: 2026-07-30
+readingMinutes: 10
+coverFile: model-routing-is-a-product-decision.png
+coverSlug: model-routing-is-a-product-decision
+coverAlt: Editorial illustration of an AI request moving through a measured multi-model routing switchboard
+keywords:
+  - LLM routing
+  - model selection
+  - AI cost optimization
+  - inference latency
+  - model fallback
+  - production AI
+  - AI quality metrics
+---
+
+“Use the best model” sounds like a technical recommendation until a product has real traffic. Then best becomes a bundle of competing requirements: accurate enough, fast enough, affordable enough, available in the user's region, and predictable enough for the team to support.
+
+Model routing is the practice of choosing an inference path per request. The choice can be simple—a small model for classification and a larger model for synthesis—or it can consider tenant policy, latency budget, context size, risk, and recent provider health.
+
+The important point is that routing is not an infrastructure detail hidden below the feature. It changes what the user experiences and what the business can afford.
+
+## Start with a capability map
+
+Do not begin with a leaderboard. Begin with the actual jobs in the product.
+
+For each task, record the minimum acceptable behavior:
+
+| Task | Must be correct about | Can be approximate about | Cost pressure |
+| --- | --- | --- | --- |
+| Intent routing | category and authorization | wording | high |
+| Field extraction | required fields and evidence | phrasing | high |
+| Draft generation | facts and tone | sentence structure | medium |
+| Open-ended analysis | reasoning and citations | response length | lower |
+
+This map changes the question from “which model wins?” to “which model is allowed to handle this job?” A model that is excellent at open-ended writing may be a poor choice for a strict extraction path if it produces too much variability or costs more than the task warrants.
+
+## Route by constraints, not vibes
+
+A routing decision should be inspectable. It might look like:
+
+~~~ts
+type RouteInput = {
+  task: 'classify' | 'extract' | 'draft' | 'analyze'
+  risk: 'low' | 'medium' | 'high'
+  contextTokens: number
+  deadlineMs: number
+}
+
+function chooseRoute(input: RouteInput): 'small' | 'standard' | 'review' {
+  if (input.risk === 'high') return 'review'
+  if (input.task === 'classify' && input.deadlineMs < 700) return 'small'
+  if (input.contextTokens > 80_000) return 'standard'
+  return 'standard'
+}
+~~~
+
+The example is intentionally plain. A deterministic policy decides the broad lane; the model does not get to select its own privilege. A more advanced router can use a classifier, but it should still produce a reason code and a bounded route.
+
+Useful route reasons include small_fast_path, large_context, sensitive_task, provider_degraded, and human_review_required. These codes make cost and quality changes explainable during an incident.
+
+## Fallback is not always equivalent
+
+When a provider is unavailable, switching to another model can keep the product online. It can also change the meaning of the output.
+
+A fallback is safe only when the contract still holds. Check:
+
+- the replacement model supports the required input and output format;
+- the context can be represented without silently dropping evidence;
+- latency and token budgets still fit;
+- safety and privacy policy remain compatible;
+- the user can be told when a degraded path matters.
+
+For a low-risk draft, a fallback may be invisible. For a compliance review or a financial action, it may require a visible “needs review” state. Availability is not a reason to lower the product's authority boundary without a decision.
+
+## Measure outcomes by route
+
+Average latency and cost are too coarse. A route can look healthy while failing one important class of request.
+
+Track outcomes by task, model, route reason, input size, and product segment:
+
+- valid structured-output rate;
+- human acceptance or edit rate;
+- grounded-answer rate;
+- escalation rate;
+- p50 and p95 latency;
+- tokens and cost per successful outcome;
+- retry and fallback frequency.
+
+Keep a fixed evaluation set for routing changes. A router that saves 30% on average but quietly sends difficult multilingual requests to a weak path is not an optimization. It is a regression hidden by aggregation.
+
+The evaluation should include boundary cases: empty input, very long context, ambiguous intent, sensitive records, provider timeouts, and a task that should be refused. Routing quality includes knowing when not to call a model.
+
+## Cost is a product budget
+
+Token price becomes a product constraint when a user can trigger it repeatedly. Put a budget around the whole operation, not only the model call:
+
+- maximum model attempts;
+- maximum retrieved context;
+- maximum wall-clock time;
+- maximum spend per request or workspace;
+- maximum concurrency for expensive routes.
+
+When the budget is exhausted, return a designed outcome. Ask the user to narrow the request, queue a deeper analysis, return a grounded partial result, or route to review. Quietly continuing because the response is “almost done” turns a predictable cost into a surprise.
+
+This is where [The Production Shape of an AI Feature](/en/blog/the-production-shape-of-an-ai-feature) and [Designing an Agent Loop That Can Stop](/en/blog/designing-an-agent-loop-that-can-stop) meet routing: uncertainty needs an outer system that can enforce limits.
+
+## Keep the route replaceable
+
+Model providers change names, pricing, context limits, and behavior. Keep provider-specific code behind a narrow adapter and keep the product contract above it.
+
+The adapter should report normalized facts: model identifier, provider, latency, token usage, finish state, structured-output validity, and error code. The domain layer should decide whether to retry, fall back, ask for review, or stop.
+
+Routing becomes healthy when it is boring to change. You can trial a new model on a fixed evaluation set, shift a small percentage of eligible traffic, compare outcomes by route, and roll back without rewriting the user workflow.
+
+The best model is not a permanent winner. It is the model that meets the job's contract inside the product's real limits. Choosing it per request is product design with a latency and cost ledger attached.
+

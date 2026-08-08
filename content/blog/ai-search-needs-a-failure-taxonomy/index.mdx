@@ -1,0 +1,104 @@
+---
+title: AI Search Needs a Failure Taxonomy
+description: A good AI search experience names failure modes—wrong source, stale source, missing source, ambiguous intent, and overconfident answer—before tuning retrieval.
+category: Search systems
+date: 2026-07-26
+readingMinutes: 10
+coverFile: ai-search-needs-a-failure-taxonomy.png
+coverSlug: ai-search-needs-a-failure-taxonomy
+coverAlt: Editorial illustration of an AI search machine sorting distinct retrieval failure paths
+keywords:
+  - AI search
+  - semantic search
+  - RAG evaluation
+  - retrieval quality
+  - search relevance
+  - hallucination prevention
+  - information retrieval
+---
+
+When an AI search answer is wrong, teams often say “the model hallucinated.” Sometimes that is true. Often the model is the last visible component in a failure that started earlier: the source was stale, the query was ambiguous, the right document was excluded, or the system retrieved a plausible document from the wrong account.
+
+Search quality improves faster when the team stops treating every bad answer as one bug. A failure taxonomy turns vague disappointment into a set of testable boundaries.
+
+## Name the failure before tuning the ranker
+
+Here is a practical starting set:
+
+| Failure | What happened | First place to inspect |
+| --- | --- | --- |
+| Wrong source | The answer used a related but incorrect document | retrieval filters and ranking |
+| Stale source | The answer used a document that has changed | ingestion and freshness metadata |
+| Missing source | The needed fact was never retrieved | query expansion and coverage |
+| Ambiguous intent | The request had multiple plausible meanings | clarification and task routing |
+| Unauthorized source | The answer crossed an ownership boundary | access filters and tenant scope |
+| Overconfident answer | Evidence was weak but language sounded certain | abstention and response policy |
+
+The categories overlap, which is normal. A stale document can also be the wrong source. The goal is not a perfect ontology. It is a shared vocabulary that maps to an investigation and a metric.
+
+## Retrieval quality has more than one axis
+
+“Top-k accuracy” cannot describe the whole experience. A retrieved set can contain the correct document but bury it below irrelevant context. It can retrieve the right section but omit the version date. It can return three documents that repeat each other and miss the only source that disagrees.
+
+Measure at least:
+
+- **coverage:** did the allowed corpus contain the answer, and did retrieval surface it?
+- **precision:** how much of the returned context is useful for this question?
+- **freshness:** is the material current for the requested decision?
+- **authority:** does the source have the right owner and trust level?
+- **diversity:** does the set include independent evidence where needed?
+- **grounding:** can the final claims be mapped back to retrieved spans?
+
+These metrics need fixtures. Create questions with known source documents, outdated versions, intentionally conflicting records, and empty answers. A benchmark that only contains friendly questions teaches the retrieval layer to look good in a room where no one asks difficult questions.
+
+## The query is an interpretation, not a string
+
+Users do not always phrase questions in the vocabulary of the documents. A search path may need to resolve aliases, expand an entity, apply a date range, or ask a clarifying question before retrieval.
+
+That interpretation should remain observable. Store the original query, normalized intent, filters, and retrieval version with the run. If the user asks “what changed in the policy?” the system should be able to show which policy and which comparison window it chose.
+
+Do not let an embedding silently make an authority decision. Semantic similarity can surface candidates. Explicit filters should decide workspace, record type, permission, and time range. The closest document is not necessarily the permitted document.
+
+This is the data boundary described in [RAG Is a Data Product Before It Is an AI Product](/en/blog/rag-is-a-data-product): source ownership, versioned ingestion, and retrieval measurement are product work, not plumbing to hide beneath a prompt.
+
+## Abstention is a search result
+
+A search engine that returns nothing is sometimes doing its job. An AI assistant has more pressure to fill the silence, which makes abstention an important design state.
+
+Good abstention is specific:
+
+- “I found related material, but not the requested policy version.”
+- “The available records disagree; here are the two sources.”
+- “I need the project name or date range before searching.”
+- “This workspace has no accessible source for that question.”
+
+The response should not claim that the corpus is empty when the system only failed to retrieve it. Keep internal failure reason codes separate from user-facing language. no_authorized_evidence is different from retrieval_timeout, even if both end with a request for clarification.
+
+## Evaluate the whole path
+
+Search evaluation should include the final answer, but also the trail that produced it:
+
+1. Was the query interpreted correctly?
+2. Were ownership and freshness filters applied?
+3. Did retrieval surface the expected evidence?
+4. Did the model cite claims that the evidence actually supports?
+5. Did the response express uncertainty when evidence was weak?
+6. Did the product give the user a way to correct the result?
+
+Human review is useful when it has a rubric. Ask reviewers to label the failure category, not only whether they liked the answer. A disliked answer can be stylistically poor while grounded; a confident answer can be dangerous while sounding excellent.
+
+## Turn failures into product feedback
+
+Every failure category suggests a different fix:
+
+- wrong source may need metadata or ranking changes;
+- stale source may need ingestion timestamps and invalidation;
+- missing source may need better chunking or query expansion;
+- ambiguous intent may need a question before search;
+- unauthorized source may need a permission boundary;
+- overconfident answer may need abstention thresholds and clearer citations.
+
+This is why adding a larger model is often the least informative first move. A stronger generator cannot repair a missing source, an expired record, or a broken tenant filter. It may only make the wrong answer more persuasive.
+
+AI search becomes trustworthy when the product can say not only “here is an answer,” but also “here is what was searched, what supports it, what is missing, and why the system stopped.” A failure taxonomy is the beginning of that honesty.
+

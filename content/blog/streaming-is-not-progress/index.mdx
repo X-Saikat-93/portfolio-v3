@@ -1,0 +1,117 @@
+---
+title: Streaming Is Not Progress
+description: Token streaming makes waiting visible, but trustworthy AI progress needs stages, cancellation, checkpoints, reconnection, and a useful final result.
+category: AI product design
+date: 2026-08-03
+readingMinutes: 8
+coverFile: streaming-is-not-progress.png
+coverSlug: streaming-is-not-progress
+coverAlt: Editorial illustration contrasting token streaming with durable checkpoints in an AI workflow
+keywords:
+  - AI UX
+  - streaming responses
+  - AI product design
+  - long-running jobs
+  - progress indicators
+  - cancellation
+  - human-centered AI
+---
+
+Streaming text is one of the fastest ways to make an AI demo feel alive. The first token arrives, the cursor moves, and the user stops wondering whether the button worked.
+
+That is useful feedback. It is not progress.
+
+A stream tells you that bytes are arriving. It does not tell you whether the operation is closer to completion, whether the result has passed validation, whether a tool call succeeded, or whether the answer can be safely saved. Confusing visible activity with product progress creates interfaces that feel responsive right up until they lose the user's work.
+
+## There are several kinds of progress
+
+An AI feature can make progress in at least four different ways:
+
+- **Transport progress:** the connection is open and data is moving.
+- **Computation progress:** the system has completed a known stage.
+- **Evidence progress:** the system has found and checked relevant inputs.
+- **Product progress:** the user's requested outcome is now closer to being usable.
+
+Token streaming only proves the first. A sentence can stream smoothly while retrieval is wrong, a tool is retrying, or the final object will fail schema validation.
+
+The interface should name the kind of progress it can actually observe. “Writing” is honest when text is being generated. “Checking sources” is honest when retrieval has entered a verification stage. “Ready to save” should mean something stronger than “the model stopped talking.”
+
+## Model the run as stages
+
+Long-running AI work benefits from an explicit state model:
+
+~~~ts
+type RunStage =
+  | 'queued'
+  | 'retrieving'
+  | 'generating'
+  | 'validating'
+  | 'waiting_for_review'
+  | 'complete'
+  | 'failed'
+  | 'cancelled'
+~~~
+
+Each transition should have an owner. The queue owns queued. The retrieval worker owns retrieving. The validator owns validating. The browser can display the state, request cancellation, and reconnect to the run, but it should not invent the state from the number of tokens received.
+
+When the product cannot estimate meaningful percentage completion, use stage labels instead of a dishonest progress bar. A sequence of three accurate milestones is more useful than a bar that reaches 94% and waits there for a hidden tool call.
+
+## A stream is a view over durable work
+
+The browser connection is temporary. Users close tabs, switch networks, suspend laptops, and open the same run in another window. If the only copy of the output is in an in-memory stream, the product has no recovery story.
+
+Persist meaningful transitions and checkpoints:
+
+~~~ts
+type RunEvent = {
+  runId: string
+  sequence: number
+  stage: RunStage
+  payloadRef?: string
+  createdAt: string
+}
+~~~
+
+The stream can deliver new events in real time. A reconnecting client can ask for events after sequence 42, or fetch the latest durable snapshot if the gap is too large. This makes the live interface a fast view of the system rather than the system itself.
+
+The same principle makes retries safer. If a worker times out after writing a result, the next worker can inspect the checkpoint before repeating a side effect. Real-time delivery and durable state have different jobs; a reliable architecture lets each do one job well.
+
+## Cancellation must reach the work
+
+A cancel button that only closes the browser stream is a cosmetic button. The worker may continue calling models, reading documents, or writing artifacts after the user believes the operation stopped.
+
+Cancellation needs a path through the system:
+
+1. the client requests cancellation;
+2. the server records a cancellation intent;
+3. the worker checks that intent before the next model or tool call;
+4. in-flight operations receive a timeout or abort signal where supported;
+5. the run ends in a durable cancelled state.
+
+Not every provider call can stop immediately. That is fine. The product should distinguish “cancellation requested” from “no further work will start.” The distinction is much better than pretending a network disconnect reversed an external action.
+
+## Treat partial text as a preview
+
+Partial output is valuable for orientation. It can show that the system understood the request and give the user a chance to stop an obviously wrong direction. It should not be treated as a finished answer.
+
+Keep preview and result separate. A preview can be replaced, truncated, or discarded. A result should have passed the checks required by the feature. If the user edits a streamed draft, the product should record that the final artifact is now human-edited rather than pretending the model produced it unchanged.
+
+Accessibility matters here too. A live region that announces every token is exhausting and makes the interface difficult to navigate. Announce stage changes and completion, keep the text available without forcing focus, and provide a stable way to review the final result.
+
+## Design for the boring cases
+
+The best progress UI answers practical questions:
+
+- Is the request still running?
+- What is it doing now?
+- Can I leave and come back?
+- Can I cancel it?
+- What happens if it fails?
+- Is the result ready to use or only a draft?
+
+Those answers do not require theatrical animation. They require state that the server can defend.
+
+[Designing an Agent Loop That Can Stop](/en/blog/designing-an-agent-loop-that-can-stop) makes the same argument from the runtime side: a run needs explicit budgets, deadlines, and terminal states. The interface should reflect those states instead of drawing confidence from a moving cursor.
+
+Streaming is a presentation technique. Progress is a contract with the user. Once that distinction is clear, AI interfaces become calmer, more resilient, and much easier to operate when the network behaves like a network.
+

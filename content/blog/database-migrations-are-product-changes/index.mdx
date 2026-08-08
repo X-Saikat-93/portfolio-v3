@@ -1,0 +1,114 @@
+---
+title: Database Migrations Are Product Changes
+description: Safe schema work accounts for old and new application versions, lock behavior, backfill cost, verification, and the user-visible transition.
+category: Data systems
+date: 2026-07-18
+readingMinutes: 10
+coverFile: database-migrations-are-product-changes.png
+coverSlug: database-migrations-are-product-changes
+coverAlt: Editorial illustration of a database schema crossing a staged bridge without interruption
+---
+
+A migration file can be six lines long and still describe a multi-hour product change.
+
+The database executes one definition. The deployed system may contain old application instances, new instances, workers, scheduled jobs, admin tools, read replicas, and cached representations at the same time. A safe migration has to make that overlap valid.
+
+This is why I review schema work as a compatibility sequence, not a SQL attachment to a feature branch.
+
+## Start with the version overlap
+
+Write down which application versions will run before, during, and after the change. Then ask what each version reads and writes.
+
+Suppose a single `name` column is becoming `given_name` and `family_name`. Renaming the column in place makes the new code neat and the old code fail immediately. The problem is not the syntax. It is that deployment is not atomic.
+
+A compatibility table makes the transition visible:
+
+| Phase | Old app | New app | Database |
+| --- | --- | --- | --- |
+| Expand | reads/writes `name` | not deployed | both old and new columns |
+| Migrate | still valid | reads new, tolerates old | backfill in progress |
+| Contract | removed | reads/writes new | old column removable |
+
+The exact sequence varies, but every phase needs to be a valid product state.
+
+## Expand, migrate, contract
+
+The reliable pattern separates a breaking change into compatible steps.
+
+**Expand:** add the new table, column, index, or enum value without removing what current code expects. New nullable columns are often easier to introduce than new required columns because existing writes remain valid.
+
+**Migrate:** deploy code that understands both shapes, then backfill existing records. Observe coverage and mismatches. Move reads to the new representation only when the data is ready.
+
+**Contract:** stop old writes, remove compatibility code, and later remove the old schema. “Later” should be a tracked cleanup with an owner, not a permanent dual model.
+
+This takes more deployments than a direct rename. It also gives each stage a rollback direction.
+
+## Understand the operation, not only the statement
+
+DDL behavior depends on the database engine, version, table size, constraints, and concurrent traffic. An operation that is instant on a local table can acquire a lock that queues production writes. A constraint may scan every row. An index build may compete with the workload it is meant to improve.
+
+Inspect the execution behavior for the actual PostgreSQL version and operation. The official [`ALTER TABLE` reference](https://www.postgresql.org/docs/current/sql-altertable.html) documents forms and lock levels, but production planning also needs realistic table statistics and traffic.
+
+Set a lock timeout so the migration fails instead of waiting behind a long transaction while new requests queue behind it. A failed deploy is visible and recoverable. A growing lock queue can turn a small schema change into an outage.
+
+Run production migrations through one controlled path. Application startup is a poor place for long or competing DDL because several instances may start together and startup health checks now depend on schema timing.
+
+## Backfills are workloads
+
+A backfill reads and writes real data, creates write-ahead log volume, changes indexes, and can affect replicas. Treat it like a batch product with a rate, checkpoint, and stop control.
+
+Process stable key ranges in bounded batches. Commit between batches. Record progress outside a process's memory so a restart resumes rather than begins again. Make the transformation idempotent by updating rows that still need the new value.
+
+Monitor database CPU, I/O, replication lag, lock waits, error rate, and application latency while it runs. The safest batch size at midnight may be wrong at peak traffic. A backfill that can slow down is more useful than one that can only finish or be killed.
+
+Do not use `OFFSET` to walk a changing large table. A primary-key cursor or explicit work queue gives stable progress and avoids repeatedly scanning skipped rows.
+
+## Add constraints in stages
+
+A new invariant is valuable only after existing data satisfies it and every active writer preserves it.
+
+For a required column, the sequence may be:
+
+1. add it nullable;
+2. deploy writers that populate it;
+3. backfill older rows;
+4. verify there are no missing values;
+5. add and validate the constraint;
+6. simplify application compatibility code.
+
+Uniqueness requires an answer for duplicates before the index is created. Foreign keys require an answer for orphaned rows. The migration should not discover the product policy while holding a lock.
+
+Validation queries belong in the runbook. Count missing values, invalid references, duplicate keys, and old-format writes. Save the expected result and timestamp so “the backfill completed” means more than a process exiting zero.
+
+## Dual writes are temporary debt
+
+Writing old and new representations can keep mixed application versions compatible, but two independent writes can disagree. Prefer one transaction when both values live in the same database. If a trigger is used, keep it narrow and include it in the removal plan.
+
+When the representations cross systems, an outbox and replayable consumer is safer than hoping two network calls succeed together. The destination should accept idempotent updates and expose reconciliation metrics.
+
+Read fallback also needs an end. If new code silently reads the old column whenever the new one is empty, the migration can remain 98 percent complete forever. Count fallback use and make the remaining records inspectable.
+
+## Rollback means preserving compatibility
+
+Down migrations are not a complete rollback plan. Dropping a new column does not restore data already transformed, and recreating an old column does not teach the previous application about writes made in the new format.
+
+The practical rollback is usually to redeploy the prior application while the expanded schema remains compatible. Destructive contraction waits until the new path has operated long enough and the rollback window is closed.
+
+Feature flags can separate code deployment from behavior activation. That allows schema and readers to exist before traffic uses them. The flag itself must not create two writers with conflicting assumptions.
+
+## Verify the product, not just the table
+
+After the schema is healthy, test the user transition that motivated it. Create a new record, update an old record, exercise the admin path, run the worker, inspect the public read, and confirm search or reporting sees the change.
+
+Track business-shaped metrics during rollout: records still using fallback, write failures by application version, differences between old and new computed values, and time from mutation to visible result. These reveal compatibility faults that database health alone cannot.
+
+The same principle applies to small content systems. As [The Work Between a Click and a Database Row](/en/blog/the-work-between-a-click-and-a-database-row) argues, a save is not complete until the public read and its invalidation path agree.
+
+A migration is finished when the new invariant is enforced, the data is verified, active applications depend on the new shape, and the temporary bridge has been removed. Until then, it is an operating product change with users on it.
+
+## Further reading
+
+- [PostgreSQL: `ALTER TABLE`](https://www.postgresql.org/docs/current/sql-altertable.html)
+- [The Work Between a Click and a Database Row](/en/blog/the-work-between-a-click-and-a-database-row)
+- [What Belongs in the Database](/en/blog/what-belongs-in-the-database)
+
