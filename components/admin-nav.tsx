@@ -23,7 +23,7 @@ export function AdminMenuRow({
     <li>
       <Link
         href={href}
-        className="group flex min-h-11 items-center gap-3 py-1.5 text-sm outline-none focus-visible:rounded-sm focus-visible:ring-1 focus-visible:ring-foreground"
+        className="list-row-link group flex min-h-11 items-center gap-3 py-1.5 text-sm"
       >
         <span className="shrink-0">{label}</span>
         <span aria-hidden="true" className="blog-row-leader" />
@@ -40,7 +40,7 @@ export function AdminMenuRow({
 }
 
 export function AdminMenu({ children }: { children: React.ReactNode }) {
-  return <ul className="mt-6 hairline-top pt-4">{children}</ul>
+  return <ul className="motion-list mt-6 hairline-top pt-4">{children}</ul>
 }
 
 /** The back mark above a subpage's header, in the eyebrow's mono register. */
