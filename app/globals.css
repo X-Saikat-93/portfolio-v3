@@ -5130,6 +5130,182 @@ a:focus-visible .external-label .external-mark {
   color: var(--foreground);
 }
 
+/* LinkedIn hover card: a compact business-card plate with a LinkedIn-blue
+   banner, an overlapping avatar, a dotted role register, and an
+   open-to-remote badge. Colors are scoped to the card so both themes
+   keep the brand accents without touching the global palette. */
+.linkedin-card {
+  --linkedin-blue: oklch(0.55 0.16 248);
+  --linkedin-blue-deep: oklch(0.45 0.17 250);
+  --linkedin-green: oklch(0.55 0.15 152);
+
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.linkedin-card-banner {
+  position: relative;
+  display: block;
+  height: 2.2rem;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, #fff 9%, transparent) 0 2px,
+      transparent 2px 7px
+    ),
+    linear-gradient(115deg, var(--linkedin-blue) 0%, var(--linkedin-blue-deep) 100%);
+}
+
+.linkedin-card-banner-glyph {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  color: color-mix(in oklab, #fff 30%, transparent);
+  transform: translateY(-50%);
+}
+
+.linkedin-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.6rem;
+  padding: 0 0.75rem;
+}
+
+.linkedin-card-avatar {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  object-fit: cover;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.linkedin-card-names {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.linkedin-card-name {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.linkedin-card-sub {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+.linkedin-card-roles {
+  display: flex;
+  flex-direction: column;
+  margin: 0.3rem 0 0;
+  padding: 0.2rem 0.75rem 0.35rem;
+  list-style: none;
+}
+
+.linkedin-card-role {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.4rem 0;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.linkedin-card-role:first-child {
+  border-top: none;
+}
+
+.linkedin-card-role-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.linkedin-card-role-dot {
+  align-self: center;
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--linkedin-blue);
+}
+
+.linkedin-card-role-title {
+  min-width: 0;
+  color: var(--foreground);
+  font-size: 0.76rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.35;
+}
+
+.linkedin-card-role-period {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.linkedin-card-role-company {
+  padding-left: 0.95rem;
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.linkedin-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border-top: var(--border-hairline) solid color-mix(in oklab, var(--linkedin-blue) 32%, transparent);
+  background: color-mix(in oklab, var(--linkedin-blue) 7%, transparent);
+}
+
+.linkedin-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.linkedin-card-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--linkedin-green);
+  animation: linkedin-open-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes linkedin-open-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--linkedin-green) 55%, transparent);
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--linkedin-green) 0%, transparent);
+  }
+}
+
+.linkedin-card-foot-glyph {
+  color: var(--linkedin-blue);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linkedin-card-badge-dot {
+    animation: none;
+  }
+}
+
 /* 26-week (~180 day) contribution grid; cells cascade in individually
    per the hover-card contract */
 .contrib-grid {
