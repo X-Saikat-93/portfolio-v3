@@ -49,6 +49,11 @@ flowchart TB
 | `lib/cloudinary` | Delivery URL construction, signed uploads, and media records |
 | `lib/auth*` | Better Auth configuration and owner access |
 
+The `/en/now` route keeps its dated snapshot in `lib/now.ts` and reads the
+published book shelf through the existing collection repository. The HTML
+resume reads verified profile facts from `lib/personal.ts`; the original PDF
+remains a Cloudinary-delivered asset.
+
 The proxy is an early navigation hint, not the authorization boundary. Admin
 pages and API handlers validate the session and owner email again before
 touching protected data.
@@ -58,7 +63,7 @@ touching protected data.
 | Table | Purpose | Public write access |
 | --- | --- | --- |
 | `user`, `session`, `account`, `verification` | Better Auth state | None |
-| `cms_entries` | Markdown/MDX content and publication status | None |
+| `cms_entries` | Markdown/MDX content, article metadata, and publication status | None |
 | `cloudinary_media` | Published media metadata and public IDs | None |
 | `portfolio_items` | Book, music, and photo collection records | None |
 | `contact_submissions` | Private contact inbox and notification state | Validated contact form only |
@@ -66,6 +71,12 @@ touching protected data.
 Public collection reads are publication-filtered and empty-safe. Owner writes
 go through protected routes. Cloudinary stores binaries; Neon stores the
 application record that references them.
+
+Published blog reads are also publication-filtered and cached by the server
+repository. Repo-owned MDX under `content/blog` is the reviewable seed source;
+`pnpm content:seed` uploads the authored book artwork to Cloudinary, records
+the media rows, and upserts those posts and the book shelf without deleting
+unrelated records.
 
 ## Security and failure behavior
 

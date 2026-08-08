@@ -23,8 +23,9 @@
   content system for the owner.
 </p>
 
-> Public content stays deliberately honest: writing, books, music, and photos
-> remain empty until real material is supplied.
+> Public content stays deliberately honest: writing and books are seeded from
+> reviewable source material, while other collections remain empty until real
+> material is supplied.
 
 ## The surface
 
@@ -32,15 +33,17 @@
 | --- | --- |
 | `/en` | Profile, experience, GitHub snapshot, portrait reveal, and navigation |
 | `/en/projects` | Curated repositories from `X-Saikat-93` |
-| `/en/blog` | Writing index, ready for real posts |
-| `/en/books` · `/en/music` · `/en/photos` | Empty-safe collections published from the owner panel |
-| `/en/resume` | Cloudinary-delivered resume PDF |
+| `/en/blog` | Writing index and published article pages |
+| `/en/books` · `/en/music` · `/en/photos` | Published collections from the owner panel |
+| `/en/now` | Current work, learning threads, reading, and availability |
+| `/en/resume` | Searchable HTML resume with print support and a Cloudinary-delivered PDF |
 | `/en/contact` | Rate-limited public contact form with private inbox delivery |
 | `/admin` | Owner-only CMS, media, collection, and contact tools |
 
 The public route family is explicit and English-first. The site does not ship
-with invented writing, photography, music, books, testimonials, or resume
-details.
+with invented photography, music, testimonials, or resume details. The writing
+and book records are seeded from the repo's authored content and verified book
+links.
 
 ## Design direction
 
@@ -164,6 +167,7 @@ Once signed in, `/admin` provides:
 | `pnpm build` | Generate OG fonts and create the production build |
 | `pnpm db:generate` | Generate Drizzle migrations from the schema |
 | `pnpm db:migrate` | Apply migrations with the migration database URL |
+| `pnpm content:seed` | Upload book artwork and upsert authored posts/books into Neon |
 | `pnpm auth:bootstrap` | Create the first private owner account |
 | `pnpm audit:prod` | Audit production dependencies |
 
