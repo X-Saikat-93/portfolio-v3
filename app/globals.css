@@ -8490,6 +8490,230 @@ a.now-entry-title:hover {
   }
 }
 
+/* ── Owner sign-in: the private keyhole on the paper sheet ──
+   Light mode keeps the warm instant-print paper; dark mode lifts a
+   dark sheet from the same ramp so the keyhole never flashes a bright
+   card on a dark page. */
+
+.sign-in-sheet {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--paper-ink) 28%, transparent);
+  background: color-mix(in oklab, var(--paper) 96%, var(--paper-ink));
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--paper) 72%, transparent),
+    var(--shadow-medium);
+}
+
+.dark .sign-in-sheet {
+  border-color: color-mix(in oklab, var(--foreground) 18%, transparent);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-medium);
+}
+
+.dark .sign-in-topline,
+.dark .sign-in-bottomline {
+  color: color-mix(in oklab, var(--foreground) 66%, transparent);
+  border-color: color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+
+.dark .sign-in-field-label {
+  color: color-mix(in oklab, var(--foreground) 68%, transparent);
+}
+
+.dark .sign-in-input {
+  color: var(--foreground);
+  border-bottom-color: color-mix(in oklab, var(--foreground) 26%, transparent);
+}
+
+.dark .sign-in-input::placeholder {
+  color: color-mix(in oklab, var(--foreground) 40%, transparent);
+}
+
+.dark .sign-in-input:focus {
+  border-color: var(--foreground);
+}
+
+.dark .sign-in-note {
+  color: color-mix(in oklab, var(--foreground) 56%, transparent);
+}
+
+.dark .sign-in-submit {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.dark .sign-in-submit:hover {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.dark .sign-in-submit:focus-visible {
+  outline-color: var(--foreground);
+}
+
+.dark .sign-in-status {
+  border-top-color: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+
+.sign-in-topline,
+.sign-in-bottomline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  color: color-mix(in oklab, var(--paper-ink) 65%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.sign-in-topline {
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-ink) 16%, transparent);
+}
+
+.sign-in-bottomline {
+  align-items: flex-end;
+  border-top: 1px solid color-mix(in oklab, var(--paper-ink) 16%, transparent);
+}
+
+.sign-in-fields {
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.2rem 1rem 1.35rem;
+}
+
+.sign-in-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sign-in-field-label {
+  color: color-mix(in oklab, var(--paper-ink) 68%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sign-in-input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-ink) 26%, transparent);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.45rem 0;
+  color: var(--paper-ink);
+  font-size: 1rem;
+  line-height: 1.5;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    padding 150ms ease;
+}
+
+.sign-in-input::placeholder {
+  color: color-mix(in oklab, var(--paper-ink) 38%, transparent);
+}
+
+.sign-in-input:focus {
+  border-color: var(--paper-ink);
+  padding-inline: 0.3rem;
+}
+
+.sign-in-note {
+  max-width: 18rem;
+  color: color-mix(in oklab, var(--paper-ink) 56%, transparent);
+  font-family: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.sign-in-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--paper-ink);
+  background: var(--paper-ink);
+  padding: 0.6rem 0.8rem;
+  color: var(--paper);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition:
+    transform 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.sign-in-submit > span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sign-in-submit:hover {
+    transform: translateY(-2px) rotate(-1deg);
+    background: transparent;
+    color: var(--paper-ink);
+  }
+}
+
+.sign-in-submit:focus-visible {
+  outline: 1px solid var(--paper-ink);
+  outline-offset: 3px;
+}
+
+.sign-in-submit:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.sign-in-status {
+  border-top: 1px dashed color-mix(in oklab, var(--paper-ink) 22%, transparent);
+  padding: 0.8rem 1rem 1rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 160ms ease,
+    transform 200ms var(--ease-enter);
+}
+
+.sign-in-status[data-state='error'] {
+  color: var(--destructive);
+}
+
+@starting-style {
+  .sign-in-status {
+    opacity: 0;
+    transform: translate3d(0, 0.35rem, 0);
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .sign-in-bottomline {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sign-in-input,
+  .sign-in-submit,
+  .sign-in-status {
+    transition: none;
+  }
+}
+
 /* --------------------------------------------------------------------------
    Tech stack — a quiet skills register for the homepage
    -------------------------------------------------------------------------- */
