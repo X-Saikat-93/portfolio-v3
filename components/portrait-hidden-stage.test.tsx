@@ -5,12 +5,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { PortraitHiddenStage } from './portrait-hidden-stage'
 
-vi.mock('next/dynamic', () => ({
-  default: () => function ShaderFieldBoundary() {
-    return <span data-shader-stage />
-  },
-}))
-
 function setMediaPreference(initialReducedMotion: boolean) {
   let reducedMotion = initialReducedMotion
   const listeners = new Set<() => void>()
@@ -41,197 +35,132 @@ function setMediaPreference(initialReducedMotion: boolean) {
   }
 }
 
-function enableWebGpu(adapter: unknown | null = {}) {
-  const requestAdapter = vi.fn().mockResolvedValue(adapter)
-  Object.defineProperty(navigator, 'gpu', {
-    configurable: true,
-    value: {
-      requestAdapter,
-    },
-  })
-  return requestAdapter
-}
-
 afterEach(() => {
   cleanup()
   vi.useRealTimers()
   vi.unstubAllGlobals()
-  Reflect.deleteProperty(navigator, 'gpu')
 })
 
 describe('PortraitHiddenStage', () => {
-  it('mounts lazily and waits for the exit fade before unmounting', async () => {
-    vi.useFakeTimers()
+  it('renders a lightweight topographic halo without a shader', () => {
     setMediaPreference(false)
-    enableWebGpu()
 
     render(
-      <PortraitHiddenStage label="Reveal hidden topographic field">
+      <PortraitHiddenStage label="Reveal circular field">
         <span>Portrait</span>
       </PortraitHiddenStage>,
     )
 
-    const trigger = screen.getByRole('button', { name: 'Reveal hidden topographic field' })
+    const trigger = screen.getByRole('button', { name: 'Reveal circular field' })
+    const contours = document.querySelector('[data-hidden-stage-contours]')
+
+    expect(contours?.querySelectorAll('path')).toHaveLength(9)
+    expect(contours?.querySelector('circle')).toBeNull()
     expect(document.querySelector('[data-shader-stage]')).toBeNull()
-
-    await act(async () => {
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    })
-
-    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
-    expect(document.querySelector('[data-shader-stage]')).not.toBeNull()
-
-    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
-    fireEvent.blur(trigger)
-    expect(document.querySelector('[data-shader-stage]')).not.toBeNull()
-
-    act(() => vi.advanceTimersByTime(319))
-    expect(document.querySelector('[data-shader-stage]')).not.toBeNull()
-
-    act(() => vi.advanceTimersByTime(1))
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('false')
   })
 
-  it('keeps reduced-motion reveals static even when WebGPU is available', () => {
-    setMediaPreference(true)
-    const requestAdapter = enableWebGpu()
+  it('reveals on mouse hover and releases on pointer leave', () => {
+    setMediaPreference(false)
 
     render(
-      <PortraitHiddenStage label="Reveal hidden topographic field">
+      <PortraitHiddenStage label="Reveal circular field">
         <span>Portrait</span>
       </PortraitHiddenStage>,
     )
 
-    const trigger = screen.getByRole('button', { name: 'Reveal hidden topographic field' })
+    const trigger = screen.getByRole('button', { name: 'Reveal circular field' })
+
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('true')
+
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('false')
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('false')
+  })
+
+  it('keeps reduced-motion reveals static', () => {
+    setMediaPreference(true)
+
+    render(
+      <PortraitHiddenStage label="Reveal circular field">
+        <span>Portrait</span>
+      </PortraitHiddenStage>,
+    )
+
+    const trigger = screen.getByRole('button', { name: 'Reveal circular field' })
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
 
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('false')
-    expect(requestAdapter).not.toHaveBeenCalled()
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
   })
 
-  it('keeps the first touch reveal open when touch focus arrives before pointerup', async () => {
+  it('keeps the first touch reveal open when touch focus arrives before pointerup', () => {
     vi.useFakeTimers()
     setMediaPreference(false)
-    enableWebGpu()
 
     render(
-      <PortraitHiddenStage label="Reveal hidden topographic field">
+      <PortraitHiddenStage label="Reveal circular field">
         <span>Portrait</span>
       </PortraitHiddenStage>,
     )
 
-    const trigger = screen.getByRole('button', { name: 'Reveal hidden topographic field' })
+    const trigger = screen.getByRole('button', { name: 'Reveal circular field' })
     fireEvent.pointerDown(trigger, { pointerType: 'touch' })
     fireEvent.focus(trigger)
-    await act(async () => {
-      fireEvent.pointerUp(trigger, { pointerType: 'touch' })
-    })
+    fireEvent.pointerUp(trigger, { pointerType: 'touch' })
 
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
-    expect(document.querySelector('[data-shader-stage]')).not.toBeNull()
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('true')
 
-    act(() => vi.advanceTimersByTime(3000))
+    act(() => vi.advanceTimersByTime(2600))
 
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('false')
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
   })
 
-  it('does not mistake focus after touch pointerup for keyboard focus', async () => {
-    vi.useFakeTimers()
+  it('keeps keyboard focus composed with pointer hover', () => {
     setMediaPreference(false)
-    enableWebGpu()
 
     render(
-      <PortraitHiddenStage label="Reveal hidden topographic field">
+      <PortraitHiddenStage label="Reveal circular field">
         <span>Portrait</span>
       </PortraitHiddenStage>,
     )
 
-    const trigger = screen.getByRole('button', { name: 'Reveal hidden topographic field' })
-    fireEvent.pointerDown(trigger, { pointerType: 'touch' })
-    await act(async () => {
-      fireEvent.pointerUp(trigger, { pointerType: 'touch' })
-    })
-    fireEvent.focus(trigger)
-
-    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
-
-    act(() => vi.advanceTimersByTime(3000))
-
-    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('false')
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
-  })
-
-  it('keeps keyboard focus static and composed with pointer hover', async () => {
-    setMediaPreference(false)
-    enableWebGpu()
-
-    render(
-      <PortraitHiddenStage label="Reveal hidden topographic field">
-        <span>Portrait</span>
-      </PortraitHiddenStage>,
-    )
-
-    const trigger = screen.getByRole('button', { name: 'Reveal hidden topographic field' })
+    const trigger = screen.getByRole('button', { name: 'Reveal circular field' })
     fireEvent.focus(trigger)
 
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('false')
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
-
-    await act(async () => {
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    })
-    expect(document.querySelector('[data-shader-stage]')).not.toBeNull()
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('true')
 
     fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
-  })
-
-  it('falls back when WebGPU exposes no adapter', async () => {
-    setMediaPreference(false)
-    const requestAdapter = enableWebGpu(null)
-
-    render(
-      <PortraitHiddenStage label="Reveal hidden topographic field">
-        <span>Portrait</span>
-      </PortraitHiddenStage>,
-    )
-
-    const trigger = screen.getByRole('button', { name: 'Reveal hidden topographic field' })
-    await act(async () => {
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    })
-
-    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('false')
-    expect(requestAdapter).toHaveBeenCalledOnce()
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
+
+    fireEvent.blur(trigger)
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('false')
   })
 
-  it('removes an active shader when reduced motion turns on', async () => {
+  it('turns off motion when the reduced-motion preference changes', () => {
     const preference = setMediaPreference(false)
-    enableWebGpu()
 
     render(
-      <PortraitHiddenStage label="Reveal hidden topographic field">
+      <PortraitHiddenStage label="Reveal circular field">
         <span>Portrait</span>
       </PortraitHiddenStage>,
     )
 
-    const trigger = screen.getByRole('button', { name: 'Reveal hidden topographic field' })
-    await act(async () => {
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    })
-    expect(document.querySelector('[data-shader-stage]')).not.toBeNull()
+    const trigger = screen.getByRole('button', { name: 'Reveal circular field' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('true')
 
     act(() => preference.setReducedMotion(true))
 
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-active')).toBe('true')
     expect(trigger.closest('[data-portrait-stage]')?.getAttribute('data-motion')).toBe('false')
-    expect(document.querySelector('[data-shader-stage]')).toBeNull()
   })
 })
