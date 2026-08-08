@@ -3,7 +3,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-import { HalftonePortrait } from './halftone-portrait'
+import { getHalftoneTone, HalftonePortrait } from './halftone-portrait'
 
 const navigation = vi.hoisted(() => ({ pathname: '/' }))
 
@@ -12,6 +12,14 @@ vi.mock('next/navigation', () => ({
 }))
 
 describe('HalftonePortrait', () => {
+  it('keeps dark hair visible while retaining highlight contrast', () => {
+    const hair = getHalftoneTone('dark', 0.04, 0.08, 0.2, 1, 0)
+    const face = getHalftoneTone('dark', 0.72, 0.08, 0, 1, 0)
+
+    expect(hair).toBeGreaterThan(0.1)
+    expect(face).toBeGreaterThan(hair)
+  })
+
   it('keeps the server-rendered portrait visually empty', () => {
     navigation.pathname = '/en'
     const container = document.createElement('div')
