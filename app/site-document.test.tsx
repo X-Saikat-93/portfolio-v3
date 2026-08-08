@@ -23,6 +23,9 @@ vi.mock('@vercel/analytics/next', () => ({
 vi.mock('~/components/ambient-background', () => ({
   AmbientBackground: () => null,
 }))
+vi.mock('~/components/command-palette', () => ({
+  CommandPalette: () => <span data-command-palette="" />,
+}))
 vi.mock('~/components/dock', () => ({
   Dock: () => <span data-public-dock="" />,
   DockFallback: () => <span data-public-dock-fallback="" />,
@@ -44,13 +47,15 @@ vi.mock('~/components/theme-provider', () => ({
 vi.mock('~/lib/security/inline-scripts', () => ({
   PREPAINT_SCRIPT: '',
 }))
+vi.mock('~/lib/blog/repository', () => ({
+  safeListPublishedBlogPosts: vi.fn().mockResolvedValue([]),
+}))
 vi.mock('~/lib/social-live', () => ({
   getGitHub: vi.fn().mockResolvedValue({}),
 }))
 vi.mock('~/components/route-motion-controller', () => ({
-  RouteMotionController: () => <span data-public-route-motion="" />,
   RouteViewTransition: ({ children }: { children: React.ReactNode }) => (
-    <div data-public-route-transition="">{children}</div>
+    <div data-route-transition="">{children}</div>
   ),
 }))
 vi.mock('./fonts', () => ({
@@ -86,8 +91,9 @@ describe('SiteDocument analytics', () => {
       expect(html).toContain('data-vercel-analytics')
       expect(html).toContain('data-public-dock')
       expect(html).toContain('data-public-footer')
-      expect(html).toContain('data-public-route-transition')
+      expect(html).toContain('data-route-transition')
       expect(html).toContain('data-public-preview-cards')
+      expect(html).toContain('data-command-palette')
     }
   })
 
@@ -103,8 +109,7 @@ describe('SiteDocument analytics', () => {
     expect(html).not.toContain('data-vercel-analytics')
     expect(html).not.toContain('data-public-dock')
     expect(html).not.toContain('data-public-footer')
-    expect(html).not.toContain('data-public-route-motion')
-    expect(html).not.toContain('data-public-route-transition')
+    expect(html).toContain('data-route-transition')
     expect(html).not.toContain('data-public-preview-cards')
     expect(html).toContain('Owner admin')
     // The admin shares the warm working-paper palette (July 2026 decision)
