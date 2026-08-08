@@ -11,10 +11,15 @@ import {
   WritingIcon,
 } from '~/components/dock-icons'
 import { CloudinaryAvatar } from '~/components/cloudinary-image'
-import { DockGlass, DockItem } from '~/components/dock'
+import {
+  DockGlass,
+  DockItem,
+  SITE_DOCK_VIEW_TRANSITION_STYLE,
+} from '~/components/dock'
 import { Preferences } from '~/components/preferences'
 import { useDockActiveIndicator } from '~/hooks/use-dock-active-indicator'
 import { adminGoKeyFor, useAdminGoShortcuts } from '~/hooks/use-dock-go-shortcuts'
+import { useDockVisibility } from '~/hooks/use-dock-visibility'
 import { localePath } from '~/lib/locale-route'
 import { localize, useLocale } from '~/lib/locale-client'
 
@@ -32,13 +37,14 @@ export function AdminDockFallback() {
   return (
     <nav
       className="dock"
-      aria-label={localize('zh', '管理导航', 'Admin navigation')}
+      style={SITE_DOCK_VIEW_TRANSITION_STYLE}
+      aria-label={localize('en', '管理导航', 'Admin navigation')}
       aria-busy="true"
     >
       <DockGlass />
       <DockItem
         href="/admin"
-        locale="zh"
+        locale="en"
         zh="总览"
         en="Overview"
         goKey={adminGoKeyFor('/admin')}
@@ -52,7 +58,7 @@ export function AdminDockFallback() {
         <DockItem
           key={href}
           href={href}
-          locale="zh"
+          locale="en"
           zh={zh}
           en={en}
           goKey={adminGoKeyFor(href)}
@@ -63,7 +69,7 @@ export function AdminDockFallback() {
       <span className="dock-rule" aria-hidden />
       <DockItem
         href="/"
-        locale="zh"
+        locale="en"
         zh="返回站点"
         en="Back to site"
         goKey={adminGoKeyFor('/')}
@@ -89,6 +95,7 @@ export function AdminDockFallback() {
 export function AdminDock() {
   const locale = useLocale()
   const pathname = usePathname()
+  const { hidden, show } = useDockVisibility()
   const activeHref =
     pathname === '/admin'
       ? '/admin'
@@ -106,6 +113,10 @@ export function AdminDock() {
     <nav
       ref={dockRef}
       className="dock"
+      data-hidden={hidden || undefined}
+      onFocusCapture={show}
+      onPointerEnter={show}
+      style={SITE_DOCK_VIEW_TRANSITION_STYLE}
       aria-label={localize(locale, '管理导航', 'Admin navigation')}
     >
       <DockGlass />

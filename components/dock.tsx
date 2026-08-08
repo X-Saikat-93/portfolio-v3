@@ -14,6 +14,7 @@ import { CloudinaryAvatar } from '~/components/cloudinary-image'
 import { Preferences } from '~/components/preferences'
 import { useDockActiveIndicator } from '~/hooks/use-dock-active-indicator'
 import { dockGoKeyFor, useDockGoShortcuts } from '~/hooks/use-dock-go-shortcuts'
+import { useDockVisibility } from '~/hooks/use-dock-visibility'
 import { T } from '~/lib/i18n'
 import { localize, useLocale } from '~/lib/locale-client'
 import {
@@ -29,7 +30,7 @@ const ITEMS = [
   { href: '/projects', zh: '项目', en: 'Projects', icon: ProjectsIcon },
 ] as const
 
-const DOCK_VIEW_TRANSITION_STYLE = {
+export const SITE_DOCK_VIEW_TRANSITION_STYLE = {
   viewTransitionName: 'site-dock',
 } as React.CSSProperties
 
@@ -125,7 +126,7 @@ export function DockFallback({ locale }: { locale: Locale }) {
   return (
     <nav
       className="dock"
-      style={DOCK_VIEW_TRANSITION_STYLE}
+      style={SITE_DOCK_VIEW_TRANSITION_STYLE}
       aria-label={localize(locale, '主导航', 'Main navigation')}
       aria-busy="true"
     >
@@ -176,6 +177,7 @@ export function Dock() {
   const pathname = usePathname()
   const routePathname = unlocalizedPathname(pathname)
   const activeHref = routePathname === '/' ? '/' : ITEMS.find(({ href }) => routePathname.startsWith(href))?.href
+  const { hidden, show } = useDockVisibility()
   // Owner chrome is invisible until known: the hint remembers a confirmed
   // probe so the Admin row and its chord are armed instantly on later
   // visits; the probe itself runs when the Preferences panel opens.
@@ -202,7 +204,10 @@ export function Dock() {
     <nav
       ref={dockRef}
       className="dock"
-      style={DOCK_VIEW_TRANSITION_STYLE}
+      data-hidden={hidden || undefined}
+      onFocusCapture={show}
+      onPointerEnter={show}
+      style={SITE_DOCK_VIEW_TRANSITION_STYLE}
       aria-label={localize(locale, '主导航', 'Main navigation')}
     >
       <DockGlass />
