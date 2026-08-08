@@ -1,12 +1,13 @@
 import { cacheLife } from 'next/cache'
 
 import { buildEnglishFeedXml } from '~/lib/feeds'
+import { safeListPublishedBlogPosts } from '~/lib/blog/repository'
 
 async function getEnglishFeedXml() {
   'use cache'
   cacheLife('max')
 
-  return buildEnglishFeedXml()
+  return buildEnglishFeedXml(await safeListPublishedBlogPosts())
 }
 
 export async function GET() {
