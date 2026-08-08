@@ -2,12 +2,14 @@ import type { Metadata } from 'next'
 
 import { ContactPageView } from '../../../_views/contact-page'
 import { localeMetadata } from '~/lib/locale-metadata'
+import { publicPageMetadata } from '~/lib/public-page-metadata'
+
+const copy = publicPageMetadata.contact.en
 
 export const metadata: Metadata = localeMetadata({
   locale: 'en',
   path: '/contact',
-  title: 'Contact',
-  description: 'Send a private message to Saikat Das.',
+  ...copy,
 })
 
 export default function EnglishContactPage() {
