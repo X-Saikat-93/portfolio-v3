@@ -22,6 +22,27 @@
       "when": 1786110446982,
       "tag": "0002_oval_jocasta",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786122019680,
+      "tag": "0003_red_risque",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786157969194,
+      "tag": "0004_stormy_ozymandias",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786161767232,
+      "tag": "0005_equal_whistler",
+      "breakpoints": true
     }
   ]
 }

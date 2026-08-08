@@ -1,0 +1,1 @@
+ALTER TABLE "cms_entries" ADD COLUMN "seo_keywords" jsonb DEFAULT '[]'::jsonb NOT NULL;
