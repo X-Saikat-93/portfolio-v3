@@ -8715,6 +8715,411 @@ a.now-entry-title:hover {
 }
 
 /* --------------------------------------------------------------------------
+   GitHub commits — the live contribution plate for the homepage
+   -------------------------------------------------------------------------- */
+
+.github-commits-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: color 180ms var(--ease-swift);
+}
+
+.github-commits-link-arrow {
+  color: color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+  font-size: 0.72rem;
+  transition: transform 200ms var(--ease-spring), color 180ms var(--ease-swift);
+}
+
+.github-commits-link:hover,
+.github-commits-link:focus-visible {
+  color: var(--foreground);
+}
+
+.github-commits-link:hover .github-commits-link-arrow,
+.github-commits-link:focus-visible .github-commits-link-arrow {
+  color: var(--signal);
+  transform: translate(0.1rem, -0.1rem);
+}
+
+.github-commits-link:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+/* The plate: one quiet surface elevation, a hairline border, and a signal
+   tick on the leading edge that draws down on enter. */
+.github-plate {
+  position: relative;
+  padding: 1.1rem 1.15rem 0.95rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 16%, transparent);
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--foreground) 2.5%, transparent);
+}
+
+.github-plate::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--signal);
+  content: '';
+  opacity: 0;
+  transform: scaleY(0.25);
+  transform-origin: center;
+  animation: github-plate-tick-in 420ms var(--ease-spring) 420ms forwards;
+}
+
+@keyframes github-plate-tick-in {
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.github-plate-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.github-plate-flag {
+  align-self: center;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--signal);
+  transform: translateY(-0.02rem);
+}
+
+.github-plate-handle {
+  color: var(--foreground);
+}
+
+.github-plate-updated {
+  margin-left: auto;
+  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Readout line above the grid: the label holds still, the value swaps on
+   hover with a quiet mono tick. */
+.github-grid-zone {
+  margin-top: 0.9rem;
+}
+
+.github-grid-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1.2rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.github-grid-readout-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: color-mix(in oklab, var(--muted-foreground) 78%, transparent);
+  font-variant-numeric: tabular-nums;
+  animation: github-readout-tick 240ms var(--ease-swift) both;
+}
+
+.github-grid-readout-value b {
+  color: var(--foreground);
+  font-weight: var(--font-weight-medium);
+}
+
+.github-grid-readout-date {
+  color: var(--signal);
+  letter-spacing: 0.04em;
+}
+
+@keyframes github-readout-tick {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+}
+
+/* ── Grid frame: month spans, weekday rail, day-cell track ──────────── */
+
+.github-grid-frame {
+  --cell-size: 13px;
+  --cell-gap: 3px;
+  --rail-width: 2rem;
+
+  margin-top: 0.55rem;
+  padding: 0.4rem 0.5rem;
+  border-top: var(--border-hairline) solid color-mix(in oklab, var(--border) 70%, transparent);
+  border-bottom: var(--border-hairline) solid color-mix(in oklab, var(--border) 70%, transparent);
+  overflow-x: auto;
+}
+
+.github-grid-months {
+  display: flex;
+  height: 0.9rem;
+  margin-left: var(--rail-width);
+  color: color-mix(in oklab, var(--muted-foreground) 62%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  line-height: 0.9rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.github-grid-month {
+  flex: 0 0 calc(var(--cols) * var(--cell-size) + (var(--cols) - 1) * var(--cell-gap));
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.github-grid-body {
+  display: flex;
+  gap: var(--cell-gap);
+}
+
+.github-grid-rail {
+  flex: 0 0 var(--rail-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cell-gap);
+  color: color-mix(in oklab, var(--muted-foreground) 62%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  line-height: 1;
+}
+
+.github-grid-rail span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: var(--cell-size);
+  padding-right: 0.35rem;
+}
+
+.github-grid-track {
+  display: flex;
+  gap: var(--cell-gap);
+}
+
+.github-grid-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cell-gap);
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.github-day {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--foreground) 7%, transparent);
+  cursor: crosshair;
+  animation: github-cell-in 520ms var(--ease-spring) backwards;
+  animation-delay: calc(var(--ci, 0) * 2.2ms);
+  transition: transform 220ms var(--ease-spring), background-color 200ms var(--ease-swift),
+    box-shadow 200ms var(--ease-swift);
+}
+
+@keyframes github-cell-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.7);
+  }
+}
+
+.github-day[data-level='1'] {
+  background: color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+.github-day[data-level='2'] {
+  background: color-mix(in oklab, var(--foreground) 52%, transparent);
+}
+
+.github-day[data-level='3'] {
+  background: color-mix(in oklab, var(--foreground) 74%, transparent);
+}
+
+.github-day[data-level='4'] {
+  background: var(--foreground);
+}
+
+.github-day[data-latest] {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--signal) 72%, transparent);
+  animation: github-cell-in 520ms var(--ease-spring) backwards,
+    github-latest-pulse 2.6s var(--ease-swift) 900ms infinite;
+  animation-delay: calc(var(--ci, 0) * 2.2ms), 900ms;
+}
+
+@keyframes github-latest-pulse {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--signal) 72%, transparent);
+  }
+
+  50% {
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--signal) 92%, transparent),
+      0 0 6px color-mix(in oklab, var(--signal) 42%, transparent);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .github-grid-col:hover .github-day {
+    transform: translateY(-1px) scale(1.08);
+  }
+
+  .github-grid-col:hover .github-day[data-level='0'] {
+    background: color-mix(in oklab, var(--foreground) 14%, transparent);
+  }
+
+  .github-grid-col:hover .github-day[data-level='1'] {
+    background: color-mix(in oklab, var(--foreground) 42%, transparent);
+  }
+
+  .github-grid-col:hover .github-day[data-level='2'] {
+    background: color-mix(in oklab, var(--foreground) 64%, transparent);
+  }
+
+  .github-grid-col:hover .github-day[data-level='3'] {
+    background: color-mix(in oklab, var(--foreground) 86%, transparent);
+  }
+
+  .github-grid-col:hover .github-day[data-level='4'] {
+    background: var(--foreground);
+  }
+
+  .github-day:hover,
+  .github-day:focus-visible {
+    transform: translateY(-2px) scale(1.22);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--signal) 55%, transparent),
+      0 3px 8px color-mix(in oklab, var(--foreground) 18%, transparent);
+    z-index: 1;
+  }
+}
+
+.github-day:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.github-grid-empty {
+  margin: 1.1rem 0 0.2rem;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* Stat foot: a ruled register with hairline dividers, mono tabular. */
+.github-plate-foot {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem 1rem;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: var(--border-hairline) solid color-mix(in oklab, var(--border) 70%, transparent);
+  font-family: var(--font-mono);
+}
+
+.github-plate-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.22rem;
+  min-width: 0;
+  padding-right: 1rem;
+  border-right: var(--border-hairline) solid color-mix(in oklab, var(--border) 60%, transparent);
+}
+
+.github-plate-stat-unit {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.56rem;
+  letter-spacing: 0.09em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.github-plate-stat-value {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.github-plate-foot .service-card-glyph {
+  align-self: center;
+  margin-left: auto;
+  font-size: 0;
+}
+
+@media (max-width: 39.99rem) {
+  .github-plate {
+    padding: 0.9rem 0.85rem 0.8rem;
+  }
+
+  .github-grid-frame {
+    --cell-size: 9px;
+    --cell-gap: 2px;
+    --rail-width: 1.7rem;
+
+    padding: 0.35rem 0.25rem;
+  }
+
+  .github-plate-stat {
+    padding-right: 0.7rem;
+  }
+
+  .github-plate-stat-unit {
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .github-plate::before,
+  .github-grid-readout-value,
+  .github-day,
+  .github-day[data-latest],
+  .github-commits-link,
+  .github-commits-link-arrow,
+  .github-day:hover,
+  .github-day:focus-visible,
+  .github-grid-col:hover .github-day {
+    animation: none;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
    Tech stack — a quiet skills register for the homepage
    -------------------------------------------------------------------------- */
 
