@@ -3,7 +3,17 @@ import type { Locale } from '~/lib/locale-route'
 import type { PublicSection } from '~/lib/public-page-metadata'
 import { isBlogPostSlug } from '~/lib/public-content-routes'
 
-const sections = new Set<PublicSection>(['blog', 'photos', 'books', 'music', 'projects'])
+const sections = new Set<PublicSection>([
+  'blog',
+  'photos',
+  'books',
+  'music',
+  'projects',
+  'now',
+  'resume',
+  'contact',
+  'privacy',
+])
 type PublicRouteSection = PublicSection
 
 function isEnglish(value: string | null): value is Locale {
