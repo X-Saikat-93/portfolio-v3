@@ -8,10 +8,11 @@ import {
 const ogRuntimeAssets = [
   './app/_fonts/FrexSansGB-OG-*.ttf',
 ]
+const isProduction = process.env.NODE_ENV === 'production'
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
-  partialPrefetching: true,
+  partialPrefetching: isProduction,
 
   // Keep the generated OG font files inside the serverless function bundle.
   outputFileTracingIncludes: {
@@ -28,7 +29,9 @@ const nextConfig: NextConfig = {
     authInterrupts: true,
     globalNotFound: true,
     useTypeScriptCli: true,
-    sri: { algorithm: 'sha256' },
+    ...(isProduction
+      ? { sri: { algorithm: 'sha256' as const } }
+      : { turbopackFileSystemCacheForDev: true }),
   },
 
   images: {
