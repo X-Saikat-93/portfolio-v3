@@ -14,7 +14,8 @@ describe('public page metadata copy', () => {
   it('keeps the available sections English and content-specific', () => {
     expect(publicPageMetadata.blog.en).toEqual({
       title: 'Writing',
-      description: 'Writing by Saikat Das.',
+      description:
+        'Senior engineering notes on AI systems, data architecture, real-time software, product design, and reliable web applications.',
     })
     expect(publicPageMetadata.photos.en).toEqual({
       title: 'Photos',
@@ -30,12 +31,17 @@ describe('public page metadata copy', () => {
     })
     expect(publicPageMetadata.projects.en).toEqual({
       title: 'Projects',
-      description: 'Products, tools, and experiments built by Saikat Das.',
+      description:
+        'Production software and open-source projects built by Saikat Das, including Zaruro and a recruitment operations platform.',
+    })
+    expect(publicPageMetadata.now.en).toEqual({
+      title: 'Now',
+      description: 'A current snapshot of what Saikat Das is building, learning, reading, and open to.',
     })
   })
 
   it('keeps section descriptions within social preview budgets', () => {
-    for (const section of ['blog', 'photos', 'books', 'music', 'projects'] as const) {
+    for (const section of ['blog', 'photos', 'books', 'music', 'projects', 'now'] as const) {
       expect(publicPageMetadata[section].en.description.length, section).toBeLessThanOrEqual(160)
     }
   })

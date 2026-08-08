@@ -1,10 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { buildEnglishFeedXml } from '~/lib/feeds'
+import { publishedPostSlugs } from '~/lib/public-content-routes'
+import { projects } from '~/lib/projects'
 import { seo } from '~/lib/seo'
 
 import robots from './robots'
 import sitemap from './sitemap'
+
+vi.mock('~/lib/blog/repository', () => ({
+  safeListPublishedBlogPosts: async () => [],
+}))
 
 describe('localized discovery routes', () => {
   it('publishes an explicit crawler policy for public and private surfaces', () => {
@@ -19,20 +25,38 @@ describe('localized discovery routes', () => {
     })
   })
 
-  it('publishes an empty English feed until a real post is supplied', () => {
-    const xml = buildEnglishFeedXml()
+  it('publishes real English writing in the feed', () => {
+    const xml = buildEnglishFeedXml([
+      {
+        id: 'post-id',
+        slug: 'a-real-post',
+        title: 'A real post',
+        description: 'A real description',
+        keywords: [],
+        body: 'Body',
+        category: 'Notes',
+        readingMinutes: 4,
+        coverImagePublicId: null,
+        coverImageAlt: '',
+        publishedAt: new Date('2026-08-01T12:00:00+05:30'),
+        updatedAt: new Date('2026-08-01T12:00:00+05:30'),
+      },
+    ])
 
     expect(xml).toContain(`<atom:link href="${new URL('/en/feed.xml', seo.url).href}" rel="self"`)
     expect(xml).toContain(`<link>${new URL('/en', seo.url).href}</link>`)
-    expect(xml).not.toContain('<item>')
+    expect(xml).toContain('<item>')
+    expect(xml).toContain('<title><![CDATA[A real post]]></title>')
   })
 
-  it('publishes only the English public routes', () => {
-    const entries = sitemap()
+  it('publishes only the English public routes', async () => {
+    const entries = await sitemap()
     expect(entries.map(({ url }) => url)).toEqual([
-      ...['/en', '/en/blog', '/en/photos', '/en/books', '/en/music', '/en/projects', '/en/resume', '/en/contact'].map(
+      ...['/en', '/en/blog', '/en/photos', '/en/books', '/en/music', '/en/projects', '/en/resume', '/en/now', '/en/contact', '/en/privacy'].map(
         (path) => new URL(path, seo.url).href,
       ),
+      ...publishedPostSlugs.map((slug) => new URL(`/en/blog/${slug}`, seo.url).href),
+      ...projects.map(({ id }) => new URL(`/en/projects/${id}`, seo.url).href),
     ])
   })
 })

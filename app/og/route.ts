@@ -1,6 +1,7 @@
 import { createHomeOgImage, createSectionOgImage } from '~/lib/og-image'
 import type { Locale } from '~/lib/locale-route'
 import type { PublicSection } from '~/lib/public-page-metadata'
+import { isBlogPostSlug } from '~/lib/public-content-routes'
 
 const sections = new Set<PublicSection>(['blog', 'photos', 'books', 'music', 'projects'])
 type PublicRouteSection = PublicSection
@@ -25,8 +26,12 @@ export async function GET(request: Request) {
 
   if (path === '/' || path === '/en') return cached(await createHomeOgImage('en'))
 
-  const section = path.split('/').filter(Boolean)[0] as PublicRouteSection | undefined
-  if (section && sections.has(section) && path.split('/').filter(Boolean).length === 1) {
+  const segments = path.split('/').filter(Boolean)
+  const section = segments[0] as PublicRouteSection | undefined
+  if (section === 'blog' && segments.length === 2 && isBlogPostSlug(segments[1])) {
+    return cached(await createSectionOgImage('blog', 'en'))
+  }
+  if (section && sections.has(section) && segments.length === 1) {
     return cached(await createSectionOgImage(section, 'en'))
   }
 

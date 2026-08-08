@@ -12,8 +12,14 @@ export const publicPageMetadata = {
     },
   },
   blog: {
-    zh: { title: 'Writing', description: 'Writing by Saikat Das.' },
-    en: { title: 'Writing', description: 'Writing by Saikat Das.' },
+    zh: {
+      title: 'Writing',
+      description: 'Senior engineering notes on AI systems, data architecture, real-time software, product design, and reliable web applications.',
+    },
+    en: {
+      title: 'Writing',
+      description: 'Senior engineering notes on AI systems, data architecture, real-time software, product design, and reliable web applications.',
+    },
   },
   photos: {
     zh: { title: 'Photos', description: 'A collection of photographs by Saikat Das.' },
@@ -30,11 +36,21 @@ export const publicPageMetadata = {
   projects: {
     zh: {
       title: 'Projects',
-      description: 'Products, tools, and experiments built by Saikat Das.',
+      description: 'Production software and open-source projects built by Saikat Das, including Zaruro and a recruitment operations platform.',
     },
     en: {
       title: 'Projects',
-      description: 'Products, tools, and experiments built by Saikat Das.',
+      description: 'Production software and open-source projects built by Saikat Das, including Zaruro and a recruitment operations platform.',
+    },
+  },
+  now: {
+    zh: {
+      title: 'Now',
+      description: 'A current snapshot of what Saikat Das is building, learning, reading, and open to.',
+    },
+    en: {
+      title: 'Now',
+      description: 'A current snapshot of what Saikat Das is building, learning, reading, and open to.',
     },
   },
 } as const
