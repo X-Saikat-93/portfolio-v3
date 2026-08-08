@@ -4,11 +4,6 @@ import { SectionTag } from '~/components/section-tag'
 
 const providers = [
   {
-    name: 'Vercel',
-    purpose: 'Hosting and privacy-focused page-view analytics.',
-    href: 'https://vercel.com/docs/analytics/privacy-policy',
-  },
-  {
     name: 'Neon',
     purpose: 'Postgres storage for private contact submissions.',
     href: 'https://neon.tech/privacy-policy',
@@ -103,10 +98,8 @@ export function PrivacyPageView() {
 
         <PolicySection index={3} id="privacy-measurement" title="Analytics & security">
           <p>
-            Vercel Web Analytics records anonymous, aggregate page-view information. Depending
-            on the request, this can include the page path, timestamp, referrer, broad location,
-            browser, operating system, and device type. The portfolio does not configure custom
-            advertising trackers or custom analytics events.
+            The portfolio does not run third-party analytics, advertising trackers, or custom
+            analytics events. It does not use cookies.
           </p>
           <p>
             To protect the contact form from abuse, the server reads the network address supplied
@@ -123,9 +116,7 @@ export function PrivacyPageView() {
             your browser and can be removed by clearing this site’s data.
           </p>
           <p>
-            The public portfolio does not set advertising cookies. Vercel Web Analytics does not
-            rely on third-party cookies and its temporary visitor session identifier is discarded
-            after 24 hours.
+            The public portfolio does not set advertising cookies.
           </p>
         </PolicySection>
 

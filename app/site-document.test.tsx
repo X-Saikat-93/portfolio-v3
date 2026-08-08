@@ -16,10 +16,6 @@ vi.mock('react', async (importOriginal) => {
   }
 })
 
-vi.mock('@vercel/analytics/next', () => ({
-  Analytics: () => <span data-vercel-analytics="" />,
-}))
-
 vi.mock('~/components/ambient-background', () => ({
   AmbientBackground: () => null,
 }))
@@ -88,7 +84,6 @@ describe('SiteDocument analytics', () => {
         }),
       )
 
-      expect(html).toContain('data-vercel-analytics')
       expect(html).toContain('data-public-dock')
       expect(html).toContain('data-public-footer')
       expect(html).toContain('data-route-transition')
@@ -106,7 +101,6 @@ describe('SiteDocument analytics', () => {
       }),
     )
 
-    expect(html).not.toContain('data-vercel-analytics')
     expect(html).not.toContain('data-public-dock')
     expect(html).not.toContain('data-public-footer')
     expect(html).toContain('data-route-transition')

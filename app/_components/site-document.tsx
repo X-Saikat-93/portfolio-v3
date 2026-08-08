@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Analytics } from '@vercel/analytics/next'
 import { Suspense } from 'react'
 
 import { AmbientBackground } from '~/components/ambient-background'
@@ -232,7 +231,6 @@ export async function SiteDocument({
             <CommandPalette items={commandItems} />
           </PreviewCardTimingProvider>
         </ThemeProvider>
-        <Analytics />
       </body>
     </html>
   )
