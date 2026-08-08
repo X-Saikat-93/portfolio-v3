@@ -2,14 +2,14 @@ import { getSessionCookie } from 'better-auth/cookies'
 import type { NextFetchEvent, NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { isPublishedPostSlug } from './lib/public-content-routes'
+import { isBlogPostSlug } from './lib/public-content-routes'
 
 function missingPublicContent(pathname: string) {
   const postMatch = pathname.match(/^\/(?:en\/)?blog\/([^/]+)\/?$/)
   if (postMatch) {
     const slug = postMatch[1]
     if (/^(?:opengraph-image|twitter-image)-/.test(slug)) return false
-    return !isPublishedPostSlug(slug)
+    return !isBlogPostSlug(slug)
   }
 
   return false
