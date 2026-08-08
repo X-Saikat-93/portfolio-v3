@@ -9,6 +9,7 @@ import { NavCards, PhotoNavCard } from '~/components/nav-cards'
 import { PixelCluster } from '~/components/pixel-cluster'
 import { PortraitHiddenStage } from '~/components/portrait-hidden-stage'
 import { PostTitleTransition } from '~/components/post-title-transition'
+import { GitHubCommitsSection } from '~/components/github-commits-section'
 import { TechStackSection } from '~/components/tech-stack-section'
 import { T } from '~/lib/i18n'
 import { formatMonthDay } from '~/lib/date'
@@ -136,6 +137,8 @@ export async function HomePageView({ locale }: { locale: Locale }) {
       </section>
 
       <TechStackSection index={Number(nextSectionIndex())} />
+
+      <GitHubCommitsSection github={github} index={Number(nextSectionIndex())} />
 
       <section className="mt-16">
         <div className="flex items-center justify-between gap-4">

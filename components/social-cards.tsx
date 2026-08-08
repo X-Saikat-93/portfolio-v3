@@ -20,7 +20,7 @@ export interface GitHubSnapshot {
 const WEEKS = 26
 const DAYS = 7
 
-function Glyph() {
+export function GitHubGlyph() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -104,7 +104,7 @@ export function GitHubCardBody({ data }: { data: GitHubSnapshot }) {
             <b>{data.followers}</b> <T zh="关注者" en="followers" />
           </span>
         ) : null}
-        <Glyph />
+        <GitHubGlyph />
       </span>
     </>
   )
@@ -132,7 +132,7 @@ export function GitHubCard({
           <span className="service-card-name">Saikat Das</span>
           <span className="service-card-sub">@{data.user}</span>
         </span>
-        <Glyph />
+        <GitHubGlyph />
       </span>
       <span className="service-card-bio">
         <T
