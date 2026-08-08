@@ -5,11 +5,13 @@ export type CloudinaryImageOptions = {
   height?: number
   crop?: CloudinaryCrop
   gravity?: 'auto' | 'center' | 'face'
+  version?: string
 }
 
 export const cloudinaryCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? ''
 export const cloudinaryAvatarPublicId =
   process.env.NEXT_PUBLIC_CLOUDINARY_AVATAR_PUBLIC_ID ?? 'saikat-das/avatar'
+export const cloudinaryAvatarVersion = process.env.NEXT_PUBLIC_CLOUDINARY_AVATAR_VERSION ?? ''
 export const cloudinaryResumePublicId =
   process.env.NEXT_PUBLIC_CLOUDINARY_RESUME_PUBLIC_ID ?? 'saikat-das/resume'
 
@@ -22,7 +24,13 @@ function encodePublicId(publicId: string) {
 
 export function cloudinaryImageUrl(
   publicId: string,
-  { width, height, crop = 'fill', gravity = 'auto' }: CloudinaryImageOptions,
+  {
+    width,
+    height,
+    crop = 'fill',
+    gravity = 'auto',
+    version = publicId === cloudinaryAvatarPublicId ? cloudinaryAvatarVersion : '',
+  }: CloudinaryImageOptions,
 ) {
   if (!cloudinaryCloudName || !publicId) return null
 
@@ -37,7 +45,8 @@ export function cloudinaryImageUrl(
     .filter(Boolean)
     .join(',')
 
-  return `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${transform}/${encodePublicId(publicId)}`
+  const url = `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${transform}/${encodePublicId(publicId)}`
+  return version ? `${url}?v=${encodeURIComponent(version)}` : url
 }
 
 export function cloudinaryRawUrl(publicId: string, extension = 'pdf') {

@@ -1,4 +1,7 @@
+'use client'
+
 import Image, { type ImageProps } from 'next/image'
+import { useState } from 'react'
 
 import {
   cloudinaryAvatarPublicId,
@@ -12,6 +15,7 @@ type CloudinaryImageProps = Omit<ImageProps, 'src' | 'loader' | 'width' | 'heigh
   height: number
   crop?: CloudinaryCrop
   gravity?: 'auto' | 'center' | 'face'
+  fallbackSrc?: string
 }
 
 export function CloudinaryImage({
@@ -21,10 +25,17 @@ export function CloudinaryImage({
   crop = 'fill',
   gravity = 'auto',
   alt,
+  fallbackSrc,
   ...props
 }: CloudinaryImageProps) {
   const url = cloudinaryImageUrl(publicId, { width, height, crop, gravity })
-  if (!url) {
+  const [failed, setFailed] = useState(false)
+
+  if (!url || failed) {
+    if (fallbackSrc) {
+      return <Image {...props} src={fallbackSrc} alt={alt} width={width} height={height} />
+    }
+
     return (
       <span
         aria-label={alt}
@@ -51,6 +62,10 @@ export function CloudinaryImage({
       alt={alt}
       width={width}
       height={height}
+      onError={(event) => {
+        props.onError?.(event)
+        setFailed(true)
+      }}
       loader={({ width: requestedWidth }) =>
         cloudinaryImageUrl(publicId, {
           width: requestedWidth,
@@ -77,6 +92,7 @@ export function CloudinaryAvatar(
       publicId={cloudinaryAvatarPublicId}
       width={width}
       height={height}
+      fallbackSrc={props.fallbackSrc ?? '/images/saikat-avatar-preview.webp'}
       crop="fill"
       gravity="face"
     />
