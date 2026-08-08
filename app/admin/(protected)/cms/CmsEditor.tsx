@@ -7,7 +7,12 @@ type Entry = {
   slug: string
   title: string
   description: string
+  seoKeywords: string[]
   body: string
+  category: string
+  readingMinutes: number
+  coverImagePublicId: string | null
+  coverImageAlt: string
   status: 'draft' | 'published'
   updatedAt: string
 }
@@ -18,7 +23,12 @@ const emptyForm: FormState = {
   slug: '',
   title: '',
   description: '',
+  seoKeywords: [],
   body: '',
+  category: 'Notes',
+  readingMinutes: 5,
+  coverImagePublicId: null,
+  coverImageAlt: '',
   status: 'draft',
 }
 
@@ -109,6 +119,50 @@ export function CmsEditor() {
           placeholder="Description"
           className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
         />
+        <input
+          value={form.seoKeywords.join(', ')}
+          onChange={(event) =>
+            setField(
+              'seoKeywords',
+              event.target.value
+                .split(',')
+                .map((keyword) => keyword.trim())
+                .filter(Boolean),
+            )
+          }
+          placeholder="SEO keywords, separated by commas"
+          className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+        />
+        <div className="grid gap-3 sm:grid-cols-[1fr_10rem]">
+          <input
+            value={form.category}
+            onChange={(event) => setField('category', event.target.value)}
+            placeholder="Category"
+            required
+            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+          />
+          <input
+            type="number"
+            min={1}
+            max={120}
+            value={form.readingMinutes}
+            onChange={(event) => setField('readingMinutes', Number(event.target.value))}
+            aria-label="Reading time in minutes"
+            className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+          />
+        </div>
+        <input
+          value={form.coverImagePublicId ?? ''}
+          onChange={(event) => setField('coverImagePublicId', event.target.value || null)}
+          placeholder="Cloudinary cover public ID"
+          className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+        />
+        <input
+          value={form.coverImageAlt}
+          onChange={(event) => setField('coverImageAlt', event.target.value)}
+          placeholder="Cover image alt text"
+          className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+        />
         <textarea
           value={form.body}
           onChange={(event) => setField('body', event.target.value)}
@@ -156,7 +210,12 @@ export function CmsEditor() {
                   slug: entry.slug,
                   title: entry.title,
                   description: entry.description,
+                  seoKeywords: entry.seoKeywords,
                   body: entry.body,
+                  category: entry.category,
+                  readingMinutes: entry.readingMinutes,
+                  coverImagePublicId: entry.coverImagePublicId,
+                  coverImageAlt: entry.coverImageAlt,
                   status: entry.status,
                 })
               }}

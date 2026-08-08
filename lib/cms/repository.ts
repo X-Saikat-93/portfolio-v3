@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { desc, eq } from 'drizzle-orm'
+import { revalidateTag } from 'next/cache'
 
 import { getDatabase } from '~/db'
 import { cmsEntries } from '~/db/schema'
@@ -13,13 +14,20 @@ export async function createCmsEntry(input: {
   slug: string
   title: string
   description: string
+  seoKeywords: string[]
   body: string
+  category: string
+  readingMinutes: number
+  coverImagePublicId: string | null
+  coverImageAlt: string
   status: 'draft' | 'published'
 }) {
   const [entry] = await getDatabase().insert(cmsEntries).values({
     ...input,
     publishedAt: input.status === 'published' ? new Date() : null,
   }).returning()
+  revalidateTag('blog-posts', 'max')
+  revalidateTag(`blog-post:${input.slug}`, 'max')
   return entry
 }
 
@@ -29,7 +37,12 @@ export async function updateCmsEntry(
     slug: string
     title: string
     description: string
+    seoKeywords: string[]
     body: string
+    category: string
+    readingMinutes: number
+    coverImagePublicId: string | null
+    coverImageAlt: string
     status: 'draft' | 'published'
   }>,
 ) {
@@ -38,9 +51,15 @@ export async function updateCmsEntry(
     ...(input.status ? { publishedAt: input.status === 'published' ? new Date() : null } : {}),
     updatedAt: new Date(),
   }).where(eq(cmsEntries.id, id)).returning()
+  if (entry) {
+    revalidateTag('blog-posts', 'max')
+    revalidateTag(`blog-post:${entry.slug}`, 'max')
+  }
   return entry
 }
 
 export async function deleteCmsEntry(id: string) {
-  await getDatabase().delete(cmsEntries).where(eq(cmsEntries.id, id))
+  const [entry] = await getDatabase().delete(cmsEntries).where(eq(cmsEntries.id, id)).returning({ slug: cmsEntries.slug })
+  revalidateTag('blog-posts', 'max')
+  if (entry) revalidateTag(`blog-post:${entry.slug}`, 'max')
 }

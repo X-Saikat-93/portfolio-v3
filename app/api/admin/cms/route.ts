@@ -7,7 +7,12 @@ const entrySchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160),
   title: z.string().trim().min(1).max(240),
   description: z.string().max(1000),
+  seoKeywords: z.array(z.string().trim().min(1).max(80)).max(12).default([]),
   body: z.string().max(200_000),
+  category: z.string().trim().min(1).max(80),
+  readingMinutes: z.coerce.number().int().min(1).max(120),
+  coverImagePublicId: z.string().trim().max(500).nullable(),
+  coverImageAlt: z.string().trim().max(300),
   status: z.enum(['draft', 'published']),
 })
 

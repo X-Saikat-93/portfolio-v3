@@ -8,7 +8,12 @@ const updateSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160).optional(),
   title: z.string().trim().min(1).max(240).optional(),
   description: z.string().max(1000).optional(),
+  seoKeywords: z.array(z.string().trim().min(1).max(80)).max(12).optional(),
   body: z.string().max(200_000).optional(),
+  category: z.string().trim().min(1).max(80).optional(),
+  readingMinutes: z.coerce.number().int().min(1).max(120).optional(),
+  coverImagePublicId: z.string().trim().max(500).nullable().optional(),
+  coverImageAlt: z.string().trim().max(300).optional(),
   status: z.enum(['draft', 'published']).optional(),
 }).strict()
 
