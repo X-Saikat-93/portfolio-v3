@@ -12,6 +12,9 @@ export interface GitHubSnapshot {
   total?: number
   to?: string
   levels?: string
+  weeks?: number[]
+  dates?: string[]
+  counts?: number[]
 }
 
 const WEEKS = 26
