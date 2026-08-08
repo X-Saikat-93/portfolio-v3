@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import { FooterClock } from '~/components/footer-clock'
 import { FooterUtilities } from '~/components/footer-utilities'
-import { EmailCard, GitHubCard, type GitHubSnapshot } from '~/components/social-cards'
+import { EmailCard, GitHubCard, LinkedInCard, type GitHubSnapshot } from '~/components/social-cards'
 import { brailleText } from '~/lib/braille'
 import { T } from '~/lib/i18n'
 import { localePath, type Locale } from '~/lib/locale-route'
@@ -51,14 +51,7 @@ export function SiteFooter({
             <GitHubCard data={github} />
           </li>
           <li>
-            <a
-              href="https://www.linkedin.com/in/saikat933/"
-              target="_blank"
-              rel="noreferrer"
-              className="footer-tree-link"
-            >
-              LinkedIn
-            </a>
+            <LinkedInCard />
           </li>
           <li>
             <EmailCard address="ibx.saikat37@gmail.com" />
