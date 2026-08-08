@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 
 type FormState = {
@@ -136,7 +137,9 @@ export function ContactForm() {
       </div>
 
       <div className="contact-form-bottomline">
-        <span className="contact-form-note">Replies go to the address you leave above.</span>
+        <span className="contact-form-note">
+          Replies go to the address you leave above. <Link href="/en/privacy">Privacy policy</Link>.
+        </span>
         <button
           type="submit"
           disabled={state === 'sending'}

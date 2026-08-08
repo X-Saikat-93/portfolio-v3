@@ -70,9 +70,9 @@ export function ContactInbox() {
         </span>
       </div>
 
-      {message ? <p className="mt-4 text-sm text-destructive">{message}</p> : null}
+      {message ? <p className="enter mt-4 text-sm text-destructive">{message}</p> : null}
 
-      <ul className="contact-inbox-list mt-8">
+      <ul className="contact-inbox-list motion-list mt-8">
         {submissions.map((submission) => (
           <li key={submission.id} className="contact-inbox-item" data-status={submission.status}>
             <div className="flex items-start justify-between gap-3">
