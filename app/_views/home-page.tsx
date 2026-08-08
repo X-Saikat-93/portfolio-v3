@@ -1,13 +1,19 @@
 import Link from 'next/link'
+import { CloudinaryImage } from '~/components/cloudinary-image'
 import { cloudinaryAvatarPublicId, cloudinaryImageUrl } from '~/lib/cloudinary/image-url'
 import { ExternalLabel } from '~/components/external-mark'
 import { HalftonePortrait } from '~/components/halftone-portrait'
 import { HomeIntroduction } from '~/components/home-introduction'
+import { HomeBookshelf } from '~/components/home-bookshelf'
 import { NavCards, PhotoNavCard } from '~/components/nav-cards'
 import { PixelCluster } from '~/components/pixel-cluster'
 import { PortraitHiddenStage } from '~/components/portrait-hidden-stage'
+import { PostTitleTransition } from '~/components/post-title-transition'
+import { TechStackSection } from '~/components/tech-stack-section'
 import { T } from '~/lib/i18n'
+import { formatMonthDay } from '~/lib/date'
 import { localePath, type Locale } from '~/lib/locale-route'
+import { safeListPublishedBlogPosts } from '~/lib/blog/repository'
 import { safeListPublishedCollectionItems } from '~/lib/collections/repository'
 import { experience } from '~/lib/personal'
 import { projects } from '~/lib/projects'
@@ -36,17 +42,18 @@ function SectionTitle({
   )
 }
 export async function HomePageView({ locale }: { locale: Locale }) {
-  const [github, photos, books, music] = await Promise.all([
+  const [github, photos, books, music, posts] = await Promise.all([
     getGitHub(),
     safeListPublishedCollectionItems('photo'),
     safeListPublishedCollectionItems('book'),
     safeListPublishedCollectionItems('music'),
+    safeListPublishedBlogPosts(),
   ])
   const portraitUrl = cloudinaryImageUrl(cloudinaryAvatarPublicId, {
     width: 1000,
     height: 1000,
-    crop: 'fill',
-    gravity: 'face',
+    crop: 'fit',
+    gravity: 'center',
   }) ?? '/images/saikat-avatar-preview.webp'
   // Section tags number in render order.
   let sectionCount = 0
@@ -66,15 +73,12 @@ export async function HomePageView({ locale }: { locale: Locale }) {
         </div>
         <div className="w-[9.35rem] shrink-0 sm:w-60">
           <PortraitHiddenStage
-            label={
-              locale === 'en'
-                ? "Saikat's halftone portrait. Reveal the hidden topographic field"
-                : "Saikat's halftone portrait. Reveal the hidden topographic field"
-            }
+            label="Saikat's halftone portrait. Reveal the hidden topographic halo"
           >
             <HalftonePortrait
               srcLight={portraitUrl}
               srcDark={portraitUrl}
+              fallbackSrc="/images/saikat-avatar-preview.webp"
               alt="Saikat's halftone portrait"
               altEn="Saikat's halftone portrait"
             />
@@ -83,7 +87,7 @@ export async function HomePageView({ locale }: { locale: Locale }) {
       </div>
 
       <NavCards
-        postCount={0}
+        postCount={posts.length}
         projectCount={projects.length}
         locale={locale}
         photoCard={<PhotoNavCard photoCount={photos.length} locale={locale} />}
@@ -131,6 +135,8 @@ export async function HomePageView({ locale }: { locale: Locale }) {
         </ul>
       </section>
 
+      <TechStackSection index={Number(nextSectionIndex())} />
+
       <section className="mt-16">
         <div className="flex items-center justify-between gap-4">
           <SectionTitle index={nextSectionIndex()} delay={200}>
@@ -144,13 +150,50 @@ export async function HomePageView({ locale }: { locale: Locale }) {
             <T zh="查看全部" en="View all" />
           </Link>
         </div>
-        <ul className="focus-list mt-4 flex flex-col">
-          <li className="text-sm text-muted-foreground">
-            <T
-              zh="Writing will appear here when it is ready."
-              en="Writing will appear here when it is ready."
-            />
-          </li>
+        <ul className="home-writing-list motion-list mt-4 flex flex-col">
+          {posts.length === 0 ? (
+            <li className="empty-state text-sm" role="status">
+              <T zh="Writing will appear here when it is ready." en="Writing will appear here when it is ready." />
+            </li>
+          ) : (
+            posts.slice(0, 3).map((post, index) => (
+              <li key={post.slug} className="hairline-top">
+                <Link
+                  href={localePath(locale, `/blog/${post.slug}`)}
+                  className="home-writing-row"
+                >
+                  <span className="home-writing-cover" aria-hidden={!post.coverImageAlt}>
+                    {post.coverImagePublicId ? (
+                      <CloudinaryImage
+                        publicId={post.coverImagePublicId}
+                        alt={post.coverImageAlt}
+                        width={240}
+                        height={144}
+                        sizes="96px"
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                        className="home-writing-cover-image"
+                      />
+                    ) : (
+                      <span className="home-writing-cover-empty" />
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="home-writing-meta">
+                      <span>{post.category}</span>
+                      <time dateTime={post.publishedAt.toISOString()}>
+                        {formatMonthDay(post.publishedAt)}
+                      </time>
+                    </span>
+                    <PostTitleTransition slug={post.slug}>
+                      <span className="home-writing-title">{post.title}</span>
+                    </PostTitleTransition>
+                    <span className="home-writing-summary">{post.description}</span>
+                    <span className="home-writing-time">{post.readingMinutes} min read</span>
+                  </span>
+                </Link>
+              </li>
+            ))
+          )}
         </ul>
       </section>
 
@@ -159,18 +202,22 @@ export async function HomePageView({ locale }: { locale: Locale }) {
           <SectionTitle index={nextSectionIndex()} delay={240}>
             <T zh="收藏" en="Collections" />
           </SectionTitle>
-          <ul className="focus-list mt-4 flex flex-col">
-            {books.length > 0 ? (
-              <li className="hairline-top py-3 text-sm">
-                <Link href={localePath(locale, '/books')} className="flex items-center justify-between gap-4 hover:text-foreground">
-                  <span>Books</span>
-                  <span className="text-muted-foreground">{books.length}</span>
-                </Link>
-              </li>
-            ) : null}
+          {books.length > 0 ? (
+            <HomeBookshelf
+              books={books.map((book) => ({
+                id: book.id,
+                title: book.title,
+                creator: book.creator,
+                url: book.url,
+                imagePublicId: book.imagePublicId,
+              }))}
+              allBooksHref={localePath(locale, '/books')}
+            />
+          ) : null}
+          <ul className="focus-list motion-list flex flex-col">
             {music.length > 0 ? (
               <li className="hairline-top py-3 text-sm">
-                <Link href={localePath(locale, '/music')} className="flex items-center justify-between gap-4 hover:text-foreground">
+                <Link href={localePath(locale, '/music')} className="list-row-link flex items-center justify-between gap-4">
                   <span>Music</span>
                   <span className="text-muted-foreground">{music.length}</span>
                 </Link>

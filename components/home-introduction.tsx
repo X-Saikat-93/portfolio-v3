@@ -138,7 +138,16 @@ function HomeContact({ github }: { github: GitHubSnapshot }) {
         zh="Find me on GitHub or by email."
         en={
           <>
-            Find me on <GitHubCard data={github} triggerClassName="home-contact-link" /> or{' '}
+            Find me on <GitHubCard data={github} triggerClassName="home-contact-link" />,{' '}
+            <a
+              href="https://www.linkedin.com/in/saikat933/"
+              target="_blank"
+              rel="noreferrer"
+              className="home-contact-link"
+            >
+              LinkedIn
+            </a>
+            , or{' '}
             <EmailCard
               address="ibx.saikat37@gmail.com"
               trigger="ibx.saikat37@gmail.com"
