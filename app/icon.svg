@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-labelledby="title">
+  <title id="title">Saikat Das</title>
+  <style>
+    .mark-frame { fill: #fbfaf6; stroke: #b7b4ad; }
+    .mark-corner { stroke: #94918a; }
+    .mark-letters { fill: #706d67; }
+    .mark-signal { fill: #c87835; }
+
+    @media (prefers-color-scheme: dark) {
+      .mark-frame { fill: #2b2925; stroke: #706d65; }
+      .mark-corner { stroke: #8f8b82; }
+      .mark-letters { fill: #d9d3c8; }
+      .mark-signal { fill: #d48a4c; }
+    }
+  </style>
+  <rect class="mark-frame" x="5" y="5" width="30" height="30" />
+  <path class="mark-corner" d="M2 8V2h6" fill="none" stroke-width="1" />
+  <text
+    class="mark-letters"
+    x="20"
+    y="24"
+    text-anchor="middle"
+    font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+    font-size="9"
+    font-weight="500"
+    letter-spacing=".72"
+  >SD</text>
+  <rect class="mark-signal" x="32" y="32" width="4" height="4" />
+</svg>
