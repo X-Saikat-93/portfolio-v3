@@ -55,3 +55,6 @@ static/
 .env*
 .inputs/
 _inputs/
+
+# local dev artifacts
+tmp/
