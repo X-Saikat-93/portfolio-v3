@@ -13,7 +13,17 @@ interface LocaleMetadataOptions {
 }
 
 const SOCIAL_IMAGE_VERSION = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12)
-const SECTION_IMAGE_PATHS = new Set(['/blog', '/photos', '/projects'])
+const SECTION_IMAGE_PATHS = new Set([
+  '/blog',
+  '/photos',
+  '/books',
+  '/music',
+  '/projects',
+  '/now',
+  '/resume',
+  '/contact',
+  '/privacy',
+])
 
 export function socialImageUrl(locale: Locale, path: string) {
   const url = new URL('/og', seo.url)
@@ -63,6 +73,9 @@ export function localeMetadata({
   return {
     title,
     description,
+    authors: [{ name: 'Saikat Das', url: new URL('/en', seo.url) }],
+    creator: 'Saikat Das',
+    publisher: 'Saikat Das',
     alternates: {
       canonical,
       languages: pair.languages,

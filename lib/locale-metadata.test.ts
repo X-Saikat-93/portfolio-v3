@@ -20,6 +20,11 @@ describe('localeMetadata', () => {
       type: 'website',
       url: new URL('/en/blog/a-post', seo.url),
     })
+    expect(metadata.authors).toEqual([
+      { name: 'Saikat Das', url: new URL('/en', seo.url) },
+    ])
+    expect(metadata.creator).toBe('Saikat Das')
+    expect(metadata.publisher).toBe('Saikat Das')
     expect(metadata.twitter).toEqual({
       card: 'summary_large_image',
       title: 'A post',
@@ -46,5 +51,24 @@ describe('localeMetadata', () => {
 
     expect(metadata.alternates?.canonical).toEqual(new URL('/en/blog/a-post', seo.url))
     expect(metadata.openGraph?.url).toEqual(new URL('/en/blog/a-post', seo.url))
+  })
+
+  it('points utility pages at a valid Saikat Das OG route', () => {
+    for (const path of ['/contact', '/resume', '/now', '/privacy']) {
+      const metadata = localeMetadata({
+        locale: 'en',
+        path,
+        title: path.slice(1),
+        description: 'A page description',
+      })
+
+      const images = metadata.openGraph?.images
+      const image = Array.isArray(images) ? images[0] : images
+
+      expect(image).toMatchObject({
+        url: new URL(`/og?locale=en&path=${encodeURIComponent(path)}`, seo.url),
+        alt: `${path.slice(1)} · Saikat Das. A page description`,
+      })
+    }
   })
 })
