@@ -20,6 +20,11 @@ import { cloudinaryImageUrl } from '~/lib/cloudinary/image-url'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
 import { seo } from '~/lib/seo'
 
+export async function generateStaticParams() {
+  const posts = await safeListPublishedBlogPosts()
+  return posts.map((post) => ({ slug: post.slug }))
+}
+
 export async function generateMetadata({
   params,
 }: {
