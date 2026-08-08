@@ -1,10 +1,11 @@
-import { ExternalLabel } from '~/components/external-mark'
+import Link from 'next/link'
+
 import { GhostSchematic } from '~/components/ghost-schematic'
 import { ProjectsBlueprintStage } from '~/components/hidden-list-stage'
 import { PixelCluster } from '~/components/pixel-cluster'
 import { T } from '~/lib/i18n'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
-import { projects } from '~/lib/projects'
+import { projectPath, projects } from '~/lib/projects'
 
 export function ProjectsPageView() {
   const center = (projects.length - 1) / 2
@@ -34,7 +35,7 @@ export function ProjectsPageView() {
         <ul className="focus-list flex flex-col">
           {projects.map((project, index) => (
             <li
-              key={project.name}
+              key={project.id}
               className="enter-swing"
               style={
                 {
@@ -42,31 +43,29 @@ export function ProjectsPageView() {
                 } as React.CSSProperties
               }
             >
-              <a
-                href={project.url}
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                href={projectPath(project.id)}
                 className="project-row hairline-top group"
                 data-list-stage-row
-                data-list-stage-id={project.name}
+                data-list-stage-id={project.id}
               >
                 <span className="project-icon-frame" aria-hidden="true" data-list-stage-anchor>
-                  <span className="project-glyph">↗</span>
+                  <span className="project-glyph">→</span>
                 </span>
                 <span className="project-identity">
                   <span className="project-name font-medium">
-                    <ExternalLabel>
-                      <T zh={project.name} en={project.nameEn} />
-                    </ExternalLabel>
+                    <T zh={project.name} en={project.nameEn} />
                   </span>
-                  <span className="project-domain text-muted-foreground">{project.domain}</span>
+                  <span className="project-domain text-muted-foreground">
+                    {project.category} · {project.status}
+                  </span>
                 </span>
                 {project.description ? (
                   <span className="project-description text-muted-foreground">
                     <T zh={project.description} en={project.descriptionEn ?? project.description} />
                   </span>
                 ) : null}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
