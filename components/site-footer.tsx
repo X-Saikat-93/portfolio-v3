@@ -2,6 +2,7 @@ import { cacheLife } from 'next/cache'
 import Link from 'next/link'
 
 import { FooterClock } from '~/components/footer-clock'
+import { FooterUtilities } from '~/components/footer-utilities'
 import { EmailCard, GitHubCard, type GitHubSnapshot } from '~/components/social-cards'
 import { brailleText } from '~/lib/braille'
 import { T } from '~/lib/i18n'
@@ -50,6 +51,16 @@ export function SiteFooter({
             <GitHubCard data={github} />
           </li>
           <li>
+            <a
+              href="https://www.linkedin.com/in/saikat933/"
+              target="_blank"
+              rel="noreferrer"
+              className="footer-tree-link"
+            >
+              LinkedIn
+            </a>
+          </li>
+          <li>
             <EmailCard address="ibx.saikat37@gmail.com" />
           </li>
         </Tree>
@@ -90,6 +101,11 @@ export function SiteFooter({
             </Link>
           </li>
           <li>
+            <Link href={localePath(locale, '/now')} className="footer-tree-link">
+              <T zh="现在" en="Now" />
+            </Link>
+          </li>
+          <li>
             <Link href={localePath(locale, '/contact')} className="footer-tree-link">
               <T zh="联系" en="Contact" />
             </Link>
@@ -101,11 +117,17 @@ export function SiteFooter({
           </li>
         </Tree>
         <div className="footer-colophon col-span-2 sm:order-first sm:col-span-1">
-          <div>
-            <p>
-              © <CopyrightYear /> Saikat Das
-            </p>
-            <p className="footer-braille" aria-hidden>
+          <div className="footer-signature">
+            <span className="footer-signature-mark" aria-hidden="true">
+              SD
+            </span>
+            <div className="footer-signature-copy">
+              <p className="footer-signature-name">Saikat Das</p>
+              <p className="footer-copyright">
+                © <CopyrightYear />
+              </p>
+            </div>
+            <p className="footer-braille" aria-hidden="true">
               {brailleText('saikat das')}
             </p>
           </div>
@@ -125,6 +147,7 @@ export function SiteFooter({
           </div>
         </div>
       </div>
+      <FooterUtilities locale={locale} />
     </footer>
   )
 }
