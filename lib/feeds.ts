@@ -4,6 +4,14 @@ import type { BlogPost } from '~/lib/blog/repository'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
 import { seoEn } from '~/lib/seo'
 
+function formatFeedXml(xml: string) {
+  return (
+    xml
+      .replace(/^(<\?xml[^?]*\?>)(<rss)/, '$1\n$2')
+      .trimEnd() + '\n'
+  )
+}
+
 export function buildEnglishFeedXml(posts: BlogPost[] = []) {
   const siteUrl = new URL('/en/blog', seoEn.url).href
   const feedUrl = new URL('/en/feed.xml', seoEn.url).href
@@ -40,7 +48,7 @@ export function buildEnglishFeedXml(posts: BlogPost[] = []) {
     })
   }
 
-  const xml = feed.xml()
+  const xml = formatFeedXml(feed.xml({ indent: '  ' }))
   if (!latestUpdatedAt) return xml
 
   return xml.replace(

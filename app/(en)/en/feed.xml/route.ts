@@ -14,9 +14,9 @@ async function getEnglishFeedXml() {
 export async function GET() {
   return new Response(await getEnglishFeedXml(), {
     headers: {
-      'cache-control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=86400',
-      'content-type': 'application/rss+xml; charset=utf-8',
-      'x-content-type-options': 'nosniff',
-    },
-  })
+     'cache-control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=86400',
+      'content-type': 'application/xml; charset=utf-8',
+     'x-content-type-options': 'nosniff',
+   },
+ })
 }
