@@ -1,17 +1,94 @@
 import Link from 'next/link'
 
+import { CloudinaryImage } from '~/components/cloudinary-image'
 import { ExternalLabel } from '~/components/external-mark'
 import { GhostSchematic } from '~/components/ghost-schematic'
 import { PixelCluster } from '~/components/pixel-cluster'
-import type { Project } from '~/lib/projects'
+import type { ProjectCaseStudy, ProjectWithCaseStudy } from '~/lib/projects'
 import { projectPath } from '~/lib/projects'
 
-function SectionHeading({ index, children }: { index: string; children: React.ReactNode }) {
+function SectionHeading({
+  index,
+  id,
+  children,
+}: {
+  index: string
+  id?: string
+  children: React.ReactNode
+}) {
   return (
     <div className="project-dossier-section-heading">
       <span aria-hidden="true">{index}</span>
-      <h2>{children}</h2>
+      <h2 id={id}>{children}</h2>
     </div>
+  )
+}
+
+function CaseStudySection({
+  caseStudy,
+}: {
+  caseStudy: ProjectCaseStudy
+}) {
+  return (
+    <section className="project-case-study" aria-labelledby="project-case-study-title">
+      <SectionHeading index="01" id="project-case-study-title">
+        Evidence case study
+      </SectionHeading>
+
+      <p className="project-case-study-framing">{caseStudy.framing}</p>
+
+      <dl className="project-case-study-proof" aria-label="Case study evidence">
+        {caseStudy.proof.map((item) => (
+          <div key={item.label}>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="project-case-study-grid">
+        <article className="project-case-study-card">
+          <h3>Challenge</h3>
+          <p>{caseStudy.challenge}</p>
+        </article>
+        <article className="project-case-study-card">
+          <h3>What I owned</h3>
+          <ul>
+            {caseStudy.ownership.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </article>
+      </div>
+
+      <section className="project-case-study-section" aria-labelledby="project-decisions-title">
+        <h3 id="project-decisions-title">Key decisions</h3>
+        <ol className="project-case-study-decision-list">
+          {caseStudy.decisions.map((decision, index) => (
+            <li key={decision.title}>
+              <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <h4>{decision.title}</h4>
+                <p>{decision.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="project-case-study-section" aria-labelledby="project-evidence-title">
+        <h3 id="project-evidence-title">Evidence of the result</h3>
+        <ul className="project-case-study-evidence-list">
+          {caseStudy.evidence.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <p className="project-case-study-boundary">
+        <strong>Evidence boundary.</strong> {caseStudy.boundary}
+      </p>
+    </section>
   )
 }
 
@@ -22,11 +99,11 @@ export function ProjectDetailPage({
   previous,
   next,
 }: {
-  project: Project
+  project: ProjectWithCaseStudy
   position: number
   total: number
-  previous?: Project
-  next?: Project
+  previous?: ProjectWithCaseStudy
+  next?: ProjectWithCaseStudy
 }) {
   const caseNumber = String(position).padStart(2, '0')
   const caseTotal = String(total).padStart(2, '0')
@@ -59,6 +136,19 @@ export function ProjectDetailPage({
         >
           {project.descriptionEn ?? project.description}
         </p>
+
+        {project.caseStudy?.heroImagePublicId ? (
+          <figure className="project-dossier-hero enter" style={{ '--enter-delay': '110ms' } as React.CSSProperties}>
+            <CloudinaryImage
+              publicId={project.caseStudy.heroImagePublicId}
+              alt={project.caseStudy.heroImageAlt || `${project.nameEn} project image`}
+              width={1200}
+              height={720}
+              sizes="(max-width: 640px) calc(100vw - 3rem), 600px"
+              className="project-dossier-hero-image"
+            />
+          </figure>
+        ) : null}
 
         <div
           className="project-dossier-actions enter"
@@ -94,6 +184,8 @@ export function ProjectDetailPage({
         </div>
       </dl>
 
+      {project.caseStudy ? <CaseStudySection caseStudy={project.caseStudy} /> : null}
+
       <section
         className="project-system-plate enter"
         aria-labelledby="project-system-title"
@@ -121,14 +213,16 @@ export function ProjectDetailPage({
         )}
       </section>
 
-      <section className="project-dossier-section">
-        <SectionHeading index="01">Overview</SectionHeading>
-        <div className="project-dossier-prose">
-          {project.overview.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      </section>
+      {!project.caseStudy ? (
+        <section className="project-dossier-section">
+          <SectionHeading index="01">Overview</SectionHeading>
+          <div className="project-dossier-prose">
+            {project.overview.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="project-dossier-section">
         <SectionHeading index="02">Product surface</SectionHeading>
@@ -142,7 +236,7 @@ export function ProjectDetailPage({
         </ol>
       </section>
 
-      {project.notes.length ? (
+      {!project.caseStudy && project.notes.length ? (
         <section className="project-dossier-section">
           <SectionHeading index="03">Engineering notes</SectionHeading>
           <div className="project-note-register">
@@ -160,7 +254,9 @@ export function ProjectDetailPage({
       ) : null}
 
       <section className="project-dossier-section">
-        <SectionHeading index={project.notes.length ? '04' : '03'}>Build register</SectionHeading>
+        <SectionHeading index={project.caseStudy ? '03' : project.notes.length ? '04' : '03'}>
+          Build register
+        </SectionHeading>
         <ul className="project-stack-register" aria-label="Technology stack">
           {project.stack.map((technology, index) => (
             <li key={technology}>
