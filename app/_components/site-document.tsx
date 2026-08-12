@@ -22,12 +22,38 @@ import { fontVariablesForLocale } from '../fonts'
 export const rootMetadata: Metadata = {
   metadataBase: seo.url,
   description: seo.description,
+  keywords: [
+    'Saikat Das',
+    'full-stack product engineer',
+    'software engineer',
+    'web products',
+    'APIs',
+    'Node.js',
+    'React',
+    'Next.js',
+    'PostgreSQL',
+  ],
   applicationName: 'Saikat Das',
   authors: [{ name: 'Saikat Das', url: new URL('/en', seo.url) }],
   creator: 'Saikat Das',
   publisher: 'Saikat Das',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  formatDetection: {
+    email: false,
+    telephone: false,
+  },
   title: {
-    default: 'Saikat Das',
+    default: seo.title,
     template: '%s | Saikat Das',
   },
 }
@@ -192,7 +218,15 @@ export async function SiteDocument({
               '@id': new URL('/en#person', seo.url).href,
               name: 'Saikat Das',
               url: new URL('/en', seo.url).href,
-              jobTitle: 'Product Engineer',
+              jobTitle: 'Full-Stack Software Engineer',
+              description: seo.description,
+              knowsAbout: [
+                'Web product engineering',
+                'API design',
+                'Real-time systems',
+                'Data systems',
+                'Automation',
+              ],
               sameAs: [
                 'https://github.com/X-Saikat-93',
                 'https://www.linkedin.com/in/saikat933/',
@@ -201,9 +235,10 @@ export async function SiteDocument({
             {
               '@context': 'https://schema.org',
               '@type': 'WebSite',
-              '@id': new URL('/#website', seo.url).href,
+              '@id': new URL('/en#website', seo.url).href,
               name: 'Saikat Das',
               url: new URL('/en', seo.url).href,
+              description: seo.description,
               inLanguage: 'en',
               author: { '@id': new URL('/en#person', seo.url).href },
             },

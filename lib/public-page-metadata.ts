@@ -1,14 +1,18 @@
 export const publicPageMetadata = {
   home: {
     zh: {
-      title: 'Saikat Das',
-      description: 'Product Engineer building reliable web products end to end.',
-      ogDescription: 'Product Engineer building reliable web products end to end.',
+      title: 'Saikat Das | Full-Stack Product Engineer',
+      description:
+        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
+      ogDescription:
+        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
     },
     en: {
-      title: 'Saikat Das',
-      description: 'Product Engineer building reliable web products end to end.',
-      ogDescription: 'Product Engineer building reliable web products end to end.',
+      title: 'Saikat Das | Full-Stack Product Engineer',
+      description:
+        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
+      ogDescription:
+        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
     },
   },
   blog: {
@@ -56,11 +60,11 @@ export const publicPageMetadata = {
   resume: {
     zh: {
       title: 'Resume',
-      description: 'Resume for Saikat Das, Product Engineer.',
+      description: 'Resume for Saikat Das, Full-Stack Software Engineer.',
     },
     en: {
       title: 'Resume',
-      description: 'Resume for Saikat Das, Product Engineer.',
+      description: 'Resume for Saikat Das, Full-Stack Software Engineer.',
     },
   },
   contact: {

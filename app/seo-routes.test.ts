@@ -44,9 +44,16 @@ describe('localized discovery routes', () => {
     ])
 
     expect(xml).toContain(`<atom:link href="${new URL('/en/feed.xml', seo.url).href}" rel="self"`)
-    expect(xml).toContain(`<link>${new URL('/en', seo.url).href}</link>`)
+    expect(xml).toContain(`<link>${new URL('/en/blog', seo.url).href}</link>`)
     expect(xml).toContain('<item>')
+    expect(xml).toContain('<title><![CDATA[Saikat Das | Full-Stack Product Engineer — Writing]]></title>')
+    expect(xml).toContain('<generator>Saikat Das Portfolio</generator>')
+    expect(xml).toContain('<docs>https://www.rssboard.org/rss-specification</docs>')
+    expect(xml).toContain('<pubDate>Sat, 01 Aug 2026 06:30:00 GMT</pubDate>')
     expect(xml).toContain('<title><![CDATA[A real post]]></title>')
+    expect(xml).toContain('<guid isPermaLink="true">' + new URL('/en/blog/a-real-post', seo.url).href + '</guid>')
+    expect(xml).toContain('<dc:creator><![CDATA[Saikat Das]]></dc:creator>')
+    expect(xml).toContain('<category><![CDATA[Notes]]></category>')
   })
 
   it('publishes only the English public routes', async () => {

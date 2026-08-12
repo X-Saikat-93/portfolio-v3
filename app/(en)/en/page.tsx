@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { JsonLd } from '~/components/json-ld'
 import { HomePageView } from '../../_views/home-page'
 import { localeMetadata } from '~/lib/locale-metadata'
 import { seoEn } from '~/lib/seo'
@@ -14,9 +15,39 @@ export const metadata: Metadata = {
     title: seoEn.title,
     description: seoEn.description,
   }),
+  keywords: [
+    'full-stack product engineer',
+    'software engineer',
+    'web products',
+    'APIs',
+    'Node.js',
+    'React',
+    'Next.js',
+    'PostgreSQL',
+  ],
   title: { absolute: seoEn.title },
 }
 
 export default function EnglishHomePage() {
-  return <HomePageView locale="en" />
+  const canonical = new URL('/en', seoEn.url).href
+
+  return (
+    <>
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'ProfilePage',
+          '@id': canonical + '#profile',
+          url: canonical,
+          name: seoEn.title,
+          description: seoEn.description,
+          inLanguage: 'en-US',
+          mainEntity: {
+            '@id': canonical + '#person',
+          },
+        }}
+      />
+      <HomePageView locale="en" />
+    </>
+  )
 }

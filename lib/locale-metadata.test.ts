@@ -31,7 +31,7 @@ describe('localeMetadata', () => {
       description: 'An English summary',
       images: [
         {
-          url: new URL('/og?locale=en&path=%2Fblog%2Fa-post', seo.url),
+          url: new URL('/og?locale=en&path=%2Fblog%2Fa-post&v=v2', seo.url),
           width: 1200,
           height: 630,
           alt: 'A post · Saikat Das',
@@ -53,6 +53,19 @@ describe('localeMetadata', () => {
     expect(metadata.openGraph?.url).toEqual(new URL('/en/blog/a-post', seo.url))
   })
 
+  it('advertises the English writing feed from the homepage', () => {
+    const metadata = localeMetadata({
+      locale: 'en',
+      path: '/',
+      title: 'Saikat Das | Full-Stack Product Engineer',
+      description: 'A full-stack product engineer portfolio.',
+    })
+
+    expect(metadata.alternates?.types).toEqual({
+      'application/rss+xml': new URL('/en/feed.xml', seo.url).href,
+    })
+  })
+
   it('points utility pages at a valid Saikat Das OG route', () => {
     for (const path of ['/contact', '/resume', '/now', '/privacy']) {
       const metadata = localeMetadata({
@@ -66,7 +79,7 @@ describe('localeMetadata', () => {
       const image = Array.isArray(images) ? images[0] : images
 
       expect(image).toMatchObject({
-        url: new URL(`/og?locale=en&path=${encodeURIComponent(path)}`, seo.url),
+        url: new URL('/og?locale=en&path=' + encodeURIComponent(path) + '&v=v2', seo.url),
         alt: `${path.slice(1)} · Saikat Das. A page description`,
       })
     }

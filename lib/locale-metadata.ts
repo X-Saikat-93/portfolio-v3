@@ -12,7 +12,9 @@ interface LocaleMetadataOptions {
   type?: 'article' | 'website'
 }
 
-const SOCIAL_IMAGE_VERSION = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12)
+const SOCIAL_IMAGE_VERSION = process.env.VERCEL_GIT_COMMIT_SHA
+  ? 'v2-' + process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)
+  : 'v2'
 const SECTION_IMAGE_PATHS = new Set([
   '/blog',
   '/photos',
@@ -79,6 +81,13 @@ export function localeMetadata({
     alternates: {
       canonical,
       languages: pair.languages,
+      ...(path === '/'
+        ? {
+            types: {
+              'application/rss+xml': new URL('/en/feed.xml', seo.url).href,
+            },
+          }
+        : {}),
     },
     openGraph: {
       title,

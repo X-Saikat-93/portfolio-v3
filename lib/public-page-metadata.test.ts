@@ -5,9 +5,11 @@ import { publicPageMetadata } from './public-page-metadata'
 describe('public page metadata copy', () => {
   it('uses Saikat’s English homepage copy', () => {
     expect(publicPageMetadata.home.en).toEqual({
-      title: 'Saikat Das',
-      description: 'Product Engineer building reliable web products end to end.',
-      ogDescription: 'Product Engineer building reliable web products end to end.',
+      title: 'Saikat Das | Full-Stack Product Engineer',
+      description:
+        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
+      ogDescription:
+        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
     })
   })
 
@@ -39,8 +41,8 @@ describe('public page metadata copy', () => {
       description: 'A current snapshot of what Saikat Das is building, learning, reading, and open to.',
     })
     expect(publicPageMetadata.resume.en).toEqual({
-      title: 'Resume',
-      description: 'Resume for Saikat Das, Product Engineer.',
+    title: 'Resume',
+    description: 'Resume for Saikat Das, Full-Stack Software Engineer.',
     })
     expect(publicPageMetadata.contact.en).toEqual({
       title: 'Contact',
