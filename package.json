@@ -22,6 +22,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "content:seed": "node --no-warnings --env-file-if-exists=.env --experimental-strip-types scripts/seed-content.ts",
+    "case-studies:seed": "node --no-warnings --env-file-if-exists=.env --experimental-strip-types scripts/seed-project-case-studies.ts",
+    "resume:seed": "node --no-warnings --env-file-if-exists=.env --experimental-strip-types scripts/seed-resume.ts",
     "start": "next start",
     "test:security": "vitest run lib/security",
     "test:unit": "vitest run app components db lib --exclude='**/*.live.test.ts'",
