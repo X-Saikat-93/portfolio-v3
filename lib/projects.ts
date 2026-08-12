@@ -9,6 +9,18 @@ export interface ProjectNote {
   body: string
 }
 
+export interface ProjectCaseStudy {
+  heroImagePublicId?: string | null
+  heroImageAlt?: string
+  framing: string
+  challenge: string
+  ownership: readonly string[]
+  proof: readonly { label: string; value: string }[]
+  decisions: readonly ProjectNote[]
+  evidence: readonly string[]
+  boundary: string
+}
+
 export interface Project {
   id: string
   name: string
@@ -28,6 +40,8 @@ export interface Project {
   flow: string[]
   links: ProjectLink[]
 }
+
+export type ProjectWithCaseStudy = Project & { caseStudy?: ProjectCaseStudy }
 
 // Project copy is grounded in Saikat's public repositories, the two local
 // production codebases, and his resume. Sparse public repositories stay
