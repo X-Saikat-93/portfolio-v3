@@ -1,0 +1,40 @@
+{
+  "projectId": "zaruro",
+  "framing": "A marketplace with web, mobile, and operations surfaces needs one booking state—and a recovery path when any client disconnects.",
+  "challenge": "Booking status could drift between web and mobile clients after a dropped connection. The same product also had to carry payments, notifications, verification, and fulfilment across customer, worker, admin, and background-verification surfaces.",
+  "ownership": [
+    "Sole technical owner across the five-app monorepo: customer and worker web, Expo mobile, API, and operational applications.",
+    "Owned 50+ Express routes spanning auth, payments, notifications, booking state, and reconciliation between payment webhooks and internal records.",
+    "Owned delivery concerns as well as feature work: Docker images, pre-merge type-check and lint gates, and a tested rollback path."
+  ],
+  "proof": [
+    { "label": "Surface", "value": "5-app monorepo" },
+    { "label": "Route surface", "value": "50+ Express routes" },
+    { "label": "Recovery", "value": "Idempotent reconnect retries" },
+    { "label": "State layer", "value": "Postgres + Redis + Socket.IO" }
+  ],
+  "decisions": [
+    {
+      "title": "Make reconnect a normal path",
+      "body": "Rebuilt booking updates around Socket.IO and Redis Pub/Sub with idempotent retries, so a client can catch up after a dropped connection instead of polling on a timer."
+    },
+    {
+      "title": "Keep durable state authoritative",
+      "body": "PostgreSQL remains the system of record while Redis supports fast-moving operational state and Socket.IO carries live updates."
+    },
+    {
+      "title": "Cover the closed-app case",
+      "body": "Added push notifications alongside Socket.IO because a customer may need a booking update when the app is not open."
+    },
+    {
+      "title": "Treat discovery through confirmation as one flow",
+      "body": "Rebuilt the customer frontend in Next.js with server-side rendering and an SEO layer because most new customers were arriving through search, carrying the path through checkout and payment confirmation."
+    }
+  ],
+  "evidence": [
+    "Customer and worker web/mobile clients share the same service and data layer for booking and fulfilment state.",
+    "The deployment path covers five applications with containerized builds and a rollback path that has been tested.",
+    "The live product is available at zaruro.com; customer-volume and revenue metrics are not published here."
+  ],
+  "boundary": "Evidence is limited to shipped product behavior, the public product surface, and resume-backed engineering records. No private customer or revenue metrics are inferred."
+}

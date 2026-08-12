@@ -1,0 +1,41 @@
+{
+  "projectId": "human-before-resource-ats",
+  "framing": "When candidate data passes 100K records, search and reporting become product problems—not just database queries.",
+  "challenge": "The platform had to support candidate intake, pipeline search, assignment, interviews, AI-assisted evaluation, and regional reporting across more than 100,000 Postgres records, while keeping different role views safe and usable.",
+  "ownership": [
+    "Product engineer for the candidate data and hiring-operations surface.",
+    "Built intake, pipeline, search, reporting, interview, and evaluation flows across Next.js, Node.js, PostgreSQL, Drizzle ORM, and Redis.",
+    "Owned the operational path: migrations, scheduled follow-ups, inactive-assignment checks, Docker Compose, NGINX, PM2, backups, and recovery steps."
+  ],
+  "proof": [
+    { "label": "Data scale", "value": "100K+ Postgres records" },
+    { "label": "Query path", "value": "Indexes + cursor pagination" },
+    { "label": "Read path", "value": "Views + cache + virtualization" },
+    { "label": "Access model", "value": "Five role tiers" }
+  ],
+  "decisions": [
+    {
+      "title": "Replace offset pagination at the point of failure",
+      "body": "Swapped offset pagination for cursor pagination once the table passed 100K rows and offset queries started slowing down."
+    },
+    {
+      "title": "Precompute dashboard reads",
+      "body": "Used materialized views for dashboard aggregation instead of hitting live tables for every load."
+    },
+    {
+      "title": "Protect access at the server boundary",
+      "body": "Authentication and role checks protect CEO, manager, recruiter, national, and regional views before operational data reaches the interface."
+    },
+    {
+      "title": "Make AI a structured starting point",
+      "body": "Added a Gemini-based summary generator that gives recruiters a structured evaluation to start from instead of a blank notes field."
+    }
+  ],
+  "evidence": [
+    "Targeted indexes, cursor-based access, caching, and virtual scrolling keep large candidate result sets usable.",
+    "Dashboard aggregation uses materialized views rather than querying live tables on every load.",
+    "The product includes separate migrations, backups, recovery steps, and a deployment path using Docker Compose, NGINX, and PM2.",
+    "Recruiter time-saved and latency metrics are not published here, so none are inferred."
+  ],
+  "boundary": "Evidence is limited to the product surface, the local engineering record, and resume-backed implementation details. No private hiring or performance metrics are inferred."
+}
