@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   ContactIcon,
   MediaIcon,
+  PhotosIcon,
   PreferencesIcon,
   ProjectsIcon,
   SiteReturnIcon,
@@ -26,7 +27,8 @@ import { localize, useLocale } from '~/lib/locale-client'
 const ITEMS = [
   { href: '/admin/media', zh: '媒体', en: 'Media', icon: MediaIcon },
   { href: '/admin/cms', zh: '内容', en: 'CMS', icon: WritingIcon },
-  { href: '/admin/collections', zh: '收藏', en: 'Collections', icon: ProjectsIcon },
+  { href: '/admin/projects', zh: '项目', en: 'Projects', icon: ProjectsIcon },
+  { href: '/admin/collections', zh: '收藏', en: 'Collections', icon: PhotosIcon },
   { href: '/admin/contact', zh: '联系', en: 'Contact', icon: ContactIcon },
 ] as const
 

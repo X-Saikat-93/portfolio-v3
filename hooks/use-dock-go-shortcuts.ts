@@ -28,6 +28,7 @@ export const ADMIN_GO_SHORTCUTS: Record<string, string> = {
   o: '/admin',
   m: '/admin/media',
   c: '/admin/cms',
+  p: '/admin/projects',
   n: '/admin/contact',
   s: '/',
 }

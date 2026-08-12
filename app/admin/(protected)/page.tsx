@@ -15,29 +15,38 @@ export default async function AdminPage() {
   await requireOwnerPage('/admin')
   return (
     <div className="pb-10">
-      <h1 className="page-eyebrow">Admin</h1>
-      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-        Owner-only controls for the portfolio. Content stays unpublished until you add it.
+      <p className="page-eyebrow">Owner console</p>
+      <h1 className="mt-3 text-2xl font-medium tracking-tight">Publish from the surface you are editing.</h1>
+      <p className="mt-4 max-w-[34rem] text-sm leading-relaxed text-muted-foreground">
+        Every editor writes to Neon. Images and the resume can be uploaded in context, then saved as Cloudinary media records automatically.
       </p>
-      <nav className="mt-8 hairline-top pt-3">
-        <ul className="motion-list flex flex-col">
-          <li className="border-b border-border py-3">
-            <Link href="/admin/cms" className="list-row-link block text-sm">CMS / MDX</Link>
-          </li>
-          <li className="border-b border-border py-3">
-            <Link href="/admin/media" className="list-row-link block text-sm">Cloudinary media</Link>
-          </li>
-          <li className="border-b border-border py-3">
-            <Link href="/admin/collections" className="list-row-link block text-sm">Books, music, and photos</Link>
-          </li>
-          <li className="border-b border-border py-3">
-            <Link href="/admin/contact" className="list-row-link block text-sm">Contact inbox</Link>
-          </li>
-          <li className="py-3">
-            <Link href="/en" className="list-row-link block text-sm text-muted-foreground">Back to site</Link>
-          </li>
-        </ul>
+      <nav className="admin-dashboard-menu" aria-label="Admin surfaces">
+        <Link href="/admin/projects">
+          <span><strong>Projects & case studies</strong><small>Build evidence-backed project pages</small></span>
+          <span>Open →</span>
+        </Link>
+        <Link href="/admin/cms">
+          <span><strong>Writing / MDX</strong><small>Draft, publish, and attach cover artwork</small></span>
+          <span>Open →</span>
+        </Link>
+        <Link href="/admin/media">
+          <span><strong>Media archive</strong><small>Review Cloudinary assets and upload defaults</small></span>
+          <span>Open →</span>
+        </Link>
+        <Link href="/admin/resume">
+          <span><strong>Resume PDF</strong><small>Replace the canonical original PDF in context</small></span>
+          <span>Open →</span>
+        </Link>
+        <Link href="/admin/collections">
+          <span><strong>Books, music, and photos</strong><small>Publish collection items with inline photo upload</small></span>
+          <span>Open →</span>
+        </Link>
+        <Link href="/admin/contact">
+          <span><strong>Contact inbox</strong><small>Read and triage private messages</small></span>
+          <span>Open →</span>
+        </Link>
       </nav>
+      <Link href="/en" className="mt-8 inline-flex text-sm text-muted-foreground underline-offset-4 hover:underline">Back to site ↗</Link>
     </div>
   )
 }
