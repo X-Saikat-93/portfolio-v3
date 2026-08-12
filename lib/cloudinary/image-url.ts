@@ -49,8 +49,9 @@ export function cloudinaryImageUrl(
   return version ? `${url}?v=${encodeURIComponent(version)}` : url
 }
 
-export function cloudinaryRawUrl(publicId: string, extension = 'pdf') {
+export function cloudinaryRawUrl(publicId: string, extension = 'pdf', version = '') {
   if (!cloudinaryCloudName || !publicId) return null
   const suffix = publicId.toLowerCase().endsWith(`.${extension}`) ? '' : `.${extension}`
-  return `https://res.cloudinary.com/${cloudinaryCloudName}/raw/upload/${encodePublicId(publicId)}${suffix}`
+  const versionSegment = version ? `v${encodeURIComponent(version)}/` : ''
+  return `https://res.cloudinary.com/${cloudinaryCloudName}/raw/upload/${versionSegment}${encodePublicId(publicId)}${suffix}`
 }
