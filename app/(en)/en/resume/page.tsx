@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 
 import { ResumePageView } from '../../../_views/resume-page'
-import { cloudinaryRawUrl, cloudinaryResumePublicId } from '~/lib/cloudinary/image-url'
+import { cloudinaryResumePublicId } from '~/lib/cloudinary/image-url'
+import { getPublicCloudinaryMediaByPublicId } from '~/lib/cloudinary/media-repository'
 import { localeMetadata } from '~/lib/locale-metadata'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
 
@@ -13,8 +14,8 @@ export const metadata: Metadata = localeMetadata({
   ...copy,
 })
 
-export default function ResumePage() {
-  const resumeUrl = cloudinaryRawUrl(cloudinaryResumePublicId)
+export default async function ResumePage() {
+  const resume = await getPublicCloudinaryMediaByPublicId(cloudinaryResumePublicId)
 
-  return <ResumePageView resumeUrl={resumeUrl} />
+  return <ResumePageView resumeUrl={resume ? '/en/resume/download' : null} />
 }

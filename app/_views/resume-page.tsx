@@ -24,6 +24,60 @@ function ResumeSection({
   )
 }
 
+type ResumeProject = {
+  name: string
+  url?: string
+  stack: string
+  bullets: readonly string[]
+}
+
+type ResumeRole = {
+  title: string
+  company: string
+  period: string
+  projects: readonly ResumeProject[]
+}
+
+function ResumeExperienceList({ roles }: { roles: readonly ResumeRole[] }) {
+  return (
+    <div className="resume-experience-list">
+      {roles.map((role) => (
+        <article key={`${role.title}-${role.company}`} className="resume-role">
+          <header className="resume-role-header">
+            <div>
+              <h3>{role.title}</h3>
+              <p>{role.company}</p>
+            </div>
+            <time>{role.period}</time>
+          </header>
+          <div className="resume-role-projects">
+            {role.projects.map((project) => (
+              <div key={project.name} className="resume-project">
+                <div className="resume-project-heading">
+                  <div>
+                    <h4>{project.name}</h4>
+                    {project.stack ? <p>{project.stack}</p> : null}
+                  </div>
+                  {project.url ? (
+                    <a href={project.url} target="_blank" rel="noreferrer" className="resume-project-link">
+                      Live: {project.url.replace(/^https?:\/\//, '')}
+                    </a>
+                  ) : null}
+                </div>
+                <ul>
+                  {project.bullets.map((bullet) => (
+                    <li key={bullet}>{bullet}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  )
+}
+
 export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
   return (
     <article className="resume-page mx-auto w-full max-w-[64rem] px-6">
@@ -40,6 +94,7 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
             <p className="resume-kicker">Curriculum vitae / HTML edition</p>
             <h1>{resumeProfile.name}</h1>
             <p>{resumeProfile.title}</p>
+            <p className="resume-headline">{resumeProfile.headline}</p>
           </div>
           <div className="resume-header-mark" aria-hidden="true">
             <span>TEXT</span>
@@ -61,39 +116,12 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
 
         <div className="resume-layout">
           <div className="resume-main-column">
-            <ResumeSection index="01" title="Professional summary">
-              <p className="resume-summary">{resumeProfile.summary}</p>
+            <ResumeSection index="01" title="Professional experience">
+              <ResumeExperienceList roles={resumeProfile.experience} />
             </ResumeSection>
 
-            <ResumeSection index="02" title="Professional experience">
-              <div className="resume-experience-list">
-                {resumeProfile.experience.map((role) => (
-                  <article key={`${role.title}-${role.company}`} className="resume-role">
-                    <header className="resume-role-header">
-                      <div>
-                        <h3>{role.title}</h3>
-                        <p>{role.company}</p>
-                      </div>
-                      <time>{role.period}</time>
-                    </header>
-                    <div className="resume-role-projects">
-                      {role.projects.map((project) => (
-                        <div key={project.name} className="resume-project">
-                          <div className="resume-project-heading">
-                            <h4>{project.name}</h4>
-                            {project.stack ? <p>{project.stack}</p> : null}
-                          </div>
-                          <ul>
-                            {project.bullets.map((bullet) => (
-                              <li key={bullet}>{bullet}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                ))}
-              </div>
+            <ResumeSection index="02" title="Additional experience">
+              <ResumeExperienceList roles={resumeProfile.additionalExperience} />
             </ResumeSection>
           </div>
 

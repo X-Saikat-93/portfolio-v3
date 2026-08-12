@@ -10,7 +10,7 @@ export function ResumeActions({ resumeUrl }: { resumeUrl: string | null }) {
       </button>
       {resumeUrl ? (
         <a href={resumeUrl} target="_blank" rel="noreferrer" className="resume-pdf-link">
-          <ExternalLabel>Download original PDF</ExternalLabel>
+          <ExternalLabel>Download Original PDF</ExternalLabel>
         </a>
       ) : (
         <span className="resume-pdf-muted">Original PDF unavailable</span>
