@@ -9,6 +9,7 @@ export const publishedPostSlugs: readonly string[] = [
   'streaming-is-not-progress',
   'model-routing-is-a-product-decision',
   'ai-search-needs-a-failure-taxonomy',
+  'ai-observability-is-not-token-accounting',
   'cache-boundaries-before-cache-apis',
   'the-quiet-work-of-making-a-portfolio-honest',
   'small-interactions-need-a-reason',

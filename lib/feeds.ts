@@ -1,18 +1,31 @@
 import RSS from 'rss'
 
 import type { BlogPost } from '~/lib/blog/repository'
+import { publicPageMetadata } from '~/lib/public-page-metadata'
 import { seoEn } from '~/lib/seo'
 
 export function buildEnglishFeedXml(posts: BlogPost[] = []) {
-  const siteUrl = new URL('/en', seoEn.url).href
+  const siteUrl = new URL('/en/blog', seoEn.url).href
+  const feedUrl = new URL('/en/feed.xml', seoEn.url).href
+  const latestPublishedAt = posts.reduce<Date | undefined>(
+    (latest, post) => (!latest || post.publishedAt > latest ? post.publishedAt : latest),
+    undefined,
+  )
+  const latestUpdatedAt = posts.reduce<Date | undefined>(
+    (latest, post) => (!latest || post.updatedAt > latest ? post.updatedAt : latest),
+    undefined,
+  )
 
   const feed = new RSS({
-    title: seoEn.title,
-    description: seoEn.description,
+    title: seoEn.title + ' — ' + publicPageMetadata.blog.en.title,
+    description: publicPageMetadata.blog.en.description,
     site_url: siteUrl,
-    feed_url: new URL('/en/feed.xml', seoEn.url).href,
+    feed_url: feedUrl,
     language: 'en-US',
-    generator: 'PHP 9.0',
+    generator: 'Saikat Das Portfolio',
+    docs: 'https://www.rssboard.org/rss-specification',
+    ttl: 300,
+    pubDate: latestPublishedAt,
   })
 
   for (const post of posts) {
@@ -21,12 +34,17 @@ export function buildEnglishFeedXml(posts: BlogPost[] = []) {
       title: post.title,
       description: post.description,
       url,
-      guid: url,
       date: post.publishedAt,
       author: 'Saikat Das',
       categories: [post.category],
     })
   }
 
-  return feed.xml()
+  const xml = feed.xml()
+  if (!latestUpdatedAt) return xml
+
+  return xml.replace(
+    /<lastBuildDate>[^<]*<\/lastBuildDate>/,
+    '<lastBuildDate>' + latestUpdatedAt.toUTCString() + '</lastBuildDate>',
+  )
 }

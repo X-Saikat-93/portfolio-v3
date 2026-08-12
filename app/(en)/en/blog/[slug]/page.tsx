@@ -4,10 +4,14 @@ import { notFound } from 'next/navigation'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import { Suspense } from 'react'
 import rehypeSlug from 'rehype-slug'
+import rehypePrettyCode from 'rehype-pretty-code'
 import remarkGfm from 'remark-gfm'
+import { cacheLife, cacheTag } from 'next/cache'
 
 import { CloudinaryImage } from '~/components/cloudinary-image'
 import { JsonLd } from '~/components/json-ld'
+import { MdxCodeBlock } from '~/components/mdx/code-block'
+import { MermaidDiagram } from '~/components/mdx/mermaid-diagram'
 import { PixelCluster } from '~/components/pixel-cluster'
 import { PostTitleTransition } from '~/components/post-title-transition'
 import { formatDate } from '~/lib/date'
@@ -15,9 +19,10 @@ import {
   safeGetPublishedBlogPost,
   safeListPublishedBlogPosts,
 } from '~/lib/blog/repository'
-import { localeMetadata } from '~/lib/locale-metadata'
+import { localeMetadata, socialImageUrl } from '~/lib/locale-metadata'
 import { cloudinaryImageUrl } from '~/lib/cloudinary/image-url'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
+import remarkMermaid from '~/lib/remark-mermaid'
 import { seo } from '~/lib/seo'
 
 export async function generateStaticParams() {
@@ -46,7 +51,7 @@ export async function generateMetadata({
       })
     : null
   const image = {
-    url: coverUrl ?? new URL(`/og?locale=en&path=${encodeURIComponent(path)}`, seo.url),
+    url: coverUrl ?? socialImageUrl('en', path),
     width: 1200,
     height: 630,
     alt: post.coverImageAlt || `${post.title} cover artwork`,
@@ -94,6 +99,34 @@ function BlogPostLoading() {
   )
 }
 
+async function compileBlogBody(source: string) {
+  'use cache'
+  cacheLife({ stale: 300, revalidate: 300, expire: 86_400 })
+  cacheTag('blog-mdx')
+
+  const { content } = await compileMDX({
+    source,
+    options: {
+      mdxOptions: {
+        remarkPlugins: [remarkGfm, remarkMermaid],
+        rehypePlugins: [
+          rehypeSlug,
+          [rehypePrettyCode, {
+            keepBackground: false,
+            theme: { light: 'github-light', dark: 'github-dark' },
+          }],
+        ],
+      },
+    },
+    components: {
+      MermaidDiagram,
+      pre: MdxCodeBlock,
+    },
+  })
+
+  return content
+}
+
 export default function EnglishBlogPostPage({
   params,
 }: {
@@ -129,15 +162,7 @@ async function EnglishBlogPostContent({
       })
     : null
 
-  const { content } = await compileMDX({
-    source: post.body,
-    options: {
-      mdxOptions: {
-        remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug],
-      },
-    },
-  })
+  const content = await compileBlogBody(post.body)
 
   return (
     <main className="mx-auto w-full max-w-[37.5rem] px-6">
