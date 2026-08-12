@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
+import { CloudinaryAssetPicker } from '~/components/admin-cloudinary-asset-picker'
+
 type Kind = 'book' | 'music' | 'photo'
 type Item = {
   id: string
@@ -128,7 +130,14 @@ export function CollectionEditor({ kind }: { kind: Kind }) {
           <input value={form.year} onChange={(event) => setField('year', event.target.value)} type="number" min="0" max="3000" placeholder="Year" className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
           <input value={form.sortOrder} onChange={(event) => setField('sortOrder', event.target.value)} type="number" placeholder="Order" className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
         </div>
-        <input value={form.imagePublicId} onChange={(event) => setField('imagePublicId', event.target.value)} placeholder="Cloudinary public ID (optional)" className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
+        {kind === 'photo' ? (
+          <CloudinaryAssetPicker
+            value={form.imagePublicId || null}
+            onChange={(value) => setField('imagePublicId', value ?? '')}
+            label="Photo asset"
+            help="Upload or select the photo directly here."
+          />
+        ) : null}
         <input value={form.url} onChange={(event) => setField('url', event.target.value)} type="url" placeholder="External URL (optional)" className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
         <textarea value={form.description} onChange={(event) => setField('description', event.target.value)} placeholder="Short description (optional)" rows={4} className="w-full rounded-md border border-border bg-background p-3 text-sm" />
         <div className="flex flex-wrap items-center gap-3">

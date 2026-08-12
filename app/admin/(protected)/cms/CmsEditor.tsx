@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
+import { CloudinaryAssetPicker } from '~/components/admin-cloudinary-asset-picker'
+
 type Entry = {
   id: string
   slug: string
@@ -151,11 +153,11 @@ export function CmsEditor() {
             className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
           />
         </div>
-        <input
-          value={form.coverImagePublicId ?? ''}
-          onChange={(event) => setField('coverImagePublicId', event.target.value || null)}
-          placeholder="Cloudinary cover public ID"
-          className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+        <CloudinaryAssetPicker
+          value={form.coverImagePublicId}
+          onChange={(value) => setField('coverImagePublicId', value)}
+          label="Cover artwork"
+          help="Upload or select the cover directly here."
         />
         <input
           value={form.coverImageAlt}
