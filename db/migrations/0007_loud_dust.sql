@@ -1,0 +1,2 @@
+ALTER TABLE "project_case_studies" ADD COLUMN "hero_image_public_id" varchar(500);--> statement-breakpoint
+ALTER TABLE "project_case_studies" ADD COLUMN "hero_image_alt" varchar(300) DEFAULT '' NOT NULL;

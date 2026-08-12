@@ -99,6 +99,40 @@ export const cmsEntries = pgTable(
   ],
 )
 
+export const projectCaseStudies = pgTable(
+  'project_case_studies',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    projectId: varchar('project_id', { length: 160 }).notNull(),
+    heroImagePublicId: varchar('hero_image_public_id', { length: 500 }),
+    heroImageAlt: varchar('hero_image_alt', { length: 300 }).notNull().default(''),
+    framing: text('framing').notNull(),
+    challenge: text('challenge').notNull(),
+    ownership: jsonb('ownership').$type<string[]>().notNull().default([]),
+    proof: jsonb('proof')
+      .$type<Array<{ label: string; value: string }>>()
+      .notNull()
+      .default([]),
+    decisions: jsonb('decisions')
+      .$type<Array<{ title: string; body: string }>>()
+      .notNull()
+      .default([]),
+    evidence: jsonb('evidence').$type<string[]>().notNull().default([]),
+    boundary: text('boundary').notNull(),
+    status: varchar('status', { length: 16 })
+      .$type<'draft' | 'published'>()
+      .notNull()
+      .default('draft'),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('project_case_studies_project_id_idx').on(table.projectId),
+    index('project_case_studies_status_idx').on(table.status),
+  ],
+)
+
 export const cloudinaryMedia = pgTable(
   'cloudinary_media',
   {
