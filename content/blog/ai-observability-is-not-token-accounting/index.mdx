@@ -1,0 +1,291 @@
+---
+title: "AI Observability Is Not Token Accounting"
+description: "Production AI systems need traces that explain decisions, context, tool calls, fallbacks, and user outcomes—not dashboards that only count tokens."
+category: "AI operations"
+date: "2026-08-10"
+readingMinutes: 10
+coverFile: "ai-observability-is-not-token-accounting.jpg"
+coverSlug: "ai-observability-is-not-token-accounting"
+coverAlt: "Editorial collage of a human profile, branching plant, red circle, landscape, and a cup representing attention and AI system observability."
+keywords:
+  - AI observability
+  - LLM tracing
+  - AI evaluation
+  - production AI monitoring
+  - agent telemetry
+  - prompt monitoring
+  - model performance
+---
+
+The first AI dashboard usually measures the easiest things to measure: tokens, latency, model name, and error count.
+
+Those numbers are useful. They are also not enough to explain why a user received a bad answer.
+
+When an AI feature fails in production, the question is rarely “how many tokens did this request use?” The useful questions are more specific:
+
+- Did the model receive the right context?
+- Did the system choose the right tool?
+- Was the tool result stale, empty, or unauthorized?
+- Did a fallback model change the shape of the answer?
+- Did the user accept the result, correct it, or quietly do the work again?
+
+AI observability is the discipline of making those questions answerable. It is closer to reconstructing a decision than recording a request. The model call is one event inside a larger workflow.
+
+## The dashboard that tells you nothing
+
+Imagine a support assistant produces an incorrect refund answer. The trace says:
+
+~~~text
+model: large-language-model
+input_tokens: 8,142
+output_tokens: 421
+latency_ms: 3,802
+status: 200
+~~~
+
+This is a successful HTTP request. It is not an explanation.
+
+The trace does not tell us whether the refund policy was retrieved, whether the account lookup failed, whether a stale cache was used, or whether the assistant confidently filled a gap that should have produced an escalation.
+
+A useful AI trace should answer four questions:
+
+| Question | Signal to retain |
+| --- | --- |
+| What did the system know? | Context and evidence references |
+| What did it decide? | Route, tool choice, schema, and policy versions |
+| What did it do? | Retrieval, tool, retry, fallback, and render stages |
+| What happened for the user? | Completion, correction, escalation, and feedback |
+
+Token usage belongs in the last column of a cost report. It should not be the main shape of the trace.
+
+## Start with a trace that survives the model
+
+Models change. Providers change. Prompts change. A trace should still make sense after all three have changed.
+
+That means the durable identity belongs to the product operation, not only to the inference request:
+
+~~~ts
+type AiTrace = {
+  traceId: string
+  requestId: string
+  workflow: 'support_reply' | 'document_review' | 'search_answer'
+  startedAt: string
+  policyVersion: string
+  promptVersion: string
+  modelRoute: string
+  context: {
+    sourceCount: number
+    sourceFingerprint: string
+    contextTokenCount: number
+  }
+  stages: AiStage[]
+  outcome: {
+    status: 'completed' | 'abstained' | 'failed' | 'cancelled'
+    userCorrected: boolean | null
+    escalated: boolean
+  }
+}
+
+type AiStage = {
+  name: 'classify' | 'retrieve' | 'tool' | 'generate' | 'validate' | 'render'
+  status: 'started' | 'completed' | 'failed' | 'skipped'
+  durationMs: number
+  attempt: number
+  metadata: Record<string, string | number | boolean>
+}
+~~~
+
+The important fields are not exotic. They are the same kind of fields a reliable payment or background job system would keep: an operation ID, a version, a sequence of stages, and an outcome.
+
+The sourceFingerprint should identify the evidence set without becoming a second database for private documents. Store references, versions, and hashes where possible. Keep raw prompts, retrieved passages, tool arguments, and model responses behind explicit redaction and retention rules.
+
+An observability system that copies every prompt into a permanent log has created a privacy problem, not solved an engineering problem.
+
+## Trace decisions, not only requests
+
+An AI request is often a short workflow:
+
+1. Classify the user’s intent.
+2. Decide whether retrieval or a tool is needed.
+3. Fetch data.
+4. Generate a structured result.
+5. Validate the result.
+6. Render it or ask for clarification.
+
+If the trace only records the final model call, steps two through five disappear. That is where most of the useful engineering evidence lives.
+
+For example, a search answer can be wrong in several different ways:
+
+- The query was interpreted as a purchase question instead of a troubleshooting question.
+- Retrieval returned documents from the wrong product version.
+- The right document was retrieved but ranked below an attractive, outdated result.
+- The model produced a valid JSON object with an unsupported claim.
+- The answer was correct but the UI hid the uncertainty and made it look definitive.
+
+These failures should not collapse into generation_failed. They need different stage names and different owners. The retrieval problem belongs with search quality. The unsupported claim belongs with grounding or validation. The misleading presentation belongs with product design.
+
+That division is one of the quiet benefits of good traces: they turn “the AI is bad” into a smaller, actionable problem.
+
+## Context is part of the input
+
+Most teams version their prompt and model. Fewer version the context that actually reached the model.
+
+That is a mistake. Two identical prompts can produce different results because their context differs by:
+
+- tenant or permission scope,
+- retrieval index version,
+- source freshness,
+- feature flags,
+- user profile state,
+- tool response,
+- conversation summary,
+- or a previous agent step.
+
+You do not need to store every byte to make this observable. Record the facts needed to reconstruct the decision:
+
+~~~ts
+const contextSummary = {
+  sourceFingerprint: hash(sourceIdsAndVersions),
+  sourceCount: sources.length,
+  oldestSourceAgeHours: oldestSourceAgeHours(sources),
+  permissionScope: request.permissionScope,
+  indexVersion: retrieval.indexVersion,
+  toolStateVersion: tools.stateVersion,
+}
+~~~
+
+The difference between sourceCount: 0 and sourceCount: 6 is already diagnostic. The difference between source versions 2026-07 and 2026-08 can explain a regression without exposing the documents themselves.
+
+This is the same lesson as [RAG is a data product](/en/blog/rag-is-a-data-product): retrieval is not an invisible prelude to generation. It is a product subsystem with its own quality, freshness, and failure modes.
+
+## Prompt and policy changes are deployments
+
+Teams often update prompts as if they were comments. In production, a prompt change can alter routing, tool selection, refusal behavior, output shape, and cost. It deserves a deployment record.
+
+At minimum, attach these versions to each trace:
+
+- prompt template version,
+- system policy version,
+- tool contract version,
+- retrieval or index version,
+- model route version,
+- output schema version.
+
+When a bad-answer rate rises, you should be able to ask whether the change followed a prompt release, a model fallback, a new tool contract, or a corpus refresh.
+
+This also makes canary releases practical. Route a small percentage of traffic to a new policy version, then compare the same outcome metrics across equivalent slices. A token average will not tell you whether the new policy makes users correct more answers. A trace can.
+
+The principle is familiar from [The production shape of an AI feature](/en/blog/the-production-shape-of-an-ai-feature): the model call is not the feature. The boundaries around it are.
+
+## Evaluate the slices production creates
+
+A single quality score is a convenient way to hide uneven behavior.
+
+Instead, evaluate slices that correspond to real operating conditions:
+
+| Slice | Why it matters |
+| --- | --- |
+| Short versus long context | Long context may increase confidence without increasing evidence quality |
+| First attempt versus fallback | A fallback may be cheaper but change tool or schema behavior |
+| Fresh versus old sources | Stale evidence can look more trustworthy than no evidence |
+| New versus returning users | Existing state can change the correct answer |
+| Tool success versus tool timeout | The final response may hide a missing intermediate step |
+| Accepted versus corrected output | Surface quality and user value are not the same |
+
+The evaluation set should include the ugly cases that production generates: empty retrieval, partial permissions, malformed tool responses, contradictory documents, repeated requests, and users who change their mind halfway through a workflow.
+
+That last case matters more than it sounds. AI systems are interactive. A response that scores well in isolation may still create a poor loop if the user has to rephrase the same request three times before the system admits uncertainty.
+
+## Measure user repair
+
+The strongest signal in many AI products is not a thumbs-up. It is the work the user does after the answer.
+
+Depending on the product, that work might be:
+
+- editing the generated draft,
+- correcting a field,
+- reopening a search,
+- deleting a suggested action,
+- asking the same question with different words,
+- or escalating to a person.
+
+Call this user repair. It is not always negative—editing is part of writing—but a sudden increase in repair after a model or prompt change is worth investigating.
+
+Track it as an outcome attached to the original trace:
+
+~~~ts
+await recordOutcome(traceId, {
+  status: 'completed',
+  userCorrected: editDistance > correctionThreshold,
+  escalated: Boolean(escalationId),
+  followUpCount: relatedRequests.length,
+})
+~~~
+
+This is more useful than asking whether the model “sounded good.” It connects model behavior to the work the product was supposed to remove.
+
+For a routing system, it also complements cost and latency metrics. [Model routing is a product decision](/en/blog/model-routing-is-a-product-decision), so the route should be judged by the outcome it creates, not only by the price of the call.
+
+## Keep the implementation boring
+
+The first version of an AI observability layer does not need a separate AI analyst. It needs a small event contract and predictable instrumentation.
+
+Record a stage when it starts. Update it when it ends. Attach bounded metadata. Keep the trace ID in logs, metrics, and user-visible error reports. Make the failure path recordable too.
+
+~~~ts
+async function tracedStage<T>(
+  trace: AiTraceWriter,
+  name: AiStage['name'],
+  run: () => Promise<T>,
+) {
+  const startedAt = performance.now()
+  const attempt = await trace.nextAttempt(name)
+
+  await trace.stageStarted(name, attempt)
+
+  try {
+    const value = await run()
+    await trace.stageCompleted(name, attempt, {
+      durationMs: Math.round(performance.now() - startedAt),
+    })
+    return value
+  } catch (error) {
+    await trace.stageFailed(name, attempt, {
+      durationMs: Math.round(performance.now() - startedAt),
+      errorClass: classifyError(error),
+    })
+    throw error
+  }
+}
+~~~
+
+The writer can send detailed events to a short-retention store and aggregates to a longer-retention metrics system. That split keeps debugging useful without making every user interaction permanent.
+
+Start with deterministic fields. Add sampled payloads only when they are justified. Use a judge model to explore a known question, not as a replacement for recording what the system actually did.
+
+## Retention is part of the design
+
+AI traces can contain more sensitive material than ordinary request logs. Context can include private documents. Tool arguments can include account identifiers. A response can contain the user’s most important data.
+
+Before shipping tracing, define:
+
+- which fields are never stored,
+- which fields are redacted,
+- how long raw events live,
+- who can access sampled payloads,
+- how a user or tenant can request deletion,
+- and whether traces cross a data boundary.
+
+Hashing is not automatic anonymization. A stable hash can still be personal data if it can be linked back to a person. Treat fingerprints as references with an access policy, not as magic erasers.
+
+Good observability makes a system easier to trust. It should not require users to trade away control of their data to get that trust.
+
+## The useful question
+
+Token accounting tells you what the model consumed. AI observability should tell you what the system believed, what it tried, what it could not verify, and what the user had to repair.
+
+That is a wider and more honest boundary.
+
+The best trace is not the one with the most fields. It is the one that lets an engineer move from a bad outcome to a plausible cause without guessing. If retrieval was empty, show it. If a tool timed out, show it. If a fallback changed the route, show it. If the user fixed the answer, keep that outcome connected to the original decision.
+
+Once those links exist, model quality stops being a vague feeling. It becomes a set of engineering questions with owners, evidence, and a next change to make.

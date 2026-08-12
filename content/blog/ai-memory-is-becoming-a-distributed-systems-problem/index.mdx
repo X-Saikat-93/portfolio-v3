@@ -1,0 +1,233 @@
+---
+title: AI Memory Is Becoming a Distributed Systems Problem
+description: "Persistent agent memory is more than retrieval: it needs temporal facts, provenance, conflict resolution, access control, compaction, and durable state transitions."
+keywords:
+  - AI agent memory
+  - persistent agent memory
+  - memory beyond RAG
+  - temporal knowledge graph
+  - distributed systems for AI
+  - vector database limitations
+  - long-term memory LLM agents
+  - memory consistency
+  - agent architecture
+  - graph RAG
+  - event-sourced AI
+  - AI data infrastructure
+category: AI systems
+date: 2026-08-11
+readingMinutes: 15
+coverFile: ai-memory-is-becoming-a-distributed-systems-problem.png
+coverSlug: ai-memory-is-becoming-a-distributed-systems-problem
+coverAlt: Editorial architecture diagram showing a temporal event log, graph memory, retrieval index, and reconciliation flow around an agent state
+---
+
+RAG gave application teams a useful first answer to a hard question: how can a model use information that was not in its training data? Put documents in a store, retrieve relevant passages, and place them in the context window.
+
+That solved an important read-path problem. It did not solve memory.
+
+Memory changes what an agent will do in the future. It carries identity across sessions, preserves decisions, records what happened, updates beliefs when facts change, and constrains access when a user revokes permission. A vector database can be part of that system, but it is not the system. An embedding is an index entry, not an authoritative fact. A retrieved paragraph is an observation, not a transaction.
+
+Once an agent is expected to remember, the design starts to look familiar to anyone who has built a distributed system: event logs, projections, versioning, conflict resolution, access control, compaction, repair, and a difficult question about what “current” means.
+
+## RAG is a read path, memory is a lifecycle
+
+It helps to separate the concepts.
+
+| Layer | Primary question | Typical representation |
+| --- | --- | --- |
+| Active context | What must be visible right now? | prompt messages, working state |
+| Episodic memory | What happened, and when? | events, traces, artifacts |
+| Semantic memory | What relationships or facts do we currently believe? | records, graph edges, summaries |
+| Retrieval index | Where might relevant evidence be? | vectors, lexical index, graph index |
+| Policy memory | What must or must not be done? | versioned rules, scoped blocks |
+| Task state | What is unfinished? | checkpoints, leases, workflow records |
+
+RAG usually focuses on the retrieval index and the prompt assembly step. Agent memory must define the write path as well. Who is allowed to write a memory? Which source produced it? When did it become true? Can it expire? What happens when a later observation contradicts it? Which agents and tenants may retrieve it?
+
+The [Graph-based Agent Memory survey](https://arxiv.org/abs/2602.05665), published in 2026, organizes the problem around extraction, storage, retrieval, and evolution. That last word is the one a static chunking pipeline tends to miss. Memory is not only a collection of things to find. It is a state that changes.
+
+## The write path is where reliability begins
+
+A durable memory write should look more like an event ingestion pipeline than an INSERT hidden inside a prompt function:
+
+~~~
+observation
+  -> extract candidate memory
+  -> attach source, actor, tenant, and time
+  -> normalize entities and scope
+  -> detect duplicates and conflicts
+  -> append authoritative event
+  -> update projections and indexes
+  -> emit invalidation / audit event
+~~~
+
+The language model can propose a candidate memory. It should not silently mutate the only copy of truth. The system needs to preserve the original observation and the interpretation made from it, because later debugging depends on knowing whether a wrong answer came from bad evidence, bad extraction, stale projection, or faulty retrieval.
+
+A minimal event might be:
+
+~~~ts
+type MemoryEvent = {
+  id: string
+  tenantId: string
+  subjectId: string
+  kind: 'fact_asserted' | 'fact_retracted' | 'preference_changed' | 'task_observed'
+  payload: unknown
+  sourceRef: string
+  observedAt: string
+  validFrom?: string
+  validUntil?: string
+  actor: 'user' | 'agent' | 'system'
+  schemaVersion: number
+  idempotencyKey: string
+}
+~~~
+
+The event is the audit trail. A relational view, graph, summary block, and vector index are projections that can be rebuilt. This distinction matters when an embedding model changes or a memory extraction prompt is improved. You should be able to re-project without losing the raw evidence.
+
+## Time is part of the fact
+
+“The customer is in Mumbai” and “The customer moved to Bengaluru in May” may both be valid records at different times. A simple nearest-neighbor search can return both without understanding the relationship. The final answer depends on whether the question asks for current location, location during an old incident, or the sequence of changes.
+
+Temporal memory therefore needs at least two clocks:
+
+- **observed time:** when the system received or inferred the evidence;
+- **valid time:** when the fact was true in the world, if known.
+
+It also needs an explicit representation for uncertainty. A fact extracted from a user's passing sentence is not equivalent to a fact confirmed by a system of record. Provenance and confidence should travel with the memory instead of disappearing into a dense vector.
+
+The paper [RAG Meets Temporal Graphs](https://arxiv.org/abs/2510.13590) describes this limitation directly: evolving knowledge creates ambiguity when the same relation has different values at different times. Its temporal graph approach keeps time-distinct facts separate and retrieves within temporal as well as semantic scope. The details may not fit every application, but the design pressure is general.
+
+## “Last write wins” is usually the wrong merge strategy
+
+Suppose an agent remembers that a deployment uses version 4.2. A later tool result reports version 4.3, while an old incident document still mentions 4.1. These are not three concurrent writes to a single string. They are observations with different sources, timestamps, scopes, and validity.
+
+For many memory types, the system needs:
+
+- entity and relation identity;
+- source precedence;
+- valid-time intervals;
+- supersedes and retracts links;
+- conflict status rather than forced resolution;
+- a deterministic rule for what the agent sees in context;
+- an audit record for human review.
+
+The 2026 paper [Accurate and Efficient Long-Term Memory for LLM Agents](https://arxiv.org/abs/2607.16211) is interesting for precisely this reason. Its MOSAIC design treats conflict detection as a save-time operation, not something deferred until a later answer. That is a distributed-systems instinct: reject or quarantine an invalid state transition at the write boundary when possible.
+
+There will still be cases where the system cannot decide. In those cases, preserving two competing claims with their provenance is safer than flattening them into a confident sentence. An agent can ask for clarification. A silent merge teaches the wrong fact.
+
+## The vector database is an index, not the memory service
+
+Vector search remains useful. It is a strong way to find semantically related events, documents, and prior conversations. But it does not provide the semantics a memory service needs by itself:
+
+- deletion and revocation need durable identity, not only an embedding;
+- time-aware answers need intervals and ordering;
+- conflict resolution needs relations between facts;
+- access control needs tenant and principal scope at retrieval time;
+- replay and repair need an authoritative source;
+- compaction needs to know what a summary replaced;
+- evaluation needs to trace an answer back to evidence.
+
+The [Zep temporal knowledge graph architecture](https://arxiv.org/abs/2501.13956) takes this broader view, combining conversational and structured business data while maintaining historical relationships. It is one example of the trend from “retrieve a chunk” toward “reconstruct a stateful, time-aware view.”
+
+The right question is not whether to use a vector database. It is where the vector database sits in the lifecycle. In a robust design, it is a projection that accelerates discovery; the event or record layer remains the place where truth, provenance, and authorization are decided.
+
+## Memory has a consistency model
+
+An agent can have several memory surfaces with different consistency requirements.
+
+The current task state may need serializable updates because two workers must not approve the same action. A user's display preference can tolerate eventual consistency. A shared policy block may need a version pin so every agent in a run sees the same rule. A conversation search index can lag behind the event log as long as the interface says “recent messages may not be searchable yet.”
+
+Write these choices down. “Eventually consistent” is not a product requirement until you specify what can be stale, for how long, and what must happen when a read observes an old projection.
+
+Useful mechanisms include:
+
+- monotonic event sequence numbers per subject;
+- optimistic concurrency with an expected version;
+- idempotency keys for repeated extraction;
+- outbox events for index updates;
+- snapshots for long histories;
+- rebuildable projections;
+- tombstones for deletion and retraction;
+- leases for background compaction;
+- read-your-own-write behavior for user-visible memory changes.
+
+This is not overkill for a long-lived agent. If a memory write can affect a future decision, it is already part of the system's state machine.
+
+## Access control must survive retrieval
+
+Memory often mixes data with different privacy levels: public documentation, private conversations, internal tickets, customer records, and tool outputs containing credentials or personal information. Filtering after semantic retrieval is dangerous. The system may leak the existence, title, embedding, or summary of an unauthorized record even if the final text is removed.
+
+Scope should be attached at write time and enforced at every read path. That includes vector search, graph traversal, summary generation, cache reuse, and cross-agent shared blocks.
+
+The [Letta memory documentation](https://docs.letta.com/guides/core-concepts/memory/context-hierarchy) makes a useful distinction between always-visible memory blocks, archival memory, files, and external RAG. Its block model also shows why access is part of memory design: blocks can be attached and detached, shared between agents, or made read-only. That is closer to capability management than to a passive document store.
+
+Revocation deserves special attention. If a user deletes a memory, the system should know which summaries, graph edges, cached prompts, and vector entries were derived from it. A delete request that removes one row but leaves the fact in a compacted summary is not a delete. Derived data needs lineage or an explicit re-compaction plan.
+
+## A practical architecture
+
+For a production agent, I would start with five layers:
+
+~~~
+1. Event log
+   authoritative observations, assertions, retractions, permissions
+
+2. State projections
+   current facts, task checkpoints, user profile, policy version
+
+3. Relationship and temporal index
+   entities, edges, valid time, supersession, conflict sets
+
+4. Semantic discovery index
+   embeddings and lexical search over authorized projections/events
+
+5. Context compiler
+   chooses what belongs in the current prompt and records why
+~~~
+
+The context compiler is a policy component, not a top-K query. It should consider the task, freshness, authority, user scope, conflicts, token budget, and whether the agent needs a fact, an episode, or an executable policy. Its output should include references to the source records so the answer can be explained and evaluated.
+
+Background workers can summarize old episodes, rebuild embeddings, merge entities, and compact event history. Those jobs should be idempotent and versioned. A new summarization prompt should create a new projection version, not overwrite the only available history.
+
+## Evaluate memory as state, not recall
+
+The usual RAG metric—did the relevant passage appear in the top results?—is not enough for persistent memory. I would evaluate at least:
+
+- **temporal accuracy:** did the answer use the fact valid at the requested time?
+- **contradiction handling:** did the system expose or resolve conflicting memories correctly?
+- **cross-session continuity:** did a useful preference or task state survive a new session?
+- **write precision:** did the system avoid turning speculation into durable fact?
+- **deletion and revocation:** did removed information disappear from every derived surface?
+- **provenance:** can each material claim be traced to an authorized source?
+- **repairability:** can a projection be rebuilt after an index or model change?
+- **cost and latency:** can the memory path stay within the agent's budget?
+
+Benchmarks such as LongMemEval are useful because they include temporal and cross-session behavior, but production teams also need replay tests from their own event histories. The most damaging memory bugs are often not “retrieval missed a paragraph.” They are “the agent remembered an old permission” or “a correction never displaced a stale summary.”
+
+## Memory is a write contract with a read API
+
+RAG made it natural to ask, “What documents should I put in the prompt?” Persistent agents require harder questions:
+
+- What is allowed to become durable?
+- Who is the subject of this memory?
+- What time interval does it describe?
+- Which source outranks another?
+- How can the memory be corrected or deleted?
+- Which agents may see it?
+- What projection is safe to place in context?
+
+Those questions are distributed-systems questions because memory is shared, mutable, replicated across indexes, and observed under delay. A vector database can accelerate the read path. It cannot define the consistency model.
+
+The durable agent of the next few years will not simply have a larger context window. It will have a better memory lifecycle: evidence enters through a controlled write path, facts carry time and provenance, projections can be rebuilt, conflicts remain visible, and access rules survive compaction.
+
+That is the point at which AI memory stops being a prompt trick and becomes infrastructure.
+
+## Further reading
+
+- [Graph-based Agent Memory: Taxonomy, Techniques, and Applications](https://arxiv.org/abs/2602.05665)
+- [Accurate and Efficient Long-Term Memory for LLM Agents](https://arxiv.org/abs/2607.16211)
+- [Zep: A Temporal Knowledge Graph Architecture for Agent Memory](https://arxiv.org/abs/2501.13956)
+- [RAG Meets Temporal Graphs](https://arxiv.org/abs/2510.13590)
+- [Letta: Context hierarchy](https://docs.letta.com/guides/core-concepts/memory/context-hierarchy)
+- [Letta: Attaching and detaching memory blocks](https://docs.letta.com/tutorials/attaching-detaching-blocks/)
+- [Context Windows Are Not Memory](/en/blog/context-windows-are-not-memory)

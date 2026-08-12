@@ -1,0 +1,220 @@
+---
+title: Agentic AI Has a CPU Problem
+description: "The next agent bottleneck is often the control plane: schedulers, tool calls, serialization, sandboxes, and state transitions competing with the model for latency and memory."
+keywords:
+  - agentic AI infrastructure
+  - CPU bottleneck AI agents
+  - LLM inference architecture
+  - AI orchestration
+  - tool calling latency
+  - GPU utilization
+  - AI control plane
+  - distributed systems for AI
+  - prefill decode disaggregation
+  - inference serving
+  - agent runtime
+  - AI systems engineering
+category: AI systems
+date: 2026-08-11
+readingMinutes: 13
+coverFile: agentic-ai-has-a-cpu-problem.png
+coverSlug: agentic-ai-has-a-cpu-problem
+coverAlt: Editorial systems diagram showing an agent control plane routing tool calls and queues toward an accelerator
+---
+
+The first generation of production AI infrastructure was easy to summarize: keep the accelerator busy. If the GPU was saturated, the system was probably making good use of its most expensive resource. If it was not, the instinct was to increase the batch, reduce precision, or buy a larger machine.
+
+That mental model breaks when a request becomes an agent.
+
+An agentic request is not one model invocation. It is a changing execution graph: plan, retrieve, call a tool, inspect the result, update state, ask another model, wait for approval, write a record, and maybe continue. The model is still the expensive part, but it is no longer the whole machine. Between two generations of tokens, the system may spend more time parsing schemas, scheduling work, crossing process boundaries, checking permissions, serializing payloads, running a sandbox, or waiting on a database than it spends doing matrix multiplication.
+
+That is the CPU problem. It is not a claim that CPUs replace GPUs. It is a claim that agentic systems make the host, network, and control plane first-class parts of the inference architecture.
+
+## The request is now a distributed workflow
+
+A chat completion has a relatively simple shape:
+
+~~~
+request -> prefill -> decode -> response
+~~~
+
+An agent has a shape closer to this:
+
+~~~
+request
+  -> policy check
+  -> context assembly
+  -> model decision
+  -> tool validation
+  -> remote call / sandbox / retrieval
+  -> observation normalization
+  -> state checkpoint
+  -> another model decision
+  -> ...
+~~~
+
+Every arrow is work. Some arrows are parallelizable. Some are not. Some are cheap but frequent. Others are slow and unpredictable. A model can produce a useful tool call in a few hundred milliseconds, then lose the latency budget waiting for a process to start, a container to become available, or a search result to be converted into a prompt-shaped string.
+
+This is why agent performance cannot be described by model latency alone. The product request has become a distributed workflow with a language model inside it.
+
+The 2026 survey [The Evolution of Tool Use in LLM Agents](https://arxiv.org/abs/2603.22862) describes the same shift from isolated tool selection to long-horizon orchestration with intermediate state, execution feedback, safety constraints, and cost limits. The important word in that list is *state*. Once a run has state, it needs a runtime that owns that state. A prompt is not a runtime.
+
+## The GPU utilization dashboard can lie
+
+Consider an agent that repeatedly calls a search service. A typical trace may look like this:
+
+1. The GPU performs prefill on a growing context.
+2. The model emits a tool call.
+3. The CPU parses JSON and validates arguments against a schema.
+4. A policy service checks identity, tenant, and permission.
+5. A network request crosses to the search service.
+6. The response is decoded, filtered, ranked, and truncated.
+7. The runtime stores an observation and builds the next prompt.
+8. The GPU is asked to prefill again.
+
+If the CPU and network work take 600 ms, a GPU trace can look healthy while the user experiences a slow agent. If the host scheduler is overloaded, the accelerator may sit idle between short bursts. If the runtime batches unrelated work, the accelerator may appear busy while tail latency grows. A single utilization percentage cannot tell these cases apart.
+
+The more useful question is not “How much GPU did this request use?” It is “Where did the run wait before the next state transition became possible?”
+
+## Where the CPU time goes
+
+Agent runtimes tend to accumulate the same classes of host-side work.
+
+### Orchestration and scheduling
+
+The runtime selects the next runnable step, enforces budgets, handles cancellation, owns leases, and decides whether a tool call may proceed. With thousands of concurrent runs, this is a scheduler problem. A queue per model is not enough; the runtime may also need queues for tenants, priorities, tools, sandboxes, and approval states.
+
+The scheduler should not be hidden inside a recursive function. It should make a run's state explicit:
+
+~~~ts
+type RunStatus =
+  | 'ready'
+  | 'waiting_for_model'
+  | 'waiting_for_tool'
+  | 'waiting_for_approval'
+  | 'succeeded'
+  | 'failed'
+  | 'cancelled'
+
+type AgentStep = {
+  runId: string
+  sequence: number
+  status: RunStatus
+  deadlineAt: string
+  remainingModelTokens: number
+  remainingToolCalls: number
+  idempotencyKey: string
+}
+~~~
+
+When a run is a durable record, the runtime can pause it without holding a worker thread, resume it after a tool result, and make a deployment restart boring.
+
+### Tool-call serialization and validation
+
+Tool calls are an API boundary, not a string-formatting trick. The runtime has to validate arguments, normalize versions, attach authorization context, enforce response limits, and turn failures into typed observations. This work is often small per call and large in aggregate because agents call tools repeatedly.
+
+The best optimization is frequently to make the tool return less. A compact, typed verdict is easier to validate and cheaper to carry through the next prefill than a raw response containing unused fields, HTML, logs, and duplicate metadata. The July 2026 paper [Tool-Making and Self-Evolving LLM Agents in Low-Latency Systems](https://arxiv.org/abs/2607.08010) is a useful case study in this direction: repeated procedures are compiled into versioned tools so the production agent does not regenerate the same procedural code on every run.
+
+### Retrieval and context assembly
+
+Retrieval is not one database call. It may include query rewriting, embedding, lexical search, vector search, filtering, reranking, deduplication, citation shaping, and context packing. If the result is too large, a summarizer or compressor joins the path. Each stage adds CPU work and another failure mode.
+
+The runtime should treat context as a budgeted artifact. Store the full observation elsewhere, keep a short structured representation in the active state, and include a reference to the artifact. Sending every raw tool response back into the model is a memory leak disguised as faithfulness.
+
+### Sandboxes and process boundaries
+
+Code execution, browser automation, and document conversion introduce different kinds of CPU pressure: process startup, filesystem setup, network proxying, output collection, and cleanup. If every tool call launches a fresh environment, the platform pays cold-start tax even when the model is ready.
+
+Long-lived workers can reduce startup time, but they also enlarge the blast radius. A warm sandbox needs explicit tenant isolation, resource quotas, a reset strategy, and a lease that expires even when the agent is stuck. “Reuse the container” is an optimization only after the security boundary is clear.
+
+### Telemetry, policy, and memory
+
+Production agents emit more than tokens. They emit tool arguments, policy decisions, state transitions, cost estimates, traces, and artifacts. Copying large payloads through every layer can consume CPU and memory before the next model call begins.
+
+Telemetry should be event-shaped and sampled deliberately. The authoritative run state needs durable events; verbose payloads can live in an artifact store with hashes and references. This keeps the control plane inspectable without making every state transition a deep copy.
+
+## The model server and the agent runtime are different planes
+
+It is tempting to let an inference server own the whole loop. That works for a demo, but it couples model batching to business policy, tool failures, approvals, and customer state. A healthier boundary is:
+
+~~~
+agent control plane
+  scheduler · policy · state · tools · budgets · retries
+                 |
+                 v
+model data plane
+  prefill · KV cache · decode · sampling
+~~~
+
+The control plane decides *what should happen next*. The data plane executes model computation efficiently. They communicate through a typed request that includes a model, a context reference, a deadline, a priority, and a cancellation signal. The model server should not need to understand whether a tool call is an invoice lookup or a browser action.
+
+This split also creates room for different scaling policies. Agent state and tool workers often scale with concurrent runs. Prefill and decode workers scale with tokens and cache pressure. Treating them as one uniform pool makes it harder to tune either.
+
+The [vLLM disaggregated prefilling documentation](https://docs.vllm.ai/en/stable/features/disagg_prefill/) makes the prefill/decode split concrete. Prefill is batch-friendly and builds the KV cache; decode is sequential and latency-sensitive. Separating them lets operators tune time-to-first-token and inter-token latency independently. In an agent loop, the control plane sits around that split, deciding when a new observation is worth another prefill and when the run should stop.
+
+## Backpressure has to be semantic
+
+Classic queue backpressure says “stop accepting work when the queue is full.” Agent backpressure has another dimension: a run can be consuming resources without making progress.
+
+Useful admission signals include:
+
+- estimated remaining model tokens;
+- number of tool calls already made;
+- deadline and user-visible priority;
+- whether the next action is read-only or mutating;
+- current tenant and tool quotas;
+- recent progress in the run's state;
+- whether a result is waiting for human approval.
+
+An agent that has spent its budget searching the same source should not outrank a fresh request simply because its queue entry is older. A run waiting on a third-party API should not occupy a model worker. A cancelled run should be removed from every downstream queue, not merely marked cancelled in the database.
+
+Retries need the same discipline. The model may not know whether a timed-out write completed. Every consequential tool should accept an idempotency key derived from the run and logical action. The runtime can then retry transport failures without turning uncertainty into duplicate side effects.
+
+## Measure the gaps between tokens
+
+For an agent, the most valuable trace is a phase timeline. At minimum, record:
+
+- scheduler wait and worker acquisition;
+- context assembly and tokenization;
+- model queue wait, prefill, and decode;
+- tool-call validation and policy checks;
+- network and remote-service latency;
+- sandbox startup and execution;
+- result normalization and context compaction;
+- persistence and checkpoint time;
+- cancellation, retry, and no-progress decisions.
+
+Report p50 and p95 by phase, but also report *amplification*: tool calls per successful task, model tokens per successful task, and CPU milliseconds per model token. A system can lower token latency while becoming more expensive because it makes twice as many tool calls. It can also improve average latency while making the slowest five percent unusable.
+
+The metric I want beside GPU utilization is the **control-plane gap**: the time between one model event becoming available and the next model event being admitted. Break that gap into named causes. “Agent latency” is a symptom; the gap tells you what to fix.
+
+## What I would build first
+
+For a new agentic product, I would start with a small, explicit runtime:
+
+1. Persist a run and its state transitions.
+2. Represent tool results as typed success or typed failure.
+3. Keep raw payloads in artifacts and compact observations in state.
+4. Put budgets, authorization, idempotency, and deadlines outside the prompt.
+5. Make cancellation a real state transition checked before every model and tool call.
+6. Add phase-level tracing before adding more autonomous behavior.
+7. Separate the control-plane worker pool from inference workers.
+8. Load-test tool fan-out and CPU saturation before tuning GPU batch size.
+
+The goal is not to squeeze every CPU cycle. It is to stop treating CPU work as invisible glue. In an agentic system, glue is the product's control surface.
+
+## The accelerator is only one part of the machine
+
+The GPU remains the center of model computation. But the unit of work is no longer a prompt. It is a stateful run that repeatedly crosses model, tool, storage, and policy boundaries.
+
+That makes the next generation of AI infrastructure look less like a single inference server and more like a distributed systems platform with an inference engine inside it. The teams that design the queue, checkpoint, artifact, and cancellation semantics will often win more latency than the teams that only tune the kernel.
+
+Agentic AI has a CPU problem because it has a systems problem. The fix is to give the non-GPU work a name, a budget, a trace, and an architecture.
+
+## Further reading
+
+- [The Evolution of Tool Use in LLM Agents](https://arxiv.org/abs/2603.22862)
+- [Tool-Making and Self-Evolving LLM Agents in Low-Latency Systems](https://arxiv.org/abs/2607.08010)
+- [Disaggregated Prefilling in vLLM](https://docs.vllm.ai/en/stable/features/disagg_prefill/)
+- [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
+- [Designing an Agent Loop That Can Stop](/en/blog/designing-an-agent-loop-that-can-stop)
