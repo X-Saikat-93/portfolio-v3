@@ -7,7 +7,7 @@ import { T } from '~/lib/i18n'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
 import { projectPath, projects } from '~/lib/projects'
 
-export function ProjectsPageView() {
+export function ProjectsPageView({ caseStudyProjectIds = [] }: { caseStudyProjectIds?: readonly string[] }) {
   const center = (projects.length - 1) / 2
 
   return (
@@ -57,6 +57,7 @@ export function ProjectsPageView() {
                     <T zh={project.name} en={project.nameEn} />
                   </span>
                   <span className="project-domain text-muted-foreground">
+                    {caseStudyProjectIds.includes(project.id) ? 'Case study · ' : ''}
                     {project.category} · {project.status}
                   </span>
                 </span>

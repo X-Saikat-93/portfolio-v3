@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { ProjectDetailPage } from '~/app/_views/project-detail-page'
 import { JsonLd } from '~/components/json-ld'
 import { localeMetadata } from '~/lib/locale-metadata'
+import { safeGetPublishedProjectCaseStudy } from '~/lib/project-case-studies/repository'
 import { getProjectById, projectPath, projects } from '~/lib/projects'
 import { seo } from '~/lib/seo'
 
@@ -40,6 +41,9 @@ export default async function EnglishProjectPage({ params }: ProjectPageProps) {
   const project = index >= 0 ? projects[index] : undefined
 
   if (!project) notFound()
+
+  const caseStudy = await safeGetPublishedProjectCaseStudy(project.id)
+  const projectWithCaseStudy = caseStudy ? { ...project, caseStudy } : project
 
   const canonical = new URL(projectPath(project.id), seo.url).href
 
@@ -81,7 +85,7 @@ export default async function EnglishProjectPage({ params }: ProjectPageProps) {
         ]}
       />
       <ProjectDetailPage
-        project={project}
+        project={projectWithCaseStudy}
         position={index + 1}
         total={projects.length}
         previous={projects[index - 1]}

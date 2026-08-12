@@ -1,6 +1,7 @@
 import { ProjectsPageView } from '../../../_views/projects-page'
 import { JsonLd } from '~/components/json-ld'
 import { localeMetadata } from '~/lib/locale-metadata'
+import { safeListPublishedProjectCaseStudies } from '~/lib/project-case-studies/repository'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
 import { projectPath, projects } from '~/lib/projects'
 import { seo } from '~/lib/seo'
@@ -13,7 +14,9 @@ export const metadata = localeMetadata({
   ...copy,
 })
 
-export default function EnglishProjectsPage() {
+export default async function EnglishProjectsPage() {
+  const caseStudies = await safeListPublishedProjectCaseStudies()
+
   return (
     <>
       <JsonLd
@@ -42,7 +45,7 @@ export default function EnglishProjectsPage() {
           },
         }}
       />
-      <ProjectsPageView />
+      <ProjectsPageView caseStudyProjectIds={caseStudies.map(({ projectId }) => projectId)} />
     </>
   )
 }
