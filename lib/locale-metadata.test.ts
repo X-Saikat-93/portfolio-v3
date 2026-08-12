@@ -31,7 +31,7 @@ describe('localeMetadata', () => {
       description: 'An English summary',
       images: [
         {
-          url: new URL('/og?locale=en&path=%2Fblog%2Fa-post&v=v2', seo.url),
+          url: new URL('/og?locale=en&path=%2Fblog%2Fa-post&v=v3', seo.url),
           width: 1200,
           height: 630,
           alt: 'A post · Saikat Das',
@@ -79,7 +79,7 @@ describe('localeMetadata', () => {
       const image = Array.isArray(images) ? images[0] : images
 
       expect(image).toMatchObject({
-        url: new URL('/og?locale=en&path=' + encodeURIComponent(path) + '&v=v2', seo.url),
+        url: new URL('/og?locale=en&path=' + encodeURIComponent(path) + '&v=v3', seo.url),
         alt: `${path.slice(1)} · Saikat Das. A page description`,
       })
     }

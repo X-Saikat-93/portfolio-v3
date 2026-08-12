@@ -19,6 +19,8 @@ import { cn } from '~/lib/utils'
 
 import { fontVariablesForLocale } from '../fonts'
 
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim()
+
 export const rootMetadata: Metadata = {
   metadataBase: seo.url,
   description: seo.description,
@@ -37,6 +39,9 @@ export const rootMetadata: Metadata = {
   authors: [{ name: 'Saikat Das', url: new URL('/en', seo.url) }],
   creator: 'Saikat Das',
   publisher: 'Saikat Das',
+  verification: googleSiteVerification
+    ? { google: googleSiteVerification }
+    : undefined,
   robots: {
     index: true,
     follow: true,

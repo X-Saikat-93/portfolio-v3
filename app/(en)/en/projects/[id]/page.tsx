@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   return localeMetadata({
     locale: 'en',
     path: `/projects/${project.id}`,
-    title: project.nameEn,
+    title: project.nameEn + ' — ' + project.category,
     description: project.descriptionEn ?? project.description,
   })
 }

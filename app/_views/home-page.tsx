@@ -65,7 +65,9 @@ export async function HomePageView({ locale }: { locale: Locale }) {
       <div className="flex flex-col-reverse justify-between gap-10 sm:flex-row sm:items-start">
         <div className="enter max-w-[19rem]">
           <div className="flex items-center gap-2">
-            <h1 className="text-base font-semibold tracking-tight text-foreground">Saikat Das</h1>
+            <h1 className="text-base font-semibold tracking-tight text-foreground">
+              Saikat Das — Full-Stack Product Engineer
+            </h1>
             <PixelCluster variant={2} className="shrink-0" />
           </div>
           <div className="mt-4">

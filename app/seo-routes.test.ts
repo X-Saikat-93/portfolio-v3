@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { buildEnglishFeedXml } from '~/lib/feeds'
-import { publishedPostSlugs } from '~/lib/public-content-routes'
 import { projects } from '~/lib/projects'
 import { seo } from '~/lib/seo'
 
@@ -66,7 +65,6 @@ describe('localized discovery routes', () => {
       ...['/en', '/en/blog', '/en/photos', '/en/books', '/en/music', '/en/projects', '/en/resume', '/en/now', '/en/contact', '/en/privacy'].map(
         (path) => new URL(path, seo.url).href,
       ),
-      ...publishedPostSlugs.map((slug) => new URL(`/en/blog/${slug}`, seo.url).href),
       ...projects.map(({ id }) => new URL(`/en/projects/${id}`, seo.url).href),
     ])
   })

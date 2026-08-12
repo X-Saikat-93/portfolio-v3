@@ -13,8 +13,8 @@ interface LocaleMetadataOptions {
 }
 
 const SOCIAL_IMAGE_VERSION = process.env.VERCEL_GIT_COMMIT_SHA
-  ? 'v2-' + process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)
-  : 'v2'
+  ? 'v3-' + process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)
+  : 'v3'
 const SECTION_IMAGE_PATHS = new Set([
   '/blog',
   '/photos',

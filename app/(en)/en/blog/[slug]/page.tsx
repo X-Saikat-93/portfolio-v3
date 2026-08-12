@@ -162,6 +162,9 @@ async function EnglishBlogPostContent({
       })
     : null
 
+  const articleImageUrl =
+    coverUrl ?? socialImageUrl('en', '/blog/' + post.slug).href
+
   const content = await compileBlogBody(post.body)
 
   return (
@@ -174,7 +177,7 @@ async function EnglishBlogPostContent({
             headline: post.title,
             description: post.description,
             keywords: post.keywords.length ? post.keywords.join(', ') : undefined,
-            image: coverUrl ? [coverUrl] : undefined,
+            image: [articleImageUrl],
             datePublished: post.publishedAt.toISOString(),
             dateModified: post.updatedAt.toISOString(),
             author: {

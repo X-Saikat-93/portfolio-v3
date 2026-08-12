@@ -1,17 +1,13 @@
 import type { MetadataRoute } from 'next'
 
 import { safeListPublishedBlogPosts } from '~/lib/blog/repository'
-import { publishedPostSlugs } from '~/lib/public-content-routes'
 import { projects } from '~/lib/projects'
 import { seo } from '~/lib/seo'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await safeListPublishedBlogPosts()
   const postsBySlug = new Map(posts.map((post) => [post.slug, post]))
-  const postSlugs = new Set([
-    ...publishedPostSlugs,
-    ...posts.map(({ slug }) => slug),
-  ])
+  const postSlugs = new Set(posts.map(({ slug }) => slug))
   const paths = [
     '/en',
     '/en/blog',

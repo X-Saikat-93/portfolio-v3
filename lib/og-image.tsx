@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 import type { Locale } from './locale-route'
+import { cloudinaryImageUrl, cloudinaryOgPublicId } from './cloudinary/image-url'
 import { ogRuntimeFonts } from './og'
 import { publicPageMetadata, type PublicSection } from './public-page-metadata'
 import { seo } from './seo'
@@ -17,7 +18,22 @@ const sectionCopy: Record<PublicSection, { title: string; description: string }>
   privacy: publicPageMetadata.privacy.en,
 }
 
+const OG_ARTWORK_PATH = '/images/og/saikat-das-og-art-v3.png'
+
+function ogArtworkUrl() {
+  return (
+    cloudinaryImageUrl(cloudinaryOgPublicId, {
+      width: 1200,
+      height: 630,
+      crop: 'fill',
+      gravity: 'center',
+    }) ?? new URL(OG_ARTWORK_PATH, seo.url).href
+  )
+}
+
 async function render(title: string, description: string, section = 'PRODUCT ENGINEERING') {
+  const artworkUrl = ogArtworkUrl()
+
   return new ImageResponse(
     (
       <div
@@ -35,6 +51,44 @@ async function render(title: string, description: string, section = 'PRODUCT ENG
           overflow: 'hidden',
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={artworkUrl}
+          alt=""
+          width={1200}
+          height={630}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            backgroundColor: 'rgba(243, 239, 231, 0.38)',
+            display: 'flex',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: 780,
+            backgroundColor: 'rgba(243, 239, 231, 0.86)',
+            borderRight: '1px solid rgba(25, 24, 23, 0.12)',
+            display: 'flex',
+          }}
+        />
         <div
           style={{
             position: 'absolute',
