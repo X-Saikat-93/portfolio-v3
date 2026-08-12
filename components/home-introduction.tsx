@@ -135,10 +135,10 @@ function HomeContact({ github }: { github: GitHubSnapshot }) {
   return (
     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
       <T
-        zh="Find me on GitHub or by email."
+        zh="Explore my work on GitHub, connect on LinkedIn, or email me directly."
         en={
           <>
-            Find me on <GitHubCard data={github} triggerClassName="home-contact-link" />,{' '}
+            Explore my work on <GitHubCard data={github} triggerClassName="home-contact-link" />, connect on{' '}
             <a
               href="https://www.linkedin.com/in/saikat933/"
               target="_blank"
@@ -147,7 +147,7 @@ function HomeContact({ github }: { github: GitHubSnapshot }) {
             >
               LinkedIn
             </a>
-            , or{' '}
+            , or email me directly at{' '}
             <EmailCard
               address="ibx.saikat37@gmail.com"
               trigger="ibx.saikat37@gmail.com"
@@ -165,15 +165,15 @@ export function HomeIntroduction({ github }: { github: GitHubSnapshot }) {
     <div className="home-introduction">
       <p className="text-sm leading-relaxed text-muted-foreground">
         <T
-          zh="I’m Saikat, a product engineer who builds reliable products end to end."
+          zh="I’m Saikat, a product engineer who takes products from architecture to production across the full stack."
           en={
             <>
-              I’m Saikat, a <DesignEngineerPhrase>product engineer</DesignEngineerPhrase> who works across the{' '}
+              I’m Saikat, a <DesignEngineerPhrase>product engineer</DesignEngineerPhrase> who takes products from{' '}
               <DetailsPhrase>
                 <span className="home-detail-units home-detail-words">
-                  <span className="home-detail-unit">full</span>{' '}
-                  <span className="home-detail-unit">stack</span>{' '}
-                  <span className="home-detail-unit">end to end</span>
+                  <span className="home-detail-unit">architecture</span>{' '}
+                  <span className="home-detail-unit">to production</span>{' '}
+                  <span className="home-detail-unit">across the full stack</span>
                   <span className="home-detail-period">.</span>
                 </span>
               </DetailsPhrase>
@@ -183,16 +183,16 @@ export function HomeIntroduction({ github }: { github: GitHubSnapshot }) {
       </p>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         <T
-          zh="I build web products, APIs, and interfaces with equal care."
+          zh="I design, build, and operate web products, APIs, and data-heavy workflows—owning the details that make them reliable."
           en={
-            "I build web products, APIs, and interfaces with equal care."
+            'I design, build, and operate web products, APIs, and data-heavy workflows—owning the details that make them reliable.'
           }
         />
       </p>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         <T
-          zh="My work spans product engineering, data, automation, and thoughtful interface design."
-          en="My work spans product engineering, data, automation, and thoughtful interface design."
+          zh="Recent work includes a five-app marketplace monorepo with real-time booking recovery and an ATS built around 100K+ Postgres records."
+          en="Recent work includes a five-app marketplace monorepo with real-time booking recovery and an ATS built around 100K+ Postgres records."
         />
       </p>
       <HomeContact github={github} />
