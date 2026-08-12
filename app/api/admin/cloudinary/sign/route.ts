@@ -20,9 +20,17 @@ export async function POST(request: Request) {
   try {
     const { client, config } = getCloudinaryClient()
     const timestamp = Math.floor(Date.now() / 1000)
-    const publicId = kind === 'avatar' ? 'avatar' : kind === 'resume' ? 'resume' : crypto.randomUUID()
+    const configuredResumeId = process.env.NEXT_PUBLIC_CLOUDINARY_RESUME_PUBLIC_ID?.trim()
+    const targetPublicId =
+      kind === 'avatar'
+        ? `${config.uploadFolder}/avatar`
+        : kind === 'resume'
+          ? configuredResumeId || `${config.uploadFolder}/resume`
+          : `${config.uploadFolder}/${crypto.randomUUID()}`
+    const publicId = targetPublicId.split('/').at(-1) ?? targetPublicId
+    const folder = targetPublicId.split('/').slice(0, -1).join('/') || config.uploadFolder
     const params = {
-      folder: config.uploadFolder,
+      folder,
       public_id: publicId,
       timestamp,
     }
@@ -32,9 +40,9 @@ export async function POST(request: Request) {
       {
         apiKey: config.apiKey,
         cloudName: config.cloudName,
-        folder: config.uploadFolder,
-        publicId: `${config.uploadFolder}/${publicId}`,
-        resourceType: kind === 'resume' ? 'raw' : 'image',
+        folder,
+        publicId: targetPublicId,
+        resourceType: 'image',
         signature,
         timestamp,
       },
