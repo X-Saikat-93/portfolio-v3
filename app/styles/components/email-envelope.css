@@ -1,0 +1,214 @@
+/* ── Email envelope: the hover card is a little piece of mail ─────── */
+
+.email-envelope-card {
+  overflow: hidden;
+  padding: 0;
+  border-radius: 5px;
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--paper-ink) 30%, transparent),
+    var(--shadow-tooltip),
+    var(--shadow-medium);
+}
+
+.email-envelope {
+  --mail-red: oklch(0.58 0.12 25);
+  --mail-blue: oklch(0.53 0.09 245);
+
+  position: relative;
+  display: block;
+  height: 9.25rem;
+  overflow: hidden;
+  color: var(--paper-ink);
+  background:
+    radial-gradient(circle at 18% 24%, color-mix(in oklab, var(--paper-ink) 4%, transparent) 0 0.5px, transparent 0.75px),
+    var(--paper);
+  background-size: 13px 11px, auto;
+}
+
+/* postal edge: quiet red/blue registration ink around the paper */
+.email-envelope::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(135deg, var(--mail-red) 0 7px, transparent 7px 14px, var(--mail-blue) 14px 21px, transparent 21px 28px) top / 100% 3px no-repeat,
+    repeating-linear-gradient(135deg, var(--mail-red) 0 7px, transparent 7px 14px, var(--mail-blue) 14px 21px, transparent 21px 28px) bottom / 100% 3px no-repeat,
+    repeating-linear-gradient(45deg, var(--mail-red) 0 7px, transparent 7px 14px, var(--mail-blue) 14px 21px, transparent 21px 28px) left / 3px 100% no-repeat,
+    repeating-linear-gradient(45deg, var(--mail-red) 0 7px, transparent 7px 14px, var(--mail-blue) 14px 21px, transparent 21px 28px) right / 3px 100% no-repeat;
+  opacity: 0.62;
+}
+
+/* closed front flap: lower seams meet under the recipient address */
+.email-envelope-flap {
+  position: absolute;
+  inset: auto 0 0;
+  height: 66%;
+  clip-path: polygon(0 100%, 0 75%, 50% 25%, 100% 75%, 100% 100%);
+  background: color-mix(in oklab, var(--paper-ink) 3%, var(--paper));
+  filter: drop-shadow(0 -1px 0 color-mix(in oklab, var(--paper-ink) 34%, transparent));
+}
+
+.email-envelope-return {
+  position: absolute;
+  top: 1.05rem;
+  left: 1.05rem;
+  z-index: 1;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 7px;
+  line-height: 1.45;
+  letter-spacing: 0.08em;
+  color: color-mix(in oklab, var(--paper-ink) 78%, transparent);
+}
+
+.email-envelope-return > span {
+  display: block;
+  margin-bottom: 1px;
+  font-size: 6px;
+  letter-spacing: 0.16em;
+  opacity: 0.72;
+}
+
+.email-envelope-stamps {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.8rem;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.email-envelope-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 3px dotted var(--paper);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  line-height: 1;
+  color: color-mix(in oklab, var(--paper-ink) 90%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--paper-ink) 36%, transparent);
+}
+
+.email-envelope-stamp-portrait {
+  width: 3rem;
+  height: 3.65rem;
+  rotate: 2deg;
+  background: color-mix(in oklab, var(--mail-red) 11%, var(--paper));
+}
+
+.email-envelope-stamp-portrait img {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.08);
+}
+
+.email-envelope-stamp-portrait span,
+.email-envelope-stamp-mark > span:last-child {
+  margin-top: 0.2rem;
+  font-size: 5px;
+  letter-spacing: 0.06em;
+}
+
+.email-envelope-stamp-mark {
+  width: 2.25rem;
+  height: 2.85rem;
+  margin-top: 0.25rem;
+  rotate: -3deg;
+  background: color-mix(in oklab, var(--mail-blue) 10%, var(--paper));
+}
+
+.email-envelope-stamp-star {
+  font-size: 1rem;
+  color: color-mix(in oklab, var(--mail-blue) 66%, var(--paper-ink));
+}
+
+/* cancellation circle and three horizontal ink bars overlap the postage */
+.email-envelope-postmark {
+  position: absolute;
+  top: 1.35rem;
+  right: 4.2rem;
+  z-index: 3;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid color-mix(in oklab, var(--paper-ink) 58%, transparent);
+  border-radius: 999px;
+  rotate: -8deg;
+  opacity: 0.72;
+}
+
+.email-envelope-postmark::before {
+  content: '13 JUL';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 5px;
+  letter-spacing: 0.04em;
+}
+
+.email-envelope-postmark::after {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  left: 1.65rem;
+  width: 2.8rem;
+  height: 1rem;
+  background: repeating-linear-gradient(to bottom, color-mix(in oklab, var(--paper-ink) 58%, transparent) 0 1px, transparent 1px 5px);
+}
+
+.email-envelope-address {
+  position: absolute;
+  top: 5.45rem;
+  left: 3.3rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  line-height: 1.35;
+  letter-spacing: 0.035em;
+  color: color-mix(in oklab, var(--paper-ink) 92%, transparent);
+  white-space: nowrap;
+}
+
+.email-envelope-address > span {
+  margin-bottom: 0.25rem;
+  font-size: 6px;
+  letter-spacing: 0.18em;
+  opacity: 0.68;
+}
+
+/* on open the stamps settle onto the paper, then the postmark strikes
+   across them: one beat, once per open */
+@keyframes envelope-stamp-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes envelope-postmark-strike {
+  from {
+    opacity: 0;
+    scale: 1.45;
+  }
+}
+
+.email-envelope-stamp {
+  animation: envelope-stamp-in 380ms var(--ease-enter) 60ms backwards;
+}
+
+.email-envelope-stamp-mark {
+  animation-delay: 120ms;
+}
+
+.email-envelope-postmark {
+  animation: envelope-postmark-strike 320ms var(--ease-swift) 300ms backwards;
+}
