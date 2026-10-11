@@ -1,0 +1,1157 @@
+/* ── Project index: compact artifacts with drafting crop marks ───── */
+
+.project-row {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 10rem) minmax(0, 1fr);
+  align-items: start;
+  gap: 0.25rem 1rem;
+  min-height: 4.75rem;
+  padding-block: 0.875rem;
+  font-size: 0.875rem;
+}
+
+.page-introduction {
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.project-row:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.project-icon-frame {
+  position: relative;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  isolation: isolate;
+}
+
+.project-icon-frame::before {
+  position: absolute;
+  inset: 0;
+  color: var(--foreground);
+  background:
+    linear-gradient(currentColor, currentColor) left top / 7px var(--border-hairline) no-repeat,
+    linear-gradient(currentColor, currentColor) left top / var(--border-hairline) 7px no-repeat,
+    linear-gradient(currentColor, currentColor) right top / 7px var(--border-hairline) no-repeat,
+    linear-gradient(currentColor, currentColor) right top / var(--border-hairline) 7px no-repeat,
+    linear-gradient(currentColor, currentColor) left bottom / 7px var(--border-hairline) no-repeat,
+    linear-gradient(currentColor, currentColor) left bottom / var(--border-hairline) 7px no-repeat,
+    linear-gradient(currentColor, currentColor) right bottom / 7px var(--border-hairline) no-repeat,
+    linear-gradient(currentColor, currentColor) right bottom / var(--border-hairline) 7px no-repeat;
+  content: '';
+  opacity: 0;
+  transform: scale(0.82);
+  transition:
+    opacity 150ms ease,
+    transform 300ms var(--ease-spring);
+}
+
+.project-glyph {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  color: var(--muted-foreground);
+  box-shadow: 0 0 0 var(--border-hairline) color-mix(in oklab, var(--foreground) 10%, transparent);
+  transition:
+    transform 300ms var(--ease-spring),
+    color 180ms var(--ease-swift),
+    box-shadow 180ms var(--ease-swift);
+}
+
+/* monogram and arrow share one cell; hover rolls one out, the other in */
+.project-glyph-mark,
+.project-glyph-arrow {
+  grid-area: 1 / 1;
+  transition:
+    transform 340ms var(--ease-enter),
+    opacity 200ms var(--ease-swift);
+}
+
+.project-glyph-mark {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0;
+}
+
+.project-glyph-arrow {
+  font-size: 1.05rem;
+  opacity: 0;
+  transform: translate3d(-0.9rem, 0, 0);
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+  margin-top: 0.2rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.project-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.project-status::before {
+  width: 5px;
+  height: 5px;
+  border: 1px solid color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  border-radius: 999px;
+  content: '';
+}
+
+.project-status[data-tone='live']::before {
+  border-color: var(--signal);
+  background: var(--signal);
+}
+
+.project-status[data-tone='draft']::before {
+  border-style: dashed;
+}
+
+.project-case-tag {
+  padding: 0.1rem 0.3rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 22%, transparent);
+  border-radius: 2px;
+  color: var(--foreground);
+}
+
+.project-identity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  line-height: 1.4;
+}
+
+.project-name {
+  max-width: 100%;
+  color: var(--gray-11, var(--foreground));
+  text-wrap: balance;
+}
+
+.project-domain {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  transition: color 150ms ease;
+}
+
+.project-description {
+  min-width: 0;
+  color: var(--gray-8, var(--muted-foreground));
+  line-height: 1.55;
+  text-wrap: balance;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-row:hover .project-icon-frame::before {
+    opacity: 0.34;
+    transform: scale(1);
+  }
+
+  .project-row:hover .project-glyph {
+    color: var(--foreground);
+    box-shadow: 0 0 0 var(--border-hairline) color-mix(in oklab, var(--foreground) 22%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .project-row:hover .project-glyph-mark {
+    opacity: 0;
+    transform: translate3d(0.9rem, 0, 0);
+  }
+
+  .project-row:hover .project-glyph-arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  .project-row:hover .project-domain {
+    color: var(--foreground);
+  }
+}
+
+.project-row:focus-visible .project-glyph-mark {
+  opacity: 0;
+}
+
+.project-row:focus-visible .project-glyph-arrow {
+  opacity: 1;
+  transform: none;
+}
+
+.project-row:focus-visible .external-label .external-mark {
+  opacity: 0.6;
+  transition: none;
+}
+
+@media (max-width: 39.99rem) {
+  .project-row {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    align-items: start;
+    row-gap: 0.375rem;
+    min-height: 0;
+    padding-block: 1rem;
+  }
+
+  .project-icon-frame {
+    grid-row: 1 / span 2;
+  }
+
+  .project-identity,
+  .project-description {
+    grid-column: 2;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-icon-frame::before,
+  .project-glyph,
+  .project-glyph-mark,
+  .project-glyph-arrow,
+  .project-domain {
+    transition: none;
+  }
+
+  .project-row:hover .project-glyph {
+    transform: none;
+  }
+
+  .project-row:hover .project-icon-frame::before {
+    transform: none;
+  }
+}
+
+/* ── Project dossier: technical case file on the shared paper sheet ─ */
+
+.project-dossier {
+  isolation: isolate;
+  padding-bottom: 3rem;
+}
+
+.project-dossier-ghost {
+  top: -2rem;
+  right: -5.75rem;
+  width: 18rem;
+}
+
+.project-dossier-register {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.075em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.project-dossier-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition:
+    color 160ms ease,
+    transform 180ms var(--ease-swift);
+}
+
+.project-dossier-back:focus-visible,
+.project-dossier-actions a:focus-visible,
+.project-dossier-pager a:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+.project-dossier-case {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-dossier-header {
+  position: relative;
+  margin-top: 2.5rem;
+}
+
+.project-dossier-mast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.project-dossier-kicker {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.project-dossier-header h1 {
+  max-width: 32rem;
+  margin-top: 0.55rem;
+  color: var(--foreground);
+  font-size: clamp(2.35rem, 8vw, 4.15rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.06em;
+  line-height: 0.96;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.project-dossier-lede {
+  max-width: 34rem;
+  margin-top: 1.4rem;
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.98rem;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+.project-dossier-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1.35rem;
+  margin-top: 1.2rem;
+  color: var(--muted-foreground);
+  font-size: 0.73rem;
+}
+
+.project-dossier-actions a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.28em;
+  transition: color 160ms ease;
+}
+
+.project-dossier-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 2.35rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.project-dossier-facts > div {
+  min-width: 0;
+  padding: 0.85rem 1rem 0.9rem 0;
+}
+
+.project-dossier-facts > div:nth-child(even) {
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+}
+
+.project-dossier-facts > div:nth-child(n + 3) {
+  border-top: 1px solid var(--border);
+}
+
+.project-dossier-facts dt {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+}
+
+.project-dossier-facts dd {
+  margin-top: 0.38rem;
+  color: var(--foreground);
+  font-size: 0.77rem;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.project-case-study {
+  margin-top: 2.85rem;
+}
+
+.project-case-study-framing {
+  max-width: 32rem;
+  margin-top: 1.35rem;
+  margin-left: 3.15rem;
+  color: var(--foreground);
+  font-size: 1.08rem;
+  letter-spacing: -0.015em;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.project-dossier-hero {
+  max-width: 34rem;
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--border);
+  background: var(--surface-1);
+}
+
+.project-dossier-hero-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 3;
+  object-fit: cover;
+}
+
+.project-case-study-proof {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1.7rem;
+  margin-left: 3.15rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.project-case-study-proof > div {
+  min-width: 0;
+  padding: 0.85rem 1rem 0.9rem 0;
+}
+
+.project-case-study-proof > div:nth-child(even) {
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+}
+
+.project-case-study-proof > div:nth-child(n + 3) {
+  border-top: 1px solid var(--border);
+}
+
+.project-case-study-proof dt {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+}
+
+.project-case-study-proof dd {
+  margin-top: 0.38rem;
+  color: var(--foreground);
+  font-size: 0.78rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.project-case-study-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+  margin-left: 3.15rem;
+}
+
+.project-case-study-card {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+.project-case-study-card h3,
+.project-case-study-section > h3 {
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.project-case-study-card p {
+  margin-top: 0.65rem;
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.78rem;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.project-case-study-card ul {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+
+.project-case-study-card li {
+  position: relative;
+  padding-left: 0.95rem;
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.75rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.project-case-study-card li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--signal);
+  content: '+';
+  font-family: var(--font-mono);
+}
+
+.project-case-study-section {
+  margin-top: 2rem;
+  margin-left: 3.15rem;
+}
+
+.project-case-study-decision-list {
+  margin-top: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+.project-case-study-decision-list li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.7rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.project-case-study-decision-list li > span {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+.project-case-study-decision-list h4 {
+  color: var(--foreground);
+  font-size: 0.78rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+}
+
+.project-case-study-decision-list p {
+  margin-top: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.73rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.project-case-study-evidence-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.project-case-study-evidence-list li {
+  position: relative;
+  padding-left: 1rem;
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.76rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.project-case-study-evidence-list li::before {
+  position: absolute;
+  top: 0.45rem;
+  left: 0;
+  width: 0.38rem;
+  height: 0.38rem;
+  border: 1px solid var(--signal);
+  content: '';
+}
+
+.project-case-study-boundary {
+  max-width: 30rem;
+  margin-top: 1.25rem;
+  margin-left: 3.15rem;
+  color: color-mix(in oklab, var(--muted-foreground) 86%, transparent);
+  font-size: 0.65rem;
+  line-height: 1.55;
+}
+
+.project-case-study-boundary strong {
+  color: var(--muted-foreground);
+  font-weight: var(--font-weight-medium);
+}
+
+.project-system-plate {
+  position: relative;
+  margin-top: 2.85rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent);
+  background: color-mix(in oklab, var(--surface-2) 78%, transparent);
+  box-shadow:
+    0.32rem 0.32rem 0 color-mix(in oklab, var(--foreground) 4.5%, transparent),
+    inset 0 0 0 0.28rem color-mix(in oklab, var(--background) 66%, transparent);
+}
+
+.project-system-plate::before,
+.project-system-plate::after {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-color: color-mix(in oklab, var(--foreground) 42%, transparent);
+  content: '';
+  pointer-events: none;
+}
+
+.project-system-plate::before {
+  top: -0.22rem;
+  left: -0.22rem;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.project-system-plate::after {
+  right: -0.22rem;
+  bottom: -0.22rem;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.project-system-plate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.72rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.project-system-plate-header h2 {
+  color: var(--foreground);
+  font-size: 0.64rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.08em;
+}
+
+.project-system-plate-header span {
+  color: var(--muted-foreground);
+  font-size: 0.56rem;
+  letter-spacing: 0.085em;
+}
+
+.project-system-flow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(4.75rem, 1fr));
+  gap: 0.4rem;
+  padding: 1.25rem 0.85rem 1.15rem;
+}
+
+/* the trace: a signal line runs the dotted path once, lighting each
+   stage as it passes, then settles to a faint solid rule */
+.project-system-flow {
+  --trace: 1200ms;
+}
+
+.project-system-flow::after {
+  position: absolute;
+  top: 2.28rem;
+  right: 10%;
+  left: 10%;
+  height: 1px;
+  background: color-mix(in oklab, var(--signal) 32%, transparent);
+  content: '';
+  transform-origin: left;
+  animation: project-trace-run var(--trace) var(--ease-swift) 260ms backwards;
+}
+
+@keyframes project-trace-run {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.project-system-node {
+  animation: project-trace-node 520ms var(--ease-spring) backwards;
+  animation-delay: calc(260ms + var(--i, 0) * var(--trace) / max(var(--n, 5) - 1, 1));
+}
+
+.project-system-label {
+  animation: project-trace-label 420ms var(--ease-enter) backwards;
+  animation-delay: calc(340ms + var(--i, 0) * var(--trace) / max(var(--n, 5) - 1, 1));
+}
+
+@keyframes project-trace-node {
+  from {
+    border-color: var(--signal);
+    color: transparent;
+    transform: scale(0.55);
+  }
+
+  40% {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+}
+
+@keyframes project-trace-label {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.25rem, 0);
+  }
+}
+
+/* below-fold dossier blocks rise in as they are scrolled to; their inner
+   choreography waits with them */
+.project-dossier > .reveal-in {
+  animation: project-reveal-rise 560ms var(--ease-enter) backwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+@keyframes project-reveal-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.85rem, 0);
+  }
+}
+
+.project-dossier > .reveal-pending :is(.project-system-node, .project-system-label),
+.project-dossier > .reveal-pending .project-system-flow::after {
+  animation: none;
+}
+
+.project-system-flow::before {
+  position: absolute;
+  top: 2.28rem;
+  right: 10%;
+  left: 10%;
+  border-top: 1px dotted color-mix(in oklab, var(--foreground) 24%, transparent);
+  content: '';
+}
+
+.project-system-flow li {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.project-system-node {
+  display: grid;
+  width: 2.1rem;
+  height: 2.1rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--foreground) 28%, transparent);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 0.22rem color-mix(in oklab, var(--surface-2) 90%, transparent);
+}
+
+.project-system-label {
+  margin-top: 0.65rem;
+  color: var(--gray-9, var(--muted-foreground));
+  font-size: 0.63rem;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.project-system-record {
+  padding: 1.25rem 0.85rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.project-dossier-section {
+  margin-top: 4rem;
+}
+
+.project-dossier-section-heading {
+  display: grid;
+  grid-template-columns: 2.35rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.project-dossier-section-heading::after {
+  grid-column: 2;
+  height: 1px;
+  margin-top: -0.5rem;
+  background: var(--border);
+  content: '';
+}
+
+.project-dossier-section-heading > span {
+  grid-row: 1 / span 2;
+  align-self: start;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.project-dossier-section-heading h2 {
+  color: var(--foreground);
+  font-size: 0.76rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.project-dossier-prose {
+  max-width: 32rem;
+  margin-top: 1.35rem;
+  margin-left: 3.15rem;
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.86rem;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+.project-dossier-prose p + p {
+  margin-top: 1rem;
+}
+
+.project-capability-list,
+.project-note-register,
+.project-stack-register,
+.project-dossier-source-note {
+  margin-left: 3.15rem;
+}
+
+.project-capability-list {
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--border);
+}
+
+.project-capability-list li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.project-capability-list li > span {
+  color: color-mix(in oklab, var(--muted-foreground) 72%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-capability-list p {
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.project-note-register {
+  margin-top: 1.2rem;
+}
+
+.project-note-register article {
+  display: grid;
+  grid-template-columns: 2.35rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.project-note-register article:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.project-note-register article > span {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+.project-note-register h3 {
+  color: var(--foreground);
+  font-size: 0.79rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+}
+
+.project-note-register p {
+  margin-top: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.73rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.project-stack-register {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  margin-top: 1.2rem;
+}
+
+.project-stack-register li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 15%, transparent);
+  padding: 0.38rem 0.5rem;
+  background: color-mix(in oklab, var(--surface-2) 76%, transparent);
+  color: var(--gray-10, var(--foreground));
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  line-height: 1.2;
+}
+
+.project-stack-register li > span {
+  color: color-mix(in oklab, var(--muted-foreground) 64%, transparent);
+  font-size: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-dossier-source-note {
+  max-width: 30rem;
+  margin-top: 1.1rem;
+  color: color-mix(in oklab, var(--muted-foreground) 84%, transparent);
+  font-size: 0.65rem;
+  line-height: 1.55;
+}
+
+.project-dossier-pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 4.5rem;
+  padding-block: 1.05rem 1.5rem;
+}
+
+.project-dossier-pager a {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition:
+    color 160ms ease,
+    transform 200ms var(--ease-swift);
+}
+
+.project-dossier-pager a:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.project-dossier-pager a > span {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.project-dossier-pager strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.74rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-dossier-back:hover {
+    color: var(--foreground);
+    transform: translate3d(-0.18rem, 0, 0);
+  }
+
+  .project-dossier-actions a:hover {
+    color: var(--foreground);
+  }
+
+  .project-capability-list li {
+    transition: transform 180ms var(--ease-swift);
+  }
+
+  .project-capability-list li:hover {
+    transform: translate3d(0.16rem, 0, 0);
+  }
+
+  .project-dossier-pager a:first-child:hover {
+    transform: translate3d(-0.18rem, 0, 0);
+  }
+
+  .project-dossier-pager a:last-child:hover {
+    transform: translate3d(0.18rem, 0, 0);
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .project-dossier-register {
+    align-items: flex-start;
+  }
+
+  .project-dossier-header {
+    margin-top: 2.15rem;
+  }
+
+  .project-dossier-header h1 {
+    font-size: clamp(2.25rem, 13vw, 3.5rem);
+  }
+
+  .project-dossier-lede {
+    font-size: 0.9rem;
+  }
+
+  .project-dossier-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .project-dossier-facts > div,
+  .project-dossier-facts > div:nth-child(even) {
+    border-left: 0;
+    padding-inline: 0;
+  }
+
+  .project-dossier-facts > div + div {
+    border-top: 1px solid var(--border);
+  }
+
+  .project-system-flow {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-block: 1rem;
+  }
+
+  .project-system-flow::before {
+    top: 1.9rem;
+    right: auto;
+    bottom: 1.9rem;
+    left: 1.88rem;
+    border-top: 0;
+    border-left: 1px dotted color-mix(in oklab, var(--foreground) 24%, transparent);
+  }
+
+  /* phones: the trace runs down the vertical path instead */
+  .project-system-flow::after {
+    top: 1.9rem;
+    right: auto;
+    bottom: 1.9rem;
+    left: 1.88rem;
+    width: 1px;
+    height: auto;
+    transform-origin: top;
+    animation-name: project-trace-run-down;
+  }
+
+  @keyframes project-trace-run-down {
+    from {
+      transform: scaleY(0);
+    }
+  }
+
+  .project-system-flow li {
+    display: grid;
+    grid-template-columns: 2.1rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.28rem;
+    text-align: left;
+  }
+
+  .project-system-label {
+    margin-top: 0;
+  }
+
+  .project-dossier-section {
+    margin-top: 3.35rem;
+  }
+
+  .project-dossier-prose,
+  .project-capability-list,
+  .project-note-register,
+  .project-stack-register,
+  .project-dossier-source-note,
+  .project-case-study-framing,
+  .project-case-study-proof,
+  .project-case-study-grid,
+  .project-case-study-section,
+  .project-case-study-boundary {
+    margin-left: 0;
+  }
+
+  .project-case-study-proof,
+  .project-case-study-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-case-study-proof > div:nth-child(even) {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .project-case-study-proof > div + div {
+    border-top: 1px solid var(--border);
+  }
+
+  .project-dossier-prose,
+  .project-capability-list,
+  .project-note-register,
+  .project-stack-register {
+    margin-top: 1.1rem;
+  }
+
+  .project-dossier-pager {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .project-dossier-pager > span:empty {
+    display: none;
+  }
+
+  .project-dossier-pager a:last-child {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-dossier-back,
+  .project-capability-list li,
+  .project-dossier-pager a {
+    transition: none;
+  }
+
+  .project-system-flow::after,
+  .project-system-node,
+  .project-system-label {
+    animation: none;
+  }
+
+  .project-dossier-back:hover,
+  .project-capability-list li:hover,
+  .project-dossier-pager a:hover {
+    transform: none;
+  }
+}
