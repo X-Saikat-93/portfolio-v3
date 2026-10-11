@@ -1,0 +1,240 @@
+/* ── Selected work (components/selected-work.tsx) ─────────────────────
+   A few projects as evidence rows. Each carries a compact system trace:
+   the rail draws and the stages land once on reveal; hovering a row runs
+   the signal along it. */
+
+.selected-work-all {
+  position: relative;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  transition: color 150ms ease;
+}
+
+/* a generous hit area without moving the layout */
+.selected-work-all::after {
+  content: '';
+  position: absolute;
+  inset: -0.75rem -0.5rem;
+}
+
+.selected-work-all:hover,
+.selected-work-all:focus-visible {
+  color: var(--foreground);
+}
+
+.selected-work-item {
+  border-top: var(--border-hairline) solid var(--border);
+  transition: opacity 220ms var(--ease-swift);
+  animation: selected-work-rise 520ms var(--ease-enter) backwards;
+  animation-delay: calc(160ms + var(--i, 0) * 80ms);
+}
+
+.selected-work-item:last-child {
+  border-bottom: var(--border-hairline) solid var(--border);
+}
+
+@keyframes selected-work-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.4rem, 0);
+  }
+}
+
+.selected-work-row {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 0 1.2rem;
+  border-radius: 2px;
+}
+
+.selected-work-row:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.selected-work-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.selected-work-head .project-meta {
+  margin-top: 0;
+}
+
+.selected-work-name {
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  transition: text-decoration-color 200ms ease;
+}
+
+.selected-work-domain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+/* a short vertical rule separates the domain from the role */
+.selected-work-role::before {
+  content: '';
+  display: inline-block;
+  width: var(--border-hairline);
+  height: 0.7em;
+  margin: 0 0.55rem;
+  background: var(--border);
+  vertical-align: -0.05em;
+}
+
+.selected-work-summary {
+  display: -webkit-box;
+  max-width: 32rem;
+  margin-top: 0.15rem;
+  overflow: hidden;
+  color: var(--gray-10, var(--muted-foreground));
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* ── trace ── */
+
+.selected-work-trace {
+  --trace: 900ms;
+  --rail-inset: calc(100% / var(--n, 5) / 2);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr));
+  margin-top: 0.85rem;
+}
+
+/* the rail, node centre to node centre; the signal rides over it */
+.selected-work-trace::before,
+.selected-work-trace::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: var(--rail-inset);
+  left: var(--rail-inset);
+  height: var(--border-hairline);
+  transform-origin: left;
+}
+
+.selected-work-trace::before {
+  background: var(--border);
+  animation: selected-work-rail 700ms var(--ease-enter) backwards;
+  animation-delay: calc(260ms + var(--i, 0) * 80ms);
+}
+
+.selected-work-trace::after {
+  background: var(--signal);
+  transform: scaleX(0);
+  transition: transform var(--trace) var(--ease-swift);
+}
+
+@keyframes selected-work-rail {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.selected-work-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.selected-work-node {
+  width: 7px;
+  height: 7px;
+  border: 1px solid color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  border-radius: 999px;
+  background: var(--background);
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+  /* the signal reaches each stage in turn */
+  transition-delay: calc(var(--s, 0) * var(--trace) / max(var(--n, 5) - 1, 1));
+  animation: selected-work-node 480ms var(--ease-spring) backwards;
+  animation-delay: calc(280ms + var(--i, 0) * 80ms + var(--s, 0) * 70ms);
+}
+
+@keyframes selected-work-node {
+  from {
+    transform: scale(0.3);
+    border-color: var(--signal);
+  }
+}
+
+.selected-work-stage-label {
+  max-width: 100%;
+  padding: 0 0.15rem;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere;
+  transition: color 200ms ease;
+  transition-delay: calc(var(--s, 0) * var(--trace) / max(var(--n, 5) - 1, 1));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .selected-work-list:has(.selected-work-row:hover) > .selected-work-item:not(:has(.selected-work-row:hover)) {
+    opacity: 0.5;
+  }
+
+  .selected-work-row:hover .selected-work-name {
+    text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+  }
+
+  .selected-work-row:hover .selected-work-trace::after {
+    transform: scaleX(1);
+  }
+
+  .selected-work-row:hover .selected-work-node {
+    border-color: var(--signal);
+    background: var(--signal);
+  }
+
+  .selected-work-row:hover .selected-work-stage-label {
+    color: var(--foreground);
+  }
+}
+
+/* leaving a row drops the signal at once rather than replaying the run */
+.selected-work-row:not(:hover) :is(.selected-work-node, .selected-work-stage-label) {
+  transition-delay: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selected-work-item,
+  .selected-work-trace::before,
+  .selected-work-node {
+    animation: none;
+  }
+
+  .selected-work-item,
+  .selected-work-trace::after,
+  .selected-work-node,
+  .selected-work-stage-label {
+    transition: none;
+  }
+}
