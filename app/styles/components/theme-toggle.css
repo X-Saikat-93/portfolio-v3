@@ -1,0 +1,44 @@
+/* ── Theme tri-toggle (footer chrome — components/theme-toggle.tsx) ── */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.theme-toggle button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  color: var(--muted-foreground);
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+/* extend the hit area vertically; horizontal stays button-width so
+   neighbors remain distinguishable */
+.theme-toggle button::after {
+  content: '';
+  position: absolute;
+  inset: -0.625rem 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .theme-toggle button:hover {
+    color: var(--foreground);
+  }
+}
+
+.theme-toggle button:active {
+  transform: scale(0.97);
+}
+
+.theme-toggle button[data-active] {
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--foreground) 8%, transparent);
+}
