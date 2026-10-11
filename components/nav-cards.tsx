@@ -33,7 +33,7 @@ export function NavCards({
           <T zh="写作" en="Writing" />
         </span>
         <span className="nc-sub">
-          <T zh={`${postCount} 篇文章`} en={`${postCount} posts`} />
+          <T zh={`${postCount} 篇文章`} en={`${postCount} post${postCount === 1 ? '' : 's'}`} />
         </span>
       </Link>
 
@@ -83,7 +83,7 @@ export function NavCards({
           <T zh="项目" en="Projects" />
         </span>
         <span className="nc-sub">
-          <T zh={`${projectCount} 个项目`} en={`${projectCount} projects`} />
+          <T zh={`${projectCount} 个项目`} en={`${projectCount} project${projectCount === 1 ? '' : 's'}`} />
         </span>
       </Link>
     </div>
@@ -116,7 +116,7 @@ export function PhotoNavCard({
         <T zh="照片" en="Photos" />
       </span>
       <span className="nc-sub">
-        <T zh={`${photoCount} 张照片`} en={`${photoCount} photos`} />
+        <T zh={`${photoCount} 张照片`} en={`${photoCount} photo${photoCount === 1 ? '' : 's'}`} />
       </span>
     </Link>
   )
