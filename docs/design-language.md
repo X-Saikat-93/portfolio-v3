@@ -2,7 +2,7 @@
 
 This is the implementation-level reference for the visual system used by the
 public site and the owner workspace. The token definitions live in
-[`app/globals.css`](../app/globals.css); update this document when a design
+[`app/globals.css`](../app/globals.css) and the partials it imports from [`app/styles/`](../app/styles); update this document when a design
 decision changes so the code and the rationale stay aligned.
 
 ## Color roles
