@@ -1,0 +1,459 @@
+/* ── Spec plate: stamped label/value meta (technical print register) ── */
+
+.spec-plate {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem 1rem;
+  margin: 0;
+  padding: 0.625rem 0;
+  border-top: var(--border-hairline) solid var(--border);
+  border-bottom: var(--border-hairline) solid var(--border);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+@media (min-width: 28rem) {
+  .spec-plate {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.spec-plate dt {
+  color: color-mix(in oklab, var(--muted-foreground) 72%, transparent);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spec-plate dd {
+  margin: 0.1875rem 0 0;
+  color: var(--gray-9, var(--muted-foreground));
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* the lit cell — the plate carries this page's single signal mark */
+.spec-signal {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 0.375rem;
+  vertical-align: 0.09em;
+  background: var(--signal);
+}
+
+/* flow variant: cells wrap to their content instead of the fixed grid */
+.spec-plate-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+/* ── Nameplate: the boxed data-plate variant ──────────────────────── */
+
+.spec-nameplate {
+  margin: 0;
+  border: var(--border-hairline) solid var(--border);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.8125rem;
+}
+
+.spec-nameplate > div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+}
+
+/* Dense booking rows use the same engraved table plate with a narrow label
+   rail, leaving the record itself as the dominant reading surface. */
+.spec-nameplate-compact > div {
+  grid-template-columns: 4.75rem minmax(0, 1fr);
+}
+
+.spec-nameplate-compact dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.booking-owner-time {
+  padding: 0.125rem 0.375rem;
+  background: var(--foreground);
+  box-decoration-break: clone;
+  color: var(--background);
+  line-height: 1.8;
+  -webkit-box-decoration-break: clone;
+}
+
+.spec-nameplate > div + div {
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.spec-nameplate dt {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-right: var(--border-hairline) solid var(--border);
+  color: color-mix(in oklab, var(--muted-foreground) 72%, transparent);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spec-nameplate dd {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.spec-nameplate-compact dt,
+.spec-nameplate-compact dd {
+  padding-block: 0.625rem;
+}
+
+/* ── Status ladder: journey steps as state cells ──────────────────── */
+
+/* Decorative reinforcement of state the prose already announces:
+   done = filled ink, current = the lit signal cell, pending = outline. */
+.status-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--muted-foreground) 72%, transparent);
+  user-select: none;
+}
+
+.status-ladder li {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.status-ladder-index {
+  font-variant-numeric: tabular-nums;
+}
+
+.status-ladder-cell {
+  width: 5px;
+  height: 5px;
+  margin-left: auto;
+}
+
+.status-ladder [data-state='done'] .status-ladder-cell {
+  background: color-mix(in oklab, var(--foreground) 62%, transparent);
+}
+
+.status-ladder [data-state='current'] {
+  color: var(--gray-10, var(--foreground));
+}
+
+.status-ladder [data-state='current'] .status-ladder-cell {
+  background: var(--signal);
+}
+
+.status-ladder [data-state='pending'] .status-ladder-cell {
+  box-shadow: inset 0 0 0 var(--border-hairline) color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+}
+
+/* ── Certification stamp ──────────────────────────────────────────── */
+
+.cert-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 55%, transparent);
+  color: var(--gray-11, var(--foreground));
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* ── Section tags: index cell + hatch chip + label ────────────────── */
+
+.section-tag {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+  color: var(--gray-8, var(--muted-foreground));
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section-tag-index {
+  display: flex;
+  align-items: center;
+  padding: 0.0625rem 0.375rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* hazard hatch: fine diagonal strokes in a bordered chip */
+.section-tag-hatch {
+  width: 0.75rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+  border-left: none;
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--muted-foreground) 55%, transparent) 0,
+    color-mix(in oklab, var(--muted-foreground) 55%, transparent) 1px,
+    transparent 1px,
+    transparent 3.5px
+  );
+}
+
+.section-tag-label {
+  align-self: center;
+  padding-left: 0.625rem;
+}
+
+/* Softer hover/selected fills for large choice groups. */
+.quiet-selection {
+  --hover: color-mix(in oklab, var(--foreground) 4%, transparent);
+  --active: color-mix(in oklab, var(--foreground) 7%, transparent);
+}
+
+.dark .quiet-selection {
+  --hover: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --active: color-mix(in oklab, var(--foreground) 9%, transparent);
+}
+
+/* boxed ordinal for manual steps (the how-it-works list). The box aligns
+   to the text baseline so the number reads as part of the first line. */
+.step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.125rem 0;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--muted-foreground) 40%, transparent);
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* ── Footer geo stamp ─────────────────────────────────────────────── */
+
+/* mirrors the clock row: a 1.375rem glyph + a two-line mono readout, so the
+   globe and clock face share size and the coords sit on the clock's grid */
+.footer-geo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: color-mix(in oklab, var(--muted-foreground) 88%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.footer-geo-globe {
+  width: 1.375rem;
+  height: 1.375rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.7;
+  opacity: 0.5;
+}
+
+/* coords share the digital clock text's size and color */
+.footer-geo-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  color: color-mix(in oklab, var(--muted-foreground) 90%, transparent);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A compact maker's mark: name, legal line, and the name echoed in Braille. */
+.footer-signature {
+  display: grid;
+  width: max-content;
+  max-width: 100%;
+  grid-template-columns: 1.875rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 0.625rem;
+}
+
+.footer-signature-mark {
+  position: relative;
+  display: grid;
+  width: 1.875rem;
+  height: 1.875rem;
+  place-items: center;
+  border: var(--border-hairline) solid
+    color-mix(in oklab, var(--foreground) 30%, transparent);
+  background: color-mix(in oklab, var(--foreground) 2.5%, transparent);
+  color: color-mix(in oklab, var(--foreground) 78%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.5625rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.footer-signature-mark::before {
+  position: absolute;
+  top: -0.1875rem;
+  left: -0.1875rem;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-top: var(--border-hairline) solid
+    color-mix(in oklab, var(--foreground) 45%, transparent);
+  border-left: var(--border-hairline) solid
+    color-mix(in oklab, var(--foreground) 45%, transparent);
+  content: '';
+}
+
+.footer-signature-mark::after {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 0.25rem;
+  height: 0.25rem;
+  background: var(--signal);
+  content: '';
+}
+
+.footer-signature-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.footer-signature-name {
+  color: color-mix(in oklab, var(--foreground) 88%, transparent);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.018em;
+  line-height: 1;
+}
+
+.footer-copyright {
+  color: color-mix(in oklab, var(--muted-foreground) 78%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.07em;
+  line-height: 1;
+}
+
+.footer-braille {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: 1.875rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.625rem;
+  color: color-mix(in oklab, var(--muted-foreground) 62%, transparent);
+  font-family: 'Segoe UI Symbol', 'Noto Sans Symbols 2', sans-serif;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.footer-braille::before {
+  width: 100%;
+  border-top: var(--border-hairline) solid
+    color-mix(in oklab, var(--muted-foreground) 28%, transparent);
+  content: '';
+}
+
+/* ── Print ephemera: barcode and ghost folio numerals ─────────────── */
+
+.barcode {
+  display: inline-block;
+  color: currentColor;
+  user-select: none;
+}
+
+.barcode svg {
+  display: block;
+  height: 1.5rem;
+}
+
+.barcode-label {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+}
+
+.error-barcode {
+  position: absolute;
+  bottom: 3.25rem;
+  left: 1.25rem;
+  z-index: 2;
+  color: color-mix(in oklab, var(--foreground) 38%, transparent);
+}
+
+.ghost-folio {
+  position: absolute;
+  top: -0.75rem;
+  right: 0;
+  z-index: -1;
+  color: var(--ghost-ink);
+  font-size: 4.5rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Pixel cluster: dither cells as a site mark, one lit ──────────── */
+
+.pixel-cluster {
+  display: grid;
+  grid-template-columns: 5px 5px;
+  grid-template-rows: 5px 5px;
+  gap: 1px;
+  user-select: none;
+}
+
+.pixel-cluster .pc-cell {
+  display: block;
+}
+
+.pixel-cluster .pc-s {
+  background: var(--signal);
+}
+
+.pixel-cluster .pc-a {
+  background: color-mix(in oklab, var(--foreground) 26%, transparent);
+}
+
+.pixel-cluster .pc-b {
+  background: color-mix(in oklab, var(--foreground) 11%, transparent);
+}
+
+/* ── Page eyebrows: mono section marks with a comment prefix ─────── */
+
+.page-eyebrow {
+  color: var(--gray-8, var(--muted-foreground));
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-eyebrow::before {
+  content: '// ' / '';
+  color: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+}
