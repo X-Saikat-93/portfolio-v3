@@ -1,0 +1,339 @@
+/* ── Now page: a dated ledger ──────────────────────────────────────────
+   Same reading column as the rest of the site. Each thread is a ledger
+   row: its label hangs in the left margin and stays pinned while the
+   thread's entries scroll past, then hands off to the next thread. */
+
+.now-page {
+  padding-bottom: 5rem;
+}
+
+.now-title {
+  max-width: 34rem;
+  color: var(--foreground);
+  font-size: clamp(2rem, 6.4vw, 3.2rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.now-lede {
+  max-width: 31rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+/* dateline: when this snapshot was last reviewed */
+.now-dateline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.045em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.now-dateline time {
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.now-dateline-lamp {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--signal) 16%, transparent);
+}
+
+/* ── Ledger ─────────────────────────────────────────────────────────── */
+
+.now-ledger {
+  margin-top: 3rem;
+  border-bottom: var(--border-hairline) solid var(--border);
+}
+
+.now-thread {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+  border-top: var(--border-hairline) solid var(--border);
+  padding-block: 1.35rem 1.6rem;
+}
+
+.now-thread-label {
+  position: sticky;
+  top: 1.5rem;
+  align-self: start;
+  padding-top: 0.2rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  transition: color 200ms var(--ease-swift);
+}
+
+/* a short signal tick that draws under the label as the thread arrives */
+.now-thread-label > span {
+  background: linear-gradient(var(--signal), var(--signal)) 0 100% / 0.75rem 1px no-repeat;
+  padding-bottom: 0.3rem;
+  animation: now-tick-draw 520ms var(--ease-enter) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 160ms);
+}
+
+@keyframes now-tick-draw {
+  from {
+    background-size: 0 1px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .now-thread:hover .now-thread-label {
+    color: var(--foreground);
+  }
+}
+
+.now-thread-body {
+  min-width: 0;
+}
+
+/* entries */
+.now-list > li + li,
+.now-shelf > li + li,
+.now-open-list > li + li {
+  border-top: var(--border-hairline) dashed color-mix(in oklab, var(--border) 85%, transparent);
+}
+
+.now-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 0.75rem;
+  align-items: start;
+  padding-block: 0.2rem 0.85rem;
+  color: inherit;
+}
+
+.now-list > li + li .now-entry {
+  padding-top: 0.85rem;
+}
+
+.now-entry-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.now-entry-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.7rem;
+}
+
+.now-entry-title {
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+  /* hairline that draws under a linked title on hover */
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 380ms var(--ease-enter);
+}
+
+.now-entry-meta {
+  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 20%, transparent);
+  border-radius: 2px;
+  padding: 0.05rem 0.3rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.now-entry-description {
+  max-width: 34rem;
+  color: var(--muted-foreground);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.now-entry-arrow {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  transition:
+    color 160ms var(--ease-swift),
+    transform 220ms var(--ease-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.now-entry:hover .now-entry-title {
+    background-size: 100% 1px;
+  }
+
+  a.now-entry:hover .now-entry-arrow {
+    color: var(--signal);
+    transform: translate(2px, -2px);
+  }
+}
+
+a.now-entry:focus-visible,
+.now-book:focus-visible,
+.now-contact-link:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+a.now-entry:focus-visible .now-entry-title {
+  background-size: 100% 1px;
+}
+
+/* reading: a compact shelf list, year set in the margin */
+.now-book {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 1rem;
+  align-items: baseline;
+  padding-block: 0.65rem;
+  color: inherit;
+}
+
+.now-shelf > li:first-child .now-book {
+  padding-top: 0.2rem;
+}
+
+.now-book-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.now-book-title {
+  color: var(--foreground);
+  font-size: 0.88rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.now-book-creator {
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.now-book-year {
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  transition: color 160ms var(--ease-swift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .now-shelf:has(a.now-book:hover) .now-book:not(:hover) {
+    opacity: 0.55;
+  }
+
+  a.now-book:hover .now-book-year {
+    color: var(--foreground);
+  }
+}
+
+.now-book {
+  transition: opacity 220ms var(--ease-swift);
+}
+
+/* open to */
+.now-open-item {
+  padding-block: 0.65rem;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.now-open-list > li:first-child {
+  padding-top: 0.1rem;
+}
+
+.now-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.1rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 22%, transparent);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  color: var(--foreground);
+  font-size: 0.8rem;
+  transition:
+    background-color 160ms var(--ease-swift),
+    border-color 160ms var(--ease-swift);
+}
+
+.now-contact-link > span {
+  color: var(--muted-foreground);
+  transition:
+    color 160ms var(--ease-swift),
+    transform 220ms var(--ease-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .now-contact-link:hover {
+    border-color: color-mix(in oklab, var(--foreground) 40%, transparent);
+    background: color-mix(in oklab, var(--foreground) 4%, transparent);
+  }
+
+  .now-contact-link:hover > span {
+    color: var(--signal);
+    transform: translate(2px, -2px);
+  }
+}
+
+/* threads waiting below the fold hold their inner entrances */
+.now-ledger > .reveal-pending :is(.motion-list > *, .now-thread-label > span) {
+  animation: none;
+}
+
+/* phones: the label sits above its thread */
+@media (max-width: 39.99rem) {
+  .now-thread {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    padding-block: 1.2rem 1.4rem;
+  }
+
+  .now-thread-label {
+    position: static;
+    padding-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .now-thread-label > span {
+    animation: none;
+  }
+
+  .now-thread-label,
+  .now-entry-title,
+  .now-entry-arrow,
+  .now-book,
+  .now-book-year,
+  .now-contact-link,
+  .now-contact-link > span {
+    transition: none;
+  }
+}
