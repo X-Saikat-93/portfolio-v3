@@ -1,0 +1,185 @@
+---
+title: MCP Is Growing Up by Shrinking the Tool Surface
+description: "MCP's newest direction is less about exposing more tools and more about discovery, stateless transport, authorization, and bounded capability surfaces."
+keywords:
+  - Model Context Protocol
+  - MCP progressive discovery
+  - MCP tool discovery
+  - stateless MCP
+  - MCP authorization
+  - agent tool gateway
+  - MCP Tasks
+  - agent capability surface
+  - AI tool orchestration
+  - agent protocol architecture
+category: Agent systems
+date: 2026-09-20
+readingMinutes: 13
+coverFile: mcp-tool-surface.png
+coverSlug: mcp-is-growing-up-by-shrinking-the-tool-surface
+coverAlt: Technical illustration of an MCP gateway narrowing a crowded field of tools into a controlled capability surface
+---
+
+The early excitement around the Model Context Protocol was easy to summarize: connect a model to tools through a shared interface.
+
+That description is still true, but it hides the problem that appears at scale. An agent connected to a handful of tools can inspect a catalog directly. An enterprise agent connected to hundreds of tools cannot paste every description into every context window and hope the model chooses well.
+
+The next phase of MCP is therefore not simply more connectivity. It is disciplined reduction: fewer tools in the active context, clearer discovery, stronger authorization, and more predictable transport semantics.
+
+The [July 2026 MCP specification update](https://blog.modelcontextprotocol.io/posts/2026-07-28/) is a useful signal. Its direction includes a stateless protocol core, no handshake or session ID requirement, header-based routing, cacheable list results, authentication hardening, extensions, and the Tasks primitive. The [MCP roadmap](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/) then makes the architectural intent explicit: progressive discovery, agent identity and delegation, stronger tool-result contracts, and remote servers that behave like ordinary HTTP workloads.
+
+MCP is growing up by making the active capability surface smaller and more intentional.
+
+## Tool catalogs are a context problem
+
+Tool descriptions compete with the same context budget used for the user's request, retrieved documents, memory, plan, and observations. A large catalog is not free. It increases tokens, selection ambiguity, and the chance that similar tools are confused.
+
+The failure mode is not always a visible error. The model may select a tool that is semantically close but operationally wrong:
+
+- read versus write;
+- staging versus production;
+- one tenant versus another;
+- estimate versus commit;
+- revoke versus suspend.
+
+Progressive discovery changes the sequence:
+
+~~~text
+intent -> domain discovery -> capability discovery
+       -> exact tool schema -> authorized execution
+~~~
+
+The model first sees a compact directory or a search interface. It then retrieves the exact capability required for the current step. The active context stays bounded, and the policy engine has a place to decide whether that capability should be revealed at all.
+
+This is similar to a compiler loading only the modules required by a program. A runtime does not import every library in existence into every function. An agent should not receive every authority in the organization just because the connection exists.
+
+## Stateless transport is operationally important
+
+The move toward a stateless core matters beyond protocol elegance. A stateless service can sit behind ordinary load balancing, scale horizontally, and recover without preserving an opaque conversational session on one host.
+
+That does not mean agents have no state. It means state belongs in explicit systems:
+
+- the task store;
+- the authorization context;
+- the tool result journal;
+- the artifact store;
+- the cache;
+- the event stream.
+
+When transport sessions carry hidden state, operations become harder. A retry may land on a host that does not know the session. A failover may lose discovery state. A load balancer may need protocol-specific affinity. The July release candidate notes that a plain round-robin load balancer can be sufficient for stateless deployments.
+
+Explicit state is more work at first. It is also easier to inspect, migrate, test, and delete.
+
+## A tool result is a contract
+
+Tool calling is often discussed as if the input schema is the important half. In production, the result contract is equally important.
+
+A tool result should let the harness distinguish:
+
+- data from instructions;
+- authoritative values from advisory text;
+- retryable errors from terminal errors;
+- partial results from complete results;
+- side effects from dry runs;
+- references from embedded content.
+
+This separation matters because tool output enters the model's context. If the result is a block of natural language with no typed status, the model has to infer whether a write succeeded. That is a fragile place to put a safety decision.
+
+A robust result envelope might include:
+
+~~~text
+status: succeeded | failed | pending | partial
+effect: none | simulated | committed
+retry: allowed | after_delay | no
+authority: source identity and freshness
+artifacts: typed references with checksums
+message: human-readable explanation
+~~~
+
+The model can still see a readable message. The harness should make the consequential fields machine-checkable.
+
+## Authorization is moving closer to the protocol
+
+The [MCP roadmap](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/) highlights agent identity, delegation, and mechanisms such as DPoP. That direction is necessary because “the user asked for it” is not enough to authorize every action an agent can discover.
+
+An agent may act on behalf of a user, a team, or another agent. Each relationship needs boundaries:
+
+- who issued the authority;
+- what resource it covers;
+- which operations are allowed;
+- for how long;
+- under which conditions;
+- whether delegation is permitted;
+- how it can be revoked;
+- how the action will appear in an audit trail.
+
+Tool discovery should be policy-aware. A capability that must never be exposed to a given principal should not be merely hidden after the model has already planned around it. The system should present the smallest truthful surface.
+
+This is also why prompts are a weak authorization boundary. Natural language can express intent, but it does not provide cryptographic identity, revocation, or a reliable proof of scope.
+
+## Tasks make long-running tools composable
+
+Some operations do not fit a request-response call: provisioning a resource, running a migration, analyzing a large corpus, or waiting for an external approval.
+
+The Tasks direction gives those operations a first-class shape. A task can be created, inspected, resumed, cancelled, and completed without keeping a network connection open for the entire duration.
+
+That makes MCP more compatible with the agent runtime described in [OpenAI's Agents API announcement](https://openai.com/index/introducing-the-agents-api/). A tool call can become a durable work item rather than a blocking function call.
+
+The important design question is ownership. The protocol can carry task state, but the application still needs to decide:
+
+- whether the task is idempotent;
+- whether the agent can poll or subscribe;
+- what happens when authority expires;
+- which artifacts are retained;
+- whether a human approval is required before completion.
+
+Long-running work is a distributed-systems problem even when the interface looks like a tool.
+
+## The gateway is becoming a product
+
+Most organizations will not connect an agent directly to every internal MCP server. A gateway or broker will sit in the middle. Its jobs may include:
+
+1. catalog and search;
+2. policy filtering;
+3. identity propagation;
+4. rate limits and quotas;
+5. result normalization;
+6. retries and circuit breaking;
+7. logging and cost attribution;
+8. schema versioning;
+9. task lifecycle management.
+
+That gateway should not become a monolith that reimplements every tool. It should make the cross-cutting controls consistent while leaving domain logic behind domain-owned servers.
+
+The best mental model is an API gateway with an agent-aware control plane. The difference is that the caller is not only a fixed program; it is a model selecting capabilities under uncertainty. Discovery quality and result contracts therefore matter as much as routing.
+
+## Migration advice for teams already using MCP
+
+If an existing deployment exposes a large tool list, the first step is inventory, not rewrite.
+
+- Group tools by domain and side-effect level.
+- Identify read-only, reversible, and irreversible operations.
+- Add stable tool identifiers and versioned schemas.
+- Separate result data from natural-language guidance.
+- Measure selection accuracy and context cost.
+- Introduce discovery endpoints or catalog search.
+- Add explicit task handles for long-running operations.
+- Pass identity and delegation metadata through every hop.
+- Test retries, expiry, revocation, and partial completion.
+
+Do not hide a breaking change behind a prettier tool description. A new description can change model selection without changing the underlying permission boundary. Version the contract and evaluate the whole trajectory.
+
+## MCP is a substrate, not the intelligence
+
+The protocol will not make an agent reliable by itself. It can make capabilities discoverable, typed, routable, and governable. The harness still has to decide what to do, when to stop, and how to verify the result.
+
+That division is healthy. A protocol should provide predictable transport and capability semantics. The runtime should provide planning, persistence, and recovery. The application should define what success means.
+
+The future of agent connectivity is not an infinite tool shelf. It is a narrow, searchable, policy-aware interface that expands only when the task requires it. That smaller surface is easier for models to reason over and easier for humans to govern.
+
+## Further reading
+
+- [MCP specification update: stateless core and Tasks](https://blog.modelcontextprotocol.io/posts/2026-07-28/)
+- [MCP roadmap: identity, delegation, and progressive discovery](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/)
+- [MCP 2026 release candidate](https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/)
+- [OpenAI introduces the Agents API](https://openai.com/index/introducing-the-agents-api/)
