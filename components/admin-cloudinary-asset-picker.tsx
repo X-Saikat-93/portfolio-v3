@@ -14,7 +14,7 @@ type Asset = {
   bytes: number | null
 }
 
-type UploadKind = 'avatar' | 'resume' | 'image'
+type UploadKind = 'avatar' | 'resume' | 'image' | 'photo'
 
 async function optimizeImage(file: File) {
   if (!file.type.startsWith('image/')) return file
