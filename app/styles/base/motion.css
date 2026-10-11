@@ -3,7 +3,7 @@
    The staged post route is the documented exception after the shared morph. */
 .enter {
   animation: enter-develop 360ms var(--ease-enter) backwards;
-  animation-delay: var(--enter-delay, 0ms);
+  animation-delay: calc(var(--enter-delay, 0ms) + var(--mount, 0ms));
 }
 
 @keyframes list-item-enter {
@@ -18,7 +18,7 @@
 .motion-list > * {
   --motion-index: 0;
   animation: list-item-enter 320ms var(--ease-enter) backwards;
-  animation-delay: calc(var(--motion-list-delay, 70ms) + var(--motion-index) * 38ms);
+  animation-delay: calc(var(--mount, 0ms) + var(--motion-list-delay, 70ms) + var(--motion-index) * 38ms);
 }
 
 .motion-list > :nth-child(2) { --motion-index: 1; }
