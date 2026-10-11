@@ -215,6 +215,7 @@ export async function SiteDocument({
         {/* Pre-paint handles the visited flag and theme. Locale restoration
             is intentionally limited to /admin; public URLs are explicit. */}
         <script dangerouslySetInnerHTML={{ __html: PREPAINT_SCRIPT }} />
+        <link rel="describedby" href="/llms.txt" />
         <JsonLd
           data={[
             {
@@ -254,7 +255,7 @@ export async function SiteDocument({
         <ThemeProvider>
           <PreviewCardTimingProvider>
             <AmbientBackground />
-            <div className="flex min-h-screen flex-col pb-20">
+            <div className="flex min-h-screen flex-col">
               <a className="skip-link" href="#main-content">
                 Skip to content
               </a>
