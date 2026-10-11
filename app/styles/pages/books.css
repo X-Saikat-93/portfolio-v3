@@ -1,0 +1,222 @@
+/* ── Books: a quiet animated reading shelf ───────────────────────── */
+
+.book-shelf {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.75rem 1.25rem;
+  margin-top: 2.5rem;
+}
+
+.book-shelf-item {
+  min-width: 0;
+  --book-delay: 0ms;
+  animation: book-shelf-enter 520ms var(--ease-spring) var(--book-delay) both;
+}
+
+.book-shelf-item:nth-child(2) {
+  --book-delay: 55ms;
+}
+
+.book-shelf-item:nth-child(3) {
+  --book-delay: 110ms;
+}
+
+.book-shelf-item:nth-child(4) {
+  --book-delay: 165ms;
+}
+
+.book-shelf-item:nth-child(5) {
+  --book-delay: 220ms;
+}
+
+.book-shelf-item:nth-child(6) {
+  --book-delay: 275ms;
+}
+
+.book-card {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-cover-wrap {
+  position: relative;
+  width: min(100%, 12rem);
+  margin: 0 auto;
+  aspect-ratio: 2 / 3;
+}
+
+.book-cover-shadow {
+  position: absolute;
+  inset: 0.55rem -0.35rem -0.4rem 0.5rem;
+  background: var(--paper-ink);
+  opacity: 0.13;
+  transform: rotate(2.2deg);
+  transition: transform 320ms var(--ease-spring), opacity 320ms ease;
+}
+
+.book-cover-frame {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--border);
+  background: var(--paper);
+  box-shadow: var(--shadow-small);
+  transform: rotate(-1.1deg);
+  transition: transform 320ms var(--ease-spring), box-shadow 320ms var(--ease-spring);
+}
+
+.book-shelf-item:nth-child(even) .book-cover-frame {
+  transform: rotate(1deg);
+}
+
+.book-cover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-cover-fallback {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: var(--paper-ink);
+  background: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.book-cover-caption {
+  position: absolute;
+  right: 0.55rem;
+  bottom: 0.55rem;
+  left: 0.55rem;
+  padding: 0.3rem 0.35rem;
+  color: var(--paper-ink);
+  background: color-mix(in oklab, var(--paper) 84%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.book-cover-caption-title {
+  display: block;
+  font-family: var(--font-funnel), ui-sans-serif, sans-serif;
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  text-transform: none;
+  text-wrap: balance;
+}
+
+.book-cover-caption-author {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.book-card-copy {
+  display: block;
+  padding: 0.9rem 0.1rem 0;
+}
+
+.book-card-title,
+.book-card-creator,
+.book-card-year,
+.book-card-description {
+  display: block;
+}
+
+.book-card-title {
+  color: var(--gray-11, var(--foreground));
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.book-card-creator {
+  margin-top: 0.3rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.book-card-year {
+  margin-top: 0.35rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.book-card-description {
+  display: -webkit-box;
+  max-width: 28rem;
+  margin-top: 0.55rem;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .book-card:not(.book-card-static):hover .book-cover-frame,
+  .book-card:not(.book-card-static):focus-visible .book-cover-frame {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-0.45rem) rotate(0deg) scale(1.015);
+  }
+
+  .book-card:not(.book-card-static):hover .book-cover-shadow,
+  .book-card:not(.book-card-static):focus-visible .book-cover-shadow {
+    opacity: 0.2;
+    transform: translateY(0.15rem) rotate(4deg);
+  }
+}
+
+.book-card:active .book-cover-frame {
+  transform: translateY(-0.1rem) scale(0.985);
+}
+
+.book-card-static {
+  cursor: default;
+}
+
+.book-card:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--foreground);
+  outline-offset: 0.45rem;
+}
+
+@keyframes book-shelf-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-shelf-item,
+  .book-cover-frame,
+  .book-cover-shadow {
+    animation: none;
+    transition: none;
+  }
+}
