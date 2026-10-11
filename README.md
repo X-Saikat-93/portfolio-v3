@@ -168,6 +168,8 @@ Once signed in, `/admin` provides:
 | `pnpm db:generate` | Generate Drizzle migrations from the schema |
 | `pnpm db:migrate` | Apply migrations with the migration database URL |
 | `pnpm content:seed` | Upload book artwork and upsert authored posts/books into Neon |
+| `pnpm music:seed` | Fetch Spotify artwork, upload individual covers, and upsert Chainsmokers listening records into Neon |
+| `pnpm photos:seed` | Sync the Cloudinary portrait and published photo assets under `saikat-das/photos/` into Neon |
 | `pnpm auth:bootstrap` | Create the first private owner account |
 | `pnpm audit:prod` | Audit production dependencies |
 
@@ -178,6 +180,10 @@ pnpm typecheck
 pnpm test:unit
 pnpm build
 ```
+
+Photo uploads from `/admin/photos` are stored under `saikat-das/photos/`. Run
+`pnpm photos:seed` to sync those Cloudinary assets into `portfolio_items` and
+`cloudinary_media`.
 
 ## Project map
 
