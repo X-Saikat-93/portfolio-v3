@@ -39,6 +39,16 @@ export async function safeListPublishedCollectionItems(kind: CollectionKind) {
   }
 }
 
+// Use this only for public surfaces that must reflect the database on every
+// request. The regular helper above remains cached for the other collections.
+export async function safeListPublishedCollectionItemsLive(kind: CollectionKind) {
+  try {
+    return await listPublishedCollectionItems(kind)
+  } catch {
+    return [] as PortfolioItem[]
+  }
+}
+
 export function listAdminCollectionItems(kind?: CollectionKind) {
   const database = getDatabase()
   return kind
