@@ -1,0 +1,317 @@
+/* ── Error proof sheet ───────────────────────────────────────────── */
+
+.error-sheet {
+  min-height: calc(100svh - 3.5rem);
+  display: grid;
+  place-items: center;
+  padding-block: 2rem 4rem;
+}
+
+.error-proof {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 34rem;
+  overflow: hidden;
+  padding: 1.25rem;
+  box-shadow: inset 0 0 0 var(--border-hairline) var(--border);
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--border) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--border) 45%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.error-proof::before,
+.error-proof::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.error-proof::before {
+  inset: 3.5rem 1.25rem auto;
+  height: var(--border-hairline);
+  background: var(--border);
+}
+
+.error-proof::after {
+  inset: auto 1.25rem 3.5rem;
+  height: var(--border-hairline);
+  background: var(--border);
+}
+
+.error-proof-meta,
+.error-proof-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  /* quiet registration marks — 30% ink, matching the plate-label register */
+  color: color-mix(in oklab, var(--foreground) 30%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  letter-spacing: -0.011em;
+}
+
+.error-proof-footer {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  left: 1.25rem;
+}
+
+.error-registration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(26rem, 74%);
+  aspect-ratio: 1;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--muted-foreground) 30%, transparent);
+  border-radius: 50%;
+  transform: translate(-50%, -54%);
+  pointer-events: none;
+}
+
+.error-registration::before,
+.error-registration::after,
+.error-registration span::before,
+.error-registration span::after {
+  content: '';
+  position: absolute;
+  background: color-mix(in oklab, var(--muted-foreground) 30%, transparent);
+}
+
+.error-registration::before {
+  top: 50%;
+  right: -2rem;
+  left: -2rem;
+  height: var(--border-hairline);
+}
+
+.error-registration::after {
+  top: -2rem;
+  bottom: -2rem;
+  left: 50%;
+  width: var(--border-hairline);
+}
+
+.error-registration span::before {
+  inset: 50% auto auto 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 var(--border-hairline) color-mix(in oklab, var(--muted-foreground) 42%, transparent);
+  transform: translate(-50%, -50%);
+}
+
+.error-registration span::after {
+  inset: 50% auto auto 50%;
+  width: 0.3rem;
+  height: 0.3rem;
+  transform: translate(-50%, -50%);
+}
+
+.error-code {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4.8rem;
+  color: var(--muted-foreground);
+  font-size: clamp(7.5rem, 30vw, 13.5rem);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.13em;
+  line-height: 0.72;
+  user-select: none;
+}
+
+.error-code span {
+  display: block;
+  transform-origin: center;
+  transition:
+    transform 350ms var(--ease-spring),
+    text-shadow 350ms var(--ease-swift);
+}
+
+.error-code span:nth-child(1) {
+  transform: translate(-0.03em, -0.04em) rotate(-1.5deg);
+  text-shadow: 0.025em 0 color-mix(in oklab, var(--muted-foreground) 24%, transparent);
+}
+
+.error-code span:nth-child(2) {
+  transform: translateY(0.035em) rotate(1deg);
+  text-shadow: -0.02em 0 color-mix(in oklab, var(--muted-foreground) 24%, transparent);
+}
+
+.error-code span:nth-child(3) {
+  transform: translate(0.02em, -0.015em) rotate(2deg);
+  text-shadow: 0 0.025em color-mix(in oklab, var(--muted-foreground) 24%, transparent);
+}
+
+.error-loose-pixel {
+  position: absolute;
+  z-index: 2;
+  width: 0.45rem;
+  height: 0.45rem;
+  background: var(--foreground);
+  pointer-events: none;
+  animation: error-pixel-wander 2.8s steps(4, end) infinite;
+}
+
+.error-loose-pixel-a {
+  top: 26%;
+  left: 16%;
+}
+
+.error-loose-pixel-b {
+  top: 42%;
+  right: 13%;
+  animation-delay: -0.9s;
+}
+
+.error-loose-pixel-c {
+  top: 18%;
+  right: 28%;
+  width: 0.3rem;
+  height: 0.3rem;
+  animation-delay: -1.8s;
+}
+
+@keyframes error-pixel-wander {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translate(0, 0);
+  }
+  25% {
+    opacity: 0.8;
+    transform: translate(7px, -5px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-4px, 7px);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(5px, 4px);
+  }
+}
+
+.error-message {
+  position: relative;
+  z-index: 2;
+  margin-top: 4rem;
+}
+
+.error-actions {
+  position: relative;
+  z-index: 2;
+  margin-top: 1.25rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .error-proof:hover .error-code span {
+    transform: none;
+    text-shadow: 0 0 transparent;
+  }
+}
+
+@media (max-width: 30rem) {
+  .error-sheet {
+    padding-block: 1rem 3rem;
+  }
+
+  .error-proof {
+    min-height: 32rem;
+    padding: 1rem;
+  }
+
+  .error-proof::before {
+    inset-inline: 1rem;
+  }
+
+  .error-code {
+    margin-top: 5.25rem;
+    font-size: clamp(6.75rem, 35vw, 9rem);
+  }
+
+  .error-message {
+    margin-top: 4.5rem;
+  }
+
+  .error-proof-footer {
+    right: 1rem;
+    left: 1rem;
+  }
+}
+
+/* one print pass on arrival: the registration ring swings into place,
+   the digits ink in left to right, then the message lands */
+@keyframes error-registration-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -54%) scale(0.86) rotate(-24deg);
+  }
+}
+
+@keyframes error-ink-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+}
+
+@keyframes error-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.error-registration {
+  animation: error-registration-in 900ms var(--ease-enter) backwards;
+}
+
+/* opacity and blur only, so the misregistration transforms stay free */
+.error-code span {
+  animation: error-ink-in 560ms var(--ease-enter) backwards;
+}
+
+.error-code span:nth-child(1) {
+  animation-delay: 140ms;
+}
+
+.error-code span:nth-child(2) {
+  animation-delay: 220ms;
+}
+
+.error-code span:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+.error-message,
+.error-actions {
+  animation: error-copy-in 520ms var(--ease-enter) 420ms backwards;
+}
+
+.error-actions {
+  animation-delay: 490ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error-code span {
+    transition: none;
+  }
+
+  .error-registration,
+  .error-code span,
+  .error-message,
+  .error-actions,
+  .error-loose-pixel {
+    animation: none;
+  }
+}
