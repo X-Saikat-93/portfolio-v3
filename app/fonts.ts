@@ -1,11 +1,18 @@
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Funnel_Display, Funnel_Sans, Geist_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
 
 import type { Locale } from '~/lib/locale-route'
 
-const geist = Geist({
+// Funnel: one family in two optical cuts — Sans for reading, Display for headlines
+const funnelSans = Funnel_Sans({
   subsets: ['latin'],
-  variable: '--font-geist',
+  variable: '--font-funnel',
+  display: 'swap',
+})
+
+const funnelDisplay = Funnel_Display({
+  subsets: ['latin'],
+  variable: '--font-funnel-display',
   display: 'swap',
 })
 
@@ -26,7 +33,7 @@ const frexSansGB = localFont({
   preload: false,
 })
 
-const latinFontVariables = [geist.variable, geistMono.variable].join(' ')
+const latinFontVariables = [funnelSans.variable, funnelDisplay.variable, geistMono.variable].join(' ')
 
 export function cjkFontVariableForLocale(locale: Locale) {
   return locale === 'zh' ? frexSansGB.variable : ''
