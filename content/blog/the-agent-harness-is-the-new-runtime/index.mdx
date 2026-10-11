@@ -1,0 +1,218 @@
+---
+title: The Agent Harness Is the New Runtime
+description: "Long-running agents need durable state, tools, sandboxes, subagents, and recovery; the harness is becoming a first-class runtime boundary."
+keywords:
+  - agent harness
+  - AI agent runtime
+  - long-running AI agents
+  - agent state management
+  - agent sandbox
+  - AI tool orchestration
+  - subagent coordination
+  - durable agent execution
+  - agent observability
+  - agent architecture
+category: Agent systems
+date: 2026-09-20
+readingMinutes: 14
+coverFile: agent-harness-runtime.png
+coverSlug: the-agent-harness-is-the-new-runtime
+coverAlt: Technical illustration of an agent runtime coordinating tools, subagents, sandboxes, and durable checkpoints
+---
+
+The prompt used to be the unit of AI product design.
+
+That made sense when the system took a message, generated a response, and ended. It is a poor boundary for an agent that can inspect a repository, call services, run code, wait for an external event, ask a subagent for help, and return hours later with a verified artifact.
+
+The unit of design is becoming the harness.
+
+By harness, I mean the runtime around the model: state management, tool execution, context assembly, sandboxing, scheduling, subagent coordination, recovery, policy enforcement, and the interface that turns an uncertain model into a controllable system.
+
+The shift is visible in [OpenAI's September 2026 Agents API announcement](https://openai.com/index/introducing-the-agents-api/). The announcement describes long-running agents, an OpenAI-managed Codex harness, context and tool management, subagents, hosted sandboxes, and several choices for where that runtime can operate. The interesting part is not the product name. It is the fact that the runtime is being described as a deployable infrastructure layer.
+
+## A model call is not a runtime
+
+A model call has a useful shape:
+
+~~~text
+input -> inference -> output
+~~~
+
+An agent task has a different shape:
+
+~~~text
+goal -> plan -> action -> observation -> state update
+                   ^                 |
+                   +---- recovery ---+
+~~~
+
+The loop can run for minutes or days. It can encounter a failed API, a changed repository, a tool result too large for context, a permission boundary, or a human approval step. The model is only one participant in that loop.
+
+When teams implement the loop as a chain of prompts and callbacks, the missing runtime features eventually appear as production incidents:
+
+- duplicated tool calls after a retry;
+- lost work after a worker restart;
+- stale instructions after a long pause;
+- secrets copied into the wrong subagent context;
+- no way to explain why the agent took an action;
+- a final answer that looks plausible but leaves half the plan incomplete.
+
+The harness exists to make those states explicit.
+
+## The harness has six jobs
+
+A production harness usually needs at least six responsibilities:
+
+1. **Plan and schedule.** Turn a goal into bounded steps, prioritize them, and enforce a budget.
+2. **Assemble context.** Select memories, tool descriptions, artifacts, and observations without overflowing the model window.
+3. **Execute tools.** Run calls with typed inputs, timeouts, retries, idempotency, and cancellation.
+4. **Isolate side effects.** Place code, files, credentials, and network access behind a declared boundary.
+5. **Persist progress.** Save the plan, completed work, pending actions, and evidence needed to resume.
+6. **Verify and report.** Check the result, record what happened, and expose uncertainty to a human or downstream system.
+
+These are runtime concerns because they must remain correct when the model is changed. If replacing a model changes whether a retry duplicates a payment or whether a sandbox leaks a file, the system has accidentally coupled safety to model behavior.
+
+## State is more than chat history
+
+An agent task should have an explicit state model. A useful minimum is:
+
+~~~text
+Task
+  goal
+  owner and authority
+  plan version
+  current step
+  budget and deadline
+  durable artifacts
+  tool-call journal
+  verification results
+  next resumable action
+~~~
+
+Chat history can be one input to that state, but it is not a substitute for it. History is optimized for conversation. A runtime needs to know whether a tool call committed a side effect, whether an artifact passed verification, whether an approval expired, and whether a step is safe to replay.
+
+The journal should distinguish at least:
+
+- requested;
+- accepted;
+- started;
+- completed;
+- failed and retryable;
+- failed and terminal;
+- cancelled;
+- superseded.
+
+Without those distinctions, a recovery loop cannot choose between retrying, compensating, asking for approval, and stopping.
+
+## Durable execution changes the UX
+
+Once a task can pause and resume, the interface no longer needs to pretend that an answer arrives in one turn. It can show:
+
+- what the agent believes the goal is;
+- which step is active;
+- what it is waiting for;
+- which actions require approval;
+- what evidence has been collected;
+- what the next restart-safe action will be.
+
+That is not merely a progress indicator. It is a control surface.
+
+The design challenge is to reveal enough state for a person to supervise without exposing every internal token. A concise event stream is usually more useful:
+
+~~~text
+09:41  plan created: investigate failing deployment
+09:42  repository snapshot saved
+09:44  test suite completed: 3 failures
+09:45  patch prepared; write access requires approval
+09:46  waiting for owner
+~~~
+
+The same event stream helps incident response. When an agent produces an incorrect change, the team can inspect the trajectory instead of only the final diff.
+
+## Sandboxes are part of the reasoning loop
+
+An agent that can run code does not just have a tool. It has an environment model.
+
+The model needs to know what exists, what changed, which commands succeeded, and which observations are trustworthy. The harness needs to constrain what the environment can do. That means the sandbox boundary affects the agent's reasoning quality as well as security.
+
+Useful sandbox properties include:
+
+- a declared filesystem root;
+- controlled network access;
+- short-lived credentials;
+- resource quotas;
+- reproducible base images;
+- captured stdout, stderr, and exit status;
+- artifact upload and checksum;
+- cleanup after termination.
+
+The sandbox should not be treated as an implementation detail hidden behind a generic execute function. Its capabilities should be part of the tool contract so the model can plan within real limits.
+
+## Subagents introduce a second scheduler
+
+Delegation can improve throughput, but it adds coordination cost and correlated failure. A parent agent may create three specialists, then spend more tokens reconciling their work than the task required. A subagent may inherit too much context or receive authority it does not need.
+
+The harness should make delegation explicit:
+
+1. The parent declares the objective and expected output.
+2. The child receives the smallest sufficient context.
+3. The child receives scoped capabilities, not the parent's entire authority.
+4. The parent verifies the output against the task state.
+5. The child is stopped when its contribution is complete.
+
+The [research on world-acting systems](https://arxiv.org/abs/2609.04894) is useful here because it separates model competence from system integration, persistence, and safe authority. A protocol can carry a message, but it does not establish that a delegation is justified or that the receiver should be trusted with a particular side effect.
+
+## Version the harness with the model
+
+The harness changes the behavior of a model just as prompts and tools do. A new context assembler, retry policy, tool schema, or sandbox image can change the trajectory even if the underlying model is unchanged.
+
+Version together:
+
+- model and reasoning settings;
+- system instructions;
+- tool schemas and result contracts;
+- context and memory policy;
+- retry and timeout policy;
+- sandbox image;
+- evaluator and verification rules.
+
+Then evaluate trajectories, not only final answers. The [Code as Agent Harness paper](https://arxiv.org/abs/2605.18747) describes code as an operational substrate for reasoning, action, environment modeling, and execution verification. That framing matches production experience: code is where the system expresses what the model is allowed to do and how it can recover.
+
+A useful evaluation asks:
+
+- Did the task finish?
+- Did it finish within budget?
+- Were side effects authorized and idempotent?
+- Could the task resume after a worker loss?
+- Did the agent stop when the goal was satisfied?
+- Can a reviewer reconstruct the decision path?
+
+## Managed runtime or own infrastructure?
+
+The choice is not binary. A managed harness can accelerate a product with standard tools, hosted sandboxes, and simple persistence. Owning the runtime may be necessary when data locality, custom policy, latency, or deep integration matters.
+
+The decision should be made per boundary:
+
+- managed model inference;
+- managed tool broker;
+- customer-owned execution environment;
+- platform-owned state store;
+- customer-owned audit log.
+
+This composition is more resilient than treating the agent runtime as one indivisible service. It also makes exit costs visible.
+
+## The new abstraction
+
+Prompts still matter. Models still matter. But a durable agent is a small distributed system with an uncertain planner inside it.
+
+The harness is where uncertainty becomes a controlled state machine. It is the layer that knows when to retry, when to checkpoint, when to ask, when to deny, and when to stop. That is why it deserves runtime-level design: explicit contracts, versioning, observability, isolation, and failure testing.
+
+If the model is the policy generator, the harness is the operating environment. The teams that build that environment carefully will ship agents that can be trusted with longer tasks, richer tools, and higher-value work.
+
+## Further reading
+
+- [OpenAI introduces the Agents API](https://openai.com/index/introducing-the-agents-api/)
+- [Code as an Agent Harness](https://arxiv.org/abs/2605.18747)
+- [World-acting systems and trustworthy delegation](https://arxiv.org/abs/2609.04894)
+- [Recursive agent harness research](https://arxiv.org/abs/2606.13643)
+- [Harness verification research](https://arxiv.org/abs/2607.06341)
