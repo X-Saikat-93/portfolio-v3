@@ -1,0 +1,21 @@
+/* ── Header avatar ────────────────────────────────────────────────── */
+
+.avatar-flip {
+  position: relative;
+  display: block;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--border);
+  user-select: none;
+}
+
+.avatar-flip img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+}
