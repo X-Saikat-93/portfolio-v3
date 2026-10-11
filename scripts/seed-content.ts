@@ -93,6 +93,50 @@ const books = [
     coverSlug: 'the-staff-engineers-path',
     sortOrder: 60,
   },
+  {
+    title: 'Fundamentals of Software Architecture, 2nd Edition',
+    creator: 'Mark Richards and Neal Ford',
+    year: 2025,
+    description:
+      'A practical architecture guide for making and revisiting trade-offs across patterns, components, governance, data, and modern engineering practice.',
+    url: 'https://www.oreilly.com/library/view/fundamentals-of-software/9781098175504/',
+    coverFile: 'fundamentals-of-software-architecture-2e.png',
+    coverSlug: 'fundamentals-of-software-architecture-2e',
+    sortOrder: 70,
+  },
+  {
+    title: 'Software Architecture: The Hard Parts',
+    creator: 'Neal Ford, Mark Richards, Pramod Sadalage, and Zhamak Dehghani',
+    year: 2021,
+    description:
+      'A trade-off driven guide to service boundaries, distributed data, workflows, transactions, coupling, and the decisions that resist simple best practices.',
+    url: 'https://www.oreilly.com/library/view/software-architecture-the/9781492086888/',
+    coverFile: 'software-architecture-the-hard-parts.png',
+    coverSlug: 'software-architecture-the-hard-parts',
+    sortOrder: 80,
+  },
+  {
+    title: 'Designing Machine Learning Systems',
+    creator: 'Chip Huyen',
+    year: 2022,
+    description:
+      'A production-first guide to reliable ML systems, from data and distribution shift to deployment, observability, continual learning, and team practice.',
+    url: 'https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/titlepage01.html',
+    coverFile: 'designing-machine-learning-systems.png',
+    coverSlug: 'designing-machine-learning-systems',
+    sortOrder: 90,
+  },
+  {
+    title: 'AI Engineering',
+    creator: 'Chip Huyen',
+    year: 2024,
+    description:
+      'A practical foundation-model application guide covering evaluation, RAG, agents, dataset engineering, inference optimization, and feedback-driven architecture.',
+    url: 'https://www.oreilly.com/library/view/ai-engineering/9781098166298/',
+    coverFile: 'ai-engineering.png',
+    coverSlug: 'ai-engineering',
+    sortOrder: 100,
+  },
 ] as const
 
 const root = fileURLToPath(new URL('..', import.meta.url))
