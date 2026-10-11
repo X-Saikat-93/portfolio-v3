@@ -1,0 +1,64 @@
+/* ── Instant-photo cover ──────────────────────────────────────────── */
+
+.polaroid {
+  background: var(--paper);
+  padding: 2% 2% 0;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.04),
+    0 2px 4px -1px rgb(0 0 0 / 0.18);
+}
+
+/* hairline ring where photo meets frame — sells the print edge */
+.polaroid-photo {
+  position: relative;
+  display: block;
+}
+
+.polaroid-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 2px rgb(0 0 0 / 0.14);
+  pointer-events: none;
+}
+
+.polaroid-caption {
+  display: flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0.2rem 0.125rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--paper-ink);
+  user-select: none;
+}
+
+.polaroid-tilted {
+  transform: rotate(var(--tilt, 0deg));
+}
+
+/* hover = pick-up, not flatten; press squishes the gesture, not the paper */
+@media (hover: hover) and (pointer: fine) {
+  .polaroid-tilted {
+    transition:
+      transform 300ms var(--ease-spring),
+      box-shadow 300ms var(--ease-spring);
+  }
+
+  .group:hover .polaroid-tilted {
+    transform: rotate(calc(var(--tilt, 0deg) + 1.2deg)) scale(1.03);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.04),
+      var(--shadow-medium);
+  }
+
+  .group:active .polaroid-tilted {
+    transform: rotate(calc(var(--tilt, 0deg) + 1.2deg)) scale(0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .polaroid-tilted {
+    transition: none;
+  }
+}
