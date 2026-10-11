@@ -1,0 +1,59 @@
+/* ── Home scroll choreography ─────────────────────────────────────────
+   RevealScope hides below-fold home blocks until scrolled to. While a
+   block waits, its inner entrances are parked (animation: none) so the
+   row staggers, the commits sweep and book arrivals replay on reveal instead
+   of finishing unseen at page load. */
+.home-reveal > .reveal-in {
+  animation: home-reveal-rise 560ms var(--ease-enter) backwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+@keyframes home-reveal-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.85rem, 0);
+  }
+}
+
+.home-reveal > .reveal-pending :is(
+  .enter,
+  .enter-swing,
+  .motion-list > *,
+  .tech-stack-item > span,
+  .home-book-frame,
+  .hire-slip-perforation,
+  .hire-slip-action,
+  .github-day,
+  .github-grid-playhead,
+  .experience-item,
+  .experience-node,
+  .home-writing-cover,
+  .selected-work-item,
+  .selected-work-node
+) {
+  animation: none;
+}
+
+.home-reveal > .reveal-pending .experience-item::before,
+.home-reveal > .reveal-pending .selected-work-trace::before {
+  animation: none;
+}
+
+/* touch: rows answer a press, since hover never fires */
+@media (hover: none) {
+  .home-writing-row,
+  .music-home-link,
+  .nav-card {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .home-writing-row:active,
+  .music-home-link:active {
+    background: color-mix(in oklab, var(--foreground) 3.5%, transparent);
+    transform: scale(0.992);
+  }
+
+  .home-writing-row:active .home-writing-cover-image {
+    transform: scale(1.035);
+  }
+}
