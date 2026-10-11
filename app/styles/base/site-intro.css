@@ -1,0 +1,125 @@
+/* ── Site intro: the opening plate on every full page load ─────────────
+   components/site-intro.tsx. Timeline (ms):
+     0–760    name prints in, character by character, out of a mask
+     360–960  a signal rule draws under it; the role settles
+     980–1640 the plate lifts away (clip-path), revealing the page
+   Page entrances wait on --mount so they develop as the plate clears.
+   Transform, opacity, and clip-path only. Everything ends in a resting
+   state via fill-mode, so the plate clears without JavaScript. */
+
+:root {
+  --mount: 0ms;
+}
+
+html[data-intro] {
+  --mount: 1040ms;
+}
+
+.site-intro {
+  display: none;
+}
+
+html[data-intro] .site-intro {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  display: grid;
+  place-items: center;
+  background: var(--background);
+  pointer-events: none;
+  animation: site-intro-lift 660ms cubic-bezier(0.76, 0, 0.24, 1) 980ms forwards;
+  will-change: clip-path;
+}
+
+@keyframes site-intro-lift {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+  }
+}
+
+.site-intro-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* the mark drifts up a touch as the plate lifts, so they leave together */
+  animation: site-intro-mark-out 660ms cubic-bezier(0.76, 0, 0.24, 1) 980ms forwards;
+}
+
+@keyframes site-intro-mark-out {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -1.5rem, 0);
+  }
+}
+
+.site-intro-name {
+  display: flex;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  color: var(--foreground);
+  font-family: var(--font-heading);
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.site-intro-char {
+  display: inline-block;
+  animation: site-intro-char-in 720ms var(--ease-enter) backwards;
+  animation-delay: calc(80ms + var(--c) * 34ms);
+}
+
+@keyframes site-intro-char-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 105%, 0);
+  }
+}
+
+.site-intro-rule {
+  width: 100%;
+  height: 2px;
+  margin-top: 0.7rem;
+  background: var(--signal);
+  transform-origin: left;
+  animation: site-intro-rule-draw 600ms cubic-bezier(0.65, 0, 0.35, 1) 360ms backwards;
+}
+
+@keyframes site-intro-rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.site-intro-role {
+  margin-top: 0.75rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: site-intro-role-in 520ms var(--ease-enter) 560ms backwards;
+}
+
+@keyframes site-intro-role-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.35rem, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-intro] {
+    --mount: 0ms;
+  }
+
+  html[data-intro] .site-intro {
+    display: none;
+  }
+}
