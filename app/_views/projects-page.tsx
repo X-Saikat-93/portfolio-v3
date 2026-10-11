@@ -5,10 +5,11 @@ import { ProjectsBlueprintStage } from '~/components/hidden-list-stage'
 import { PixelCluster } from '~/components/pixel-cluster'
 import { T } from '~/lib/i18n'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
-import { projectPath, projects } from '~/lib/projects'
+import { projectPath, projects, projectStatusTone } from '~/lib/projects'
 
 export function ProjectsPageView({ caseStudyProjectIds = [] }: { caseStudyProjectIds?: readonly string[] }) {
   const center = (projects.length - 1) / 2
+  const caseStudies = new Set(caseStudyProjectIds)
 
   return (
     <div className="relative mx-auto w-full max-w-[37.5rem] px-6">
@@ -50,15 +51,24 @@ export function ProjectsPageView({ caseStudyProjectIds = [] }: { caseStudyProjec
                 data-list-stage-id={project.id}
               >
                 <span className="project-icon-frame" aria-hidden="true" data-list-stage-anchor>
-                  <span className="project-glyph">→</span>
+                  {/* the monogram hands off to an arrow on hover */}
+                  <span className="project-glyph">
+                    <span className="project-glyph-mark">{project.nameEn.charAt(0).toUpperCase()}</span>
+                    <span className="project-glyph-arrow">→</span>
+                  </span>
                 </span>
                 <span className="project-identity">
                   <span className="project-name font-medium">
                     <T zh={project.name} en={project.nameEn} />
                   </span>
-                  <span className="project-domain text-muted-foreground">
-                    {caseStudyProjectIds.includes(project.id) ? 'Case study · ' : ''}
-                    {project.category} · {project.status}
+                  <span className="project-domain text-muted-foreground">{project.category}</span>
+                  <span className="project-meta">
+                    <span className="project-status" data-tone={projectStatusTone(project.status)}>
+                      {project.status}
+                    </span>
+                    {caseStudies.has(project.id) ? (
+                      <span className="project-case-tag">Case study</span>
+                    ) : null}
                   </span>
                 </span>
                 {project.description ? (
