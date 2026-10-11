@@ -1,0 +1,35 @@
+/* ── External links: inline favicon + preview hover card ──────────── */
+
+.external-label {
+  display: inline;
+}
+
+.external-mark {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-inline-start: 0.08em;
+  opacity: 0.6;
+  transition: opacity 150ms ease;
+  vertical-align: -0.125em;
+}
+
+.external-label-text {
+  min-width: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .external-label .external-mark {
+    transition: opacity 150ms ease, transform 180ms ease;
+  }
+
+  a:hover .external-label .external-mark {
+    opacity: 0.95;
+    transform: translate(1.5px, -1.5px);
+  }
+}
+
+a:focus-visible .external-label .external-mark {
+  opacity: 0.95;
+  transition: none;
+}
