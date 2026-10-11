@@ -1,0 +1,228 @@
+---
+title: The Next AI Benchmark Is a Workflow, Not a Model
+description: "Tokens per second cannot describe a retrieval or agentic product; modern evaluation must measure the whole pipeline, its accuracy gate, and its cost to finish useful work."
+keywords:
+  - AI workflow benchmarks
+  - RAG benchmarking
+  - agentic inference benchmark
+  - MLPerf Inference 6.1
+  - end-to-end AI evaluation
+  - LLM systems performance
+  - AI goodput
+  - edge agent benchmarking
+  - retrieval pipeline latency
+  - production AI evaluation
+category: AI systems
+date: 2026-09-20
+readingMinutes: 14
+coverFile: workflow-ai-benchmark.png
+coverSlug: the-next-ai-benchmark-is-a-workflow
+coverAlt: Editorial illustration of a complete RAG and agentic inference pipeline measured by latency, accuracy, energy, and goodput
+---
+
+A language model benchmark can tell you how quickly a model produces tokens. It cannot tell you whether a production RAG system finds the right document, whether the reranker improves the answer, or whether an agent completes the task before its budget expires.
+
+That gap is becoming too large to ignore.
+
+On September 16, 2026, [MLCommons announced MLPerf Inference v6.1](https://mlcommons.org/2026/09/mlperf-inference-v6-1-results/). The release adds an end-to-end Retrieval-Augmented Generation benchmark and an Edge Agentic Inference benchmark. The RAG test measures document ingestion and query answering across embeddings, retrieval, reranking, and LLM reasoning. The edge-agent test measures multi-turn workloads where history, evidence gathering, and reasoning accumulate over time.
+
+That is more than a benchmark update. It is a change in what the industry considers the unit of AI performance.
+
+The unit is moving from “one model call” to “one useful, verified workflow.”
+
+## Why tokens per second is an incomplete number
+
+Tokens per second is still useful. It helps compare decoder implementations under controlled conditions. The problem begins when teams use it as a proxy for product performance.
+
+A real RAG answer may contain:
+
+~~~text
+request
+  -> query embedding
+  -> vector search
+  -> metadata filtering
+  -> reranking
+  -> context packing
+  -> LLM reasoning
+  -> citation or schema validation
+  -> response
+~~~
+
+The slowest stage may not be generation. Retrieval can be cold. A reranker can saturate the CPU. Context packing can copy too much data. The answer can fail a citation check and trigger a retry. A faster model may make the system slower if it produces less useful evidence and causes more attempts.
+
+The benchmark must include the work that creates the user-visible result.
+
+## Retrieval has an ingest path and a query path
+
+MLPerf's RAG benchmark distinguishes corpus ingestion from query answering. That separation matters in production.
+
+Ingest performance affects:
+
+- how quickly new data becomes searchable;
+- the cost of reindexing;
+- backfill and migration windows;
+- freshness after a source update;
+- the operational impact of a parser or embedding-model change.
+
+Query performance affects:
+
+- time to first useful evidence;
+- end-to-end answer latency;
+- tail behavior under concurrency;
+- quality at a fixed deadline;
+- cost per answered question.
+
+A system with excellent query latency but a two-day indexing delay may be unsuitable for incident response. A system with rapid ingestion but unstable tail latency may fail under a launch-day spike. These are different performance contracts and should be measured separately.
+
+## Agentic inference has a growing state
+
+Single-shot inference begins with a request and ends with an output. An agentic task accumulates:
+
+- conversation history;
+- tool results;
+- file and environment state;
+- intermediate plans;
+- failed attempts;
+- verification evidence.
+
+Every step may improve the answer or increase the context burden. The benchmark must therefore measure how performance changes as state grows.
+
+The Edge Agentic Inference benchmark described by MLCommons models multi-turn tasks and incorporates time constraints and accuracy checks. That is a better approximation of an agent than a long prompt pasted into one model call.
+
+The benchmark should expose the trajectory:
+
+~~~text
+turn 1: identify the task
+turn 2: inspect evidence
+turn 3: call a tool
+turn 4: revise after failure
+turn 5: verify and finish
+~~~
+
+The task is not successful because turn four produced a convincing paragraph. It is successful when the workflow reaches a verified terminal state.
+
+## Accuracy gates belong inside the benchmark
+
+Many performance tests treat accuracy as a separate report. For production AI, that separation is dangerous.
+
+If a faster system has a higher error or retry rate, its apparent throughput is overstated. If a system returns a response that violates the output schema, it has not completed the task. If an agent's code patch fails tests, the tokens used to produce it are not productive output.
+
+Define an accuracy gate before measuring performance:
+
+~~~ts
+type WorkflowResult = {
+  completed: boolean
+  verified: boolean
+  latencyMs: number
+  energyWh?: number
+  costUsd?: number
+  attempts: number
+}
+
+const isSuccess = (result: WorkflowResult) =>
+  result.completed &&
+  result.verified &&
+  result.latencyMs <= 90_000
+~~~
+
+The gate should be task-specific. A factual answer may need citation support. A code task may need tests. A commerce workflow may need an authorization and settlement check. The benchmark harness should not reward a result that the product would reject.
+
+## Measure goodput, not just throughput
+
+Throughput counts completed invocations. Goodput counts useful, verified work under a defined service level.
+
+~~~text
+goodput =
+  verified_tasks_within_slo
+  / wall_clock_time
+
+cost_per_verified_task =
+  infrastructure_cost + model_cost + tool_cost
+  / verified_tasks
+~~~
+
+This metric changes optimization priorities. A retriever that reduces answer errors can improve goodput even if it adds latency. A speculative decoder can help only if the verification and rollback overhead remain below the quality benefit. A smaller model can win when it meets the accuracy gate at lower cost.
+
+For edge systems, add power and memory constraints. The device may serve one user at a time with a fixed thermal envelope. For data centers, add concurrency, queueing, and capacity reservation.
+
+## Benchmark the behavior you are buying
+
+A procurement benchmark should describe the workload, not just the hardware.
+
+Include:
+
+- representative document sizes and update rates;
+- query distribution and difficult cases;
+- retrieval depth and reranking policy;
+- model and quantization;
+- context window growth;
+- tool latency and error injection;
+- cache state;
+- concurrency and arrival pattern;
+- verification and retry policy;
+- cost and energy accounting.
+
+Then publish a trace, not only one score. An architecture decision should be able to answer:
+
+- Where did time go?
+- Which stage dominated cost?
+- How often did the system retry?
+- Did retrieval quality improve final task success?
+- What happens when a dependency is slow?
+- How does the tail behave as context grows?
+
+The trace turns benchmarking into a design tool.
+
+## A simple workflow runner
+
+A benchmark runner can remain deterministic while still representing realistic systems:
+
+~~~ts
+async function runWorkflow(input: Input, deps: Deps): Promise<WorkflowResult> {
+  const started = performance.now()
+  const queryVector = await deps.embed(input.question)
+  const candidates = await deps.retrieve(queryVector, input.filters)
+  const ranked = await deps.rerank(input.question, candidates)
+  const context = packContext(ranked, input.maxContextTokens)
+  const draft = await deps.generate({ question: input.question, context })
+  const verified = await deps.verify(draft, ranked)
+
+  return {
+    completed: true,
+    verified,
+    latencyMs: performance.now() - started,
+    costUsd: deps.cost.snapshot(),
+    attempts: 1
+  }
+}
+~~~
+
+The runner should also support failure injection: slow retrieval, missing documents, malformed tool results, provider timeouts, and a verifier that rejects the first attempt. Without those cases, the benchmark measures the happy path that production rarely gets.
+
+## Benchmarking will shape the market
+
+When buyers compare systems by end-to-end workflow metrics, vendor claims will have to become more precise. A provider may still publish peak tokens per second, but customers will also ask for:
+
+- goodput per dollar;
+- verified tasks per watt;
+- time to fresh searchable data;
+- RAG quality at a latency target;
+- agent completion under a fixed budget;
+- behavior under tool failure;
+- edge performance with fixed memory.
+
+That is healthier for the market. Model quality, accelerator throughput, and network bandwidth all matter, but they matter through the workflow they enable.
+
+## The senior-engineering takeaway
+
+If the product is a workflow, benchmark the workflow.
+
+Use model-level tests to catch regressions in the model path. Use system-level benchmarks to understand serving. Use end-to-end, accuracy-gated workloads to make architecture and procurement decisions.
+
+The best system is not the one that produces the most tokens. It is the one that turns a request into a correct, verified result with predictable latency and cost. The benchmark should measure exactly that.
+
+## Further reading
+
+- [MLPerf Inference v6.1: RAG and Edge Agentic Inference](https://mlcommons.org/2026/09/mlperf-inference-v6-1-results/)
+- [AI FinOps is becoming a product primitive](/en/blog/ai-finops-is-becoming-a-product-primitive)
+- [The Agent Harness Is the New Runtime](/en/blog/the-agent-harness-is-the-new-runtime)
