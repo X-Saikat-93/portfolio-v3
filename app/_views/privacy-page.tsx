@@ -1,5 +1,6 @@
 import { ExternalLabel } from '~/components/external-mark'
 import { PixelCluster } from '~/components/pixel-cluster'
+import { RevealScope } from '~/components/reveal-scope'
 import { SectionTag } from '~/components/section-tag'
 
 const providers = [
@@ -32,11 +33,7 @@ function PolicySection({
   children: React.ReactNode
 }) {
   return (
-    <section
-      className="privacy-section enter"
-      aria-labelledby={id}
-      style={{ '--enter-delay': `${90 + index * 45}ms` } as React.CSSProperties}
-    >
+    <section className="privacy-section" aria-labelledby={id}>
       <SectionTag index={index} id={id}>
         {title}
       </SectionTag>
@@ -63,13 +60,21 @@ export function PrivacyPageView() {
         <div className="privacy-header-mark enter" aria-label="Policy effective date">
           <PixelCluster variant={5} />
           <p>
-            <span>Effective</span>
+            <span className="privacy-effective">
+              <span className="privacy-effective-lamp" aria-hidden />
+              Effective
+            </span>
             <time dateTime="2026-08-08">08 Aug 2026</time>
           </p>
         </div>
       </header>
 
-      <div className="privacy-register">
+      {/* the register enters as one block; sections below the fold
+          develop in as they're reached */}
+      <RevealScope
+        className="privacy-register enter"
+        style={{ '--enter-delay': '140ms' } as React.CSSProperties}
+      >
         <PolicySection index={1} id="privacy-scope" title="Scope">
           <p>
             This personal portfolio is operated by Saikat Das. It has no public account,
@@ -172,7 +177,7 @@ export function PrivacyPageView() {
             with it.
           </p>
         </PolicySection>
-      </div>
+      </RevealScope>
     </article>
   )
 }
