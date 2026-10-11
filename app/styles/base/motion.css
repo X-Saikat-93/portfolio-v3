@@ -1,0 +1,244 @@
+/* Above-the-fold entrance choreography: rows/blocks rise in with a per-item
+   delay (set --enter-delay inline; keep ordinary entrances under ~500ms).
+   The staged post route is the documented exception after the shared morph. */
+.enter {
+  animation: enter-develop 360ms var(--ease-enter) backwards;
+  animation-delay: var(--enter-delay, 0ms);
+}
+
+@keyframes list-item-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.4rem, 0);
+  }
+}
+
+/* Reusable, bounded list choreography. The first eight rows stagger; long
+   datasets settle together instead of making visitors wait for content. */
+.motion-list > * {
+  --motion-index: 0;
+  animation: list-item-enter 320ms var(--ease-enter) backwards;
+  animation-delay: calc(var(--motion-list-delay, 70ms) + var(--motion-index) * 38ms);
+}
+
+.motion-list > :nth-child(2) { --motion-index: 1; }
+.motion-list > :nth-child(3) { --motion-index: 2; }
+.motion-list > :nth-child(4) { --motion-index: 3; }
+.motion-list > :nth-child(5) { --motion-index: 4; }
+.motion-list > :nth-child(6) { --motion-index: 5; }
+.motion-list > :nth-child(7) { --motion-index: 6; }
+.motion-list > :nth-child(n + 8) { --motion-index: 7; }
+
+/* Listing polaroids pop like prints dropped on the sheet; skipped after
+   the first visit this session (html[data-visited] set pre-paint) */
+.enter-polaroid .polaroid {
+  animation: polaroid-pop 350ms var(--ease-swift) backwards;
+  animation-delay: var(--enter-delay, 0ms);
+}
+
+html[data-visited] .enter-polaroid .polaroid {
+  animation: none;
+}
+
+/* Scroll reveal (post prose): hidden state is applied by JS only to
+   below-fold elements, so content without JS is simply there */
+.reveal-pending {
+  opacity: 0;
+  transform: translate3d(0, 5px, 0);
+}
+
+@keyframes reveal-develop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0);
+  }
+}
+
+.reveal-in {
+  animation: reveal-develop 300ms var(--ease-swift) backwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+/* nested choreography: a photo inside a revealing block develops after
+   the block (+250ms), popping from a slightly deeper scatter */
+@keyframes img-develop {
+  from {
+    opacity: 0;
+    transform: rotate(calc(var(--img-tilt, 0deg) + 1.2deg)) scale(0.9);
+  }
+}
+
+.reveal-in .zoom-trigger {
+  animation: img-develop 300ms var(--ease-swift) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 250ms);
+}
+
+/* Route transition: the origin yields quickly, then the destination rises.
+   The dock is a named stable layer; matching writing titles morph between
+   list and article positions. */
+.post-loading-cover {
+  view-transition-name: var(--post-cover-transition-name, none);
+}
+
+.post-loading-title {
+  view-transition-name: var(--post-title-transition-name, none);
+}
+
+@keyframes route-content-exit {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -0.2rem, 0);
+  }
+}
+
+@keyframes route-content-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.5rem, 0);
+  }
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(root) {
+  animation: none;
+}
+
+::view-transition-old(root) {
+  display: none;
+}
+
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(site-dock) {
+  z-index: var(--z-nav);
+  animation: none;
+}
+
+::view-transition-old(site-dock) {
+  display: none;
+}
+
+::view-transition-new(site-dock) {
+  animation: none;
+}
+
+::view-transition-old(.route-content) {
+  animation: route-content-exit var(--duration-route-exit) var(--ease-exit) both;
+}
+
+::view-transition-new(.route-content) {
+  animation: route-content-enter var(--duration-route-enter) var(--ease-enter)
+    var(--delay-route-enter) both;
+}
+
+::view-transition-group(*) {
+  animation-duration: var(--duration-route-morph);
+  animation-timing-function: var(--ease-swift);
+}
+
+::view-transition-group(.post-title-morph) {
+  animation-duration: var(--duration-route-morph);
+  animation-timing-function: var(--ease-enter);
+}
+
+/* The shared title owns the morph. Its supporting metadata develops once the
+   320ms morph window closes, then the post body follows as the next register. */
+.post-title-meta {
+  animation: enter-develop var(--duration-post-meta) var(--ease-swift) backwards;
+  animation-delay: var(--duration-route-morph);
+}
+
+.post-body-stage {
+  --enter-delay: var(--delay-post-body);
+}
+
+/* a revealing list hands its animation to the items, staggered */
+.prose ul.reveal-in,
+.prose ol.reveal-in {
+  animation: none;
+}
+
+.prose ul.reveal-in > li,
+.prose ol.reveal-in > li {
+  animation: reveal-develop 300ms var(--ease-swift) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + var(--li, 0) * 45ms);
+}
+
+.prose ul.reveal-in > li:nth-child(2),
+.prose ol.reveal-in > li:nth-child(2) {
+  --li: 1;
+}
+
+.prose ul.reveal-in > li:nth-child(3),
+.prose ol.reveal-in > li:nth-child(3) {
+  --li: 2;
+}
+
+.prose ul.reveal-in > li:nth-child(4),
+.prose ol.reveal-in > li:nth-child(4) {
+  --li: 3;
+}
+
+.prose ul.reveal-in > li:nth-child(5),
+.prose ol.reveal-in > li:nth-child(5) {
+  --li: 4;
+}
+
+.prose ul.reveal-in > li:nth-child(6),
+.prose ol.reveal-in > li:nth-child(6) {
+  --li: 5;
+}
+
+.prose ul.reveal-in > li:nth-child(7),
+.prose ol.reveal-in > li:nth-child(7) {
+  --li: 6;
+}
+
+.prose ul.reveal-in > li:nth-child(8),
+.prose ol.reveal-in > li:nth-child(8) {
+  --li: 7;
+}
+
+.prose ul.reveal-in > li:nth-child(9),
+.prose ol.reveal-in > li:nth-child(9) {
+  --li: 8;
+}
+
+.prose ul.reveal-in > li:nth-child(n + 10),
+.prose ol.reveal-in > li:nth-child(n + 10) {
+  --li: 9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter,
+  .motion-list > *,
+  .enter-polaroid .polaroid,
+  .post-title-meta,
+  .reveal-in,
+  .prose ul.reveal-in > li,
+  .prose ol.reveal-in > li {
+    animation: none;
+  }
+
+  .reveal-pending {
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal-in .zoom-trigger {
+    animation: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
