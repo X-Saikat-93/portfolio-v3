@@ -1,0 +1,123 @@
+/* ── Fluid horizontal scroll area (components/ui/scroll-area.tsx) ── */
+
+.scroll-area-x {
+  position: relative;
+}
+
+.scroll-area-x-viewport {
+  overflow-x: auto;
+}
+
+.scroll-area-x-viewport::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-area-x-viewport::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 20%, transparent);
+  border-radius: 4px;
+}
+
+/* edge fades: visible only while content continues in that direction */
+.scroll-area-x-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2.5rem;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.scroll-area-x-fade-start {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--scroll-fade-surface, var(--background)),
+    transparent
+  );
+}
+
+.scroll-area-x-fade-end {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--scroll-fade-surface, var(--background)),
+    transparent
+  );
+}
+
+.scroll-area-x-fade[data-visible] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-area-x-fade {
+    transition: none;
+  }
+}
+
+/* ── Fluid vertical scroll area (components/ui/scroll-area.tsx) ──── */
+
+/* flex column so a flexed parent (dialog body) sizes the viewport;
+   standalone use still sizes to content */
+.scroll-area-y {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll-area-y-viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.scroll-area-y-viewport::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-area-y-viewport::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 20%, transparent);
+  border-radius: 4px;
+}
+
+/* edge fades: visible only while content continues in that direction */
+.scroll-area-y-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.scroll-area-y-fade-start {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--scroll-fade-surface, var(--background)),
+    transparent
+  );
+}
+
+.scroll-area-y-fade-end {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--scroll-fade-surface, var(--background)),
+    transparent
+  );
+}
+
+.scroll-area-y-fade[data-visible] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-area-y-fade {
+    transition: none;
+  }
+}
