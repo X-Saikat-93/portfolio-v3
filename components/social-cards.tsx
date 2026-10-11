@@ -92,6 +92,14 @@ function Card({
 
 export function GitHubCardBody({ data }: { data: GitHubSnapshot }) {
   const levels = data.levels?.slice(-WEEKS * DAYS) ?? ''
+  // a zero reads as an empty shelf, not a fact worth showing
+  const stats = (
+    [
+      [data.total, 'contributions'],
+      [data.publicRepos, 'public repositories'],
+      [data.followers, 'followers'],
+    ] satisfies [number | undefined, string][]
+  ).filter((stat): stat is [number, string] => (stat[0] ?? 0) > 0)
   return (
     <>
       {levels ? (
@@ -99,12 +107,11 @@ export function GitHubCardBody({ data }: { data: GitHubSnapshot }) {
           {Array.from({ length: WEEKS }, (_, week) => (
             <span key={week} className="contrib-col">
               {Array.from({ length: DAYS }, (_, day) => {
-                const index = week * DAYS + day
                 return (
                   <i
                     key={day}
-                    data-level={levels[index] ?? '0'}
-                    style={{ '--ci': index } as React.CSSProperties}
+                    data-level={levels[week * DAYS + day] ?? '0'}
+                    style={{ '--w': week, '--d': day } as React.CSSProperties}
                   />
                 )
               })}
@@ -112,24 +119,16 @@ export function GitHubCardBody({ data }: { data: GitHubSnapshot }) {
           ))}
         </span>
       ) : null}
-      <span className="service-card-stat">
-        {data.total != null ? (
-          <span>
-            <b>{data.total.toLocaleString()}</b> <T zh="次贡献" en="contributions" />
-          </span>
-        ) : null}
-        {data.publicRepos != null ? (
-          <span>
-            <b>{data.publicRepos}</b> <T zh="个公开仓库" en="public repositories" />
-          </span>
-        ) : null}
-        {data.followers != null ? (
-          <span>
-            <b>{data.followers}</b> <T zh="关注者" en="followers" />
-          </span>
-        ) : null}
-        <GitHubGlyph />
-      </span>
+      {stats.length ? (
+        <span className="service-card-stats">
+          {stats.map(([value, label]) => (
+            <span key={label} className="service-card-stat">
+              <b>{value.toLocaleString()}</b>
+              <span>{label}</span>
+            </span>
+          ))}
+        </span>
+      ) : null}
     </>
   )
 }
@@ -185,15 +184,20 @@ export function LinkedInCardBody() {
         </span>
       </span>
       <ul className="linkedin-card-roles">
-        {experience.map((job) => (
-          <li key={job.company} className="linkedin-card-role">
+        {experience.map((job, index) => (
+          <li
+            key={job.company}
+            className="linkedin-card-role"
+            data-current={job.to ? undefined : ''}
+            style={{ '--i': index } as React.CSSProperties}
+          >
             <span className="linkedin-card-role-line">
-              <span className="linkedin-card-role-dot" aria-hidden />
+              <span className="linkedin-card-role-node" aria-hidden />
               <span className="linkedin-card-role-title">
                 <T zh={job.role} en={job.roleEn ?? job.role} />
               </span>
               <span className="linkedin-card-role-period">
-                {job.from}—{job.to ?? <T zh="现在" en="now" />}
+                {job.from} – {job.to ?? <T zh="现在" en="now" />}
               </span>
             </span>
             <span className="linkedin-card-role-company">
