@@ -1,201 +1,102 @@
-import { HomeIntroReplay } from '~/components/home-intro-replay'
+import { Fragment, type CSSProperties } from 'react'
+import Link from 'next/link'
+
+import { HomeIntroRotator } from '~/components/home-intro-rotator'
 import {
   EmailCard,
   GitHubCard,
   type GitHubSnapshot,
 } from '~/components/social-cards'
-import { T } from '~/lib/i18n'
+import { formatDate } from '~/lib/date'
+import { nowBuilding, nowLastUpdated } from '~/lib/now'
 
-function DesignEngineerMark() {
+// One quiet, dated line from the Now page, so the homepage reads as current.
+function HomeNowLine() {
+  const current = nowBuilding[0]
+  if (!current) return null
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      aria-hidden="true"
-      focusable="false"
-      className="home-design-mark"
+    <Link
+      href="/en/now"
+      className="home-now-line intro-settle"
+      style={{ '--settle': 3 } as CSSProperties}
     >
-      <g
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-        stroke="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M4.82315 4.31111C5.82682 4.63284 8.45211 5.06784 11.179 4.32111C10.8668 2.85207 9.5621 1.75 8 1.75C6.44144 1.75 5.13912 2.84707 4.82315 4.31111Z"
-          fill="currentColor"
-          fillOpacity="0.3"
-          stroke="none"
-        />
-        <path
-          className="home-design-laptop"
-          d="M14.925 16.25H8.75L10.618 12.047C10.698 11.866 10.877 11.75 11.075 11.75H16.481C16.843 11.75 17.085 12.122 16.938 12.453L15.382 15.953C15.302 16.134 15.123 16.25 14.925 16.25Z"
-          fill="currentColor"
-          fillOpacity="0.3"
-          stroke="none"
-        />
-        <path d="M8 8.25C9.79493 8.25 11.25 6.79493 11.25 5C11.25 3.20507 9.79493 1.75 8 1.75C6.20507 1.75 4.75 3.20507 4.75 5C4.75 6.79493 6.20507 8.25 8 8.25Z" />
-        <path d="M11.179 4.32401C10.166 4.60201 9.1 4.75001 8 4.75001C6.117 4.75001 4.336 4.31601 2.75 3.54401" />
-        <path d="M1.953 14C3.251 12.042 5.475 10.75 8 10.75" />
-        <path
-          className="home-design-laptop"
-          d="M14.925 16.25H8.75L10.618 12.047C10.698 11.866 10.877 11.75 11.075 11.75H16.481C16.843 11.75 17.085 12.122 16.938 12.453L15.382 15.953C15.302 16.134 15.123 16.25 14.925 16.25Z"
-        />
-        <path className="home-design-laptop" d="M8.75 16.25H5.75" />
-      </g>
-      <path
-        className="home-design-sparkle home-design-sparkle-a"
-        d="M3.49301 8.51903L2.54701 8.20403L2.23101 7.25703C2.12901 6.95103 1.62201 6.95103 1.52001 7.25703L1.20401 8.20403L0.258007 8.51903C0.105007 8.57003 0.00100708 8.71303 0.00100708 8.87503C0.00100708 9.03703 0.105007 9.18003 0.258007 9.23103L1.20401 9.54603L1.52001 10.493C1.57101 10.646 1.71401 10.749 1.87501 10.749C2.03601 10.749 2.18001 10.645 2.23001 10.493L2.54601 9.54603L3.49201 9.23103C3.64501 9.18003 3.74901 9.03703 3.74901 8.87503C3.74901 8.71303 3.64601 8.57003 3.49301 8.51903Z"
-        fill="currentColor"
-      />
-      <path
-        className="home-design-sparkle home-design-sparkle-b"
-        d="M17.658 6.52601L16.395 6.10501L15.974 4.84201C15.837 4.43401 15.162 4.43401 15.025 4.84201L14.604 6.10501L13.341 6.52601C13.137 6.59401 12.999 6.78501 12.999 7.00001C12.999 7.21501 13.137 7.40601 13.341 7.47401L14.604 7.89501L15.025 9.15801C15.093 9.36201 15.285 9.50001 15.5 9.50001C15.715 9.50001 15.906 9.36201 15.975 9.15801L16.396 7.89501L17.659 7.47401C17.863 7.40601 18.001 7.21501 18.001 7.00001C18.001 6.78501 17.862 6.59401 17.658 6.52601Z"
-        fill="currentColor"
-      />
-      <path
-        className="home-design-sparkle home-design-sparkle-dot"
-        d="M14.25 3C14.6642 3 15 2.66421 15 2.25C15 1.83579 14.6642 1.5 14.25 1.5C13.8358 1.5 13.5 1.83579 13.5 2.25C13.5 2.66421 13.8358 3 14.25 3Z"
-        fill="currentColor"
-      />
-    </svg>
+      <span className="home-now-lamp" aria-hidden />
+      <span className="home-now-copy">
+        Now building <span className="home-now-title">{current.title}</span>
+      </span>
+      <time dateTime={nowLastUpdated} className="home-now-date">
+        Updated{' '}
+        {formatDate(new Date(`${nowLastUpdated}T00:00:00Z`))}
+      </time>
+    </Link>
   )
 }
 
-function DetailsMark() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      aria-hidden="true"
-      focusable="false"
-      className="home-details-mark"
-    >
-      <g
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-        stroke="currentColor"
-      >
-        <ellipse
-          cx="9"
-          cy="9"
-          rx="7.4439"
-          ry="4.7786"
-          transform="translate(-3.7279 9) rotate(-45)"
-          fill="currentColor"
-          opacity="0.3"
-          strokeWidth="0"
-        />
-        <path
-          d="m14.659,12.9899-1.263-.421-.421-1.2629c-.137-.408-.812-.408-.949,0l-.421,1.2629-1.263.421c-.204.068-.342.259-.342.474s.138.406.342.474l1.263.421.421,1.263c.068.204.26.342.475.342s.406-.138.475-.342l.421-1.263,1.263-.421c.204-.068.342-.259.342-.474s-.139-.406-.343-.474Z"
-          strokeWidth="0"
-          fill="currentColor"
-        />
-        <path d="m5.5,2.25.671,2.579,2.579.671-2.579.671-.671,2.579-.671-2.579-2.579-.671,2.579-.671.671-2.579Z" fill="currentColor" />
-        <path d="m8.1994,14.9708c-1.7641.5243-3.419.3232-4.4562-.714-.9464-.9464-1.1967-2.4072-.8349-3.9959" />
-        <path d="m10.261,2.9083c1.5887-.3618,3.0494-.1114,3.9958.8349,1.2963,1.2963,1.2866,3.5575.187,5.7907" />
-        <path
-          d="m9.75,10c.4142,0,.75-.3358.75-.75s-.3358-.75-.75-.75-.75.3358-.75.75.3358.75.75.75Z"
-          strokeWidth="0"
-          fill="currentColor"
-        />
-      </g>
-    </svg>
-  )
-}
+const LEAD_WORDS = ['I', 'build', 'software', 'that', 'stays'] as const
 
-function DesignEngineerPhrase({ children }: { children: React.ReactNode }) {
-  return (
-    <HomeIntroReplay>
-      <span className="home-design-label">{children}</span>
-      <DesignEngineerMark />
-    </HomeIntroReplay>
-  )
-}
-
-function DetailsPhrase({ children }: { children: React.ReactNode }) {
-  return (
-    <HomeIntroReplay>
-      <DetailsMark />
-      {children}
-    </HomeIntroReplay>
-  )
-}
+const INTRO_PHRASES = [
+  'calm on a bad network.',
+  'honest about money.',
+  'fast as the data grows.',
+  'safe to ship on a Friday.',
+] as const
 
 function HomeContact({ github }: { github: GitHubSnapshot }) {
   return (
-    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-      <T
-        zh="Explore my work on GitHub, connect on LinkedIn, or email me directly."
-        en={
-          <>
-            Explore my work on <GitHubCard data={github} triggerClassName="home-contact-link" />, connect on{' '}
-            <a
-              href="https://www.linkedin.com/in/saikat933/"
-              target="_blank"
-              rel="noreferrer"
-              className="home-contact-link"
-            >
-              LinkedIn
-            </a>
-            , or email me directly at{' '}
-            <EmailCard
-              address="ibx.saikat37@gmail.com"
-              trigger="ibx.saikat37@gmail.com"
-              triggerClassName="home-contact-link"
-            />
-          </>
-        }
+    <p className="home-intro-contact intro-settle" style={{ '--settle': 2 } as CSSProperties}>
+      Code on <GitHubCard data={github} triggerClassName="home-contact-link" />, background on{' '}
+      <a
+        href="https://www.linkedin.com/in/saikat933/"
+        target="_blank"
+        rel="noreferrer"
+        className="home-contact-link"
+      >
+        LinkedIn
+      </a>
+      , or write to{' '}
+      <EmailCard
+        address="ibx.saikat37@gmail.com"
+        trigger="ibx.saikat37@gmail.com"
+        triggerClassName="home-contact-link"
       />
     </p>
   )
 }
 
+// A kinetic statement: the lead rises out of word masks, then one quality
+// at a time completes it (HomeIntroRotator). Screen readers get the whole
+// sentence once instead of the moving parts.
 export function HomeIntroduction({ github }: { github: GitHubSnapshot }) {
+  const spoken = `I build software that stays ${INTRO_PHRASES.slice(0, -1)
+    .map((phrase) => phrase.replace(/\.$/, ''))
+    .join(', ')}, and ${INTRO_PHRASES.at(-1)}`
+
   return (
     <div className="home-introduction">
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        <T
-          zh="I’m Saikat, a product engineer who takes products from architecture to production across the full stack."
-          en={
-            <>
-              I’m Saikat, a <DesignEngineerPhrase>product engineer</DesignEngineerPhrase> who takes products from{' '}
-              <DetailsPhrase>
-                <span className="home-detail-units home-detail-words">
-                  <span className="home-detail-unit">architecture</span>{' '}
-                  <span className="home-detail-unit">to production</span>{' '}
-                  <span className="home-detail-unit">across the full stack</span>
-                  <span className="home-detail-period">.</span>
+      <p className="home-intro-statement">
+        <span className="sr-only">{spoken}</span>
+        <span className="home-intro-lead" aria-hidden="true">
+          {LEAD_WORDS.map((word, i) => (
+            <Fragment key={word}>
+              <span className="intro-mask">
+                <span className="intro-mask-word" style={{ '--w': i } as CSSProperties}>
+                  {word}
                 </span>
-              </DetailsPhrase>
-            </>
-          }
-        />
+              </span>{' '}
+            </Fragment>
+          ))}
+        </span>
+        <HomeIntroRotator phrases={INTRO_PHRASES} />
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        <T
-          zh="I design, build, and operate web products, APIs, and data-heavy workflows—owning the details that make them reliable."
-          en={
-            'I design, build, and operate web products, APIs, and data-heavy workflows—owning the details that make them reliable.'
-          }
-        />
+
+      <p className="home-intro-body intro-settle" style={{ '--settle': 1 } as CSSProperties}>
+        Product engineer across the full stack, from the interface people touch to the systems
+        that keep it correct. Currently building marketplace and hiring platforms at Human
+        Before Resource.
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        <T
-          zh="Recent work includes a five-app marketplace monorepo with real-time booking recovery and an ATS built around 100K+ Postgres records."
-          en="Recent work includes a five-app marketplace monorepo with real-time booking recovery and an ATS built around 100K+ Postgres records."
-        />
-      </p>
+
       <HomeContact github={github} />
+      <HomeNowLine />
     </div>
   )
 }
