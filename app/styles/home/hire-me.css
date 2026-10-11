@@ -1,0 +1,382 @@
+/* ── Hire me: an engagement slip with a perforated action stub ────── */
+
+.hire-slip {
+  --slip-line: color-mix(in oklab, var(--foreground) 14%, var(--border));
+  --slip-notch: 0.8rem;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px 13rem;
+  border: var(--border-hairline) solid var(--slip-line);
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--foreground) 3%, transparent), transparent 55%),
+    color-mix(in oklab, var(--surface-1) 70%, var(--background));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 5%, transparent),
+    0 1.25rem 2.5rem -1.75rem color-mix(in oklab, black 32%, transparent);
+}
+
+.hire-slip-body {
+  min-width: 0;
+  padding: 1.25rem 1.35rem 1.1rem;
+}
+
+.hire-slip-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.hire-slip-beacon {
+  position: relative;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--signal);
+}
+
+/* availability beacon: one slow ring, the only ambient loop on the page */
+.hire-slip-beacon::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--signal);
+  content: '';
+  animation: hire-slip-beacon 2.6s var(--ease-enter) infinite;
+}
+
+@keyframes hire-slip-beacon {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  70%,
+  to {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+.hire-slip-role {
+  margin: 0.85rem 0 0;
+  color: var(--foreground);
+  font-size: clamp(1.5rem, 5.6vw, 2rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.hire-slip-terms {
+  margin: 1.15rem 0 0;
+}
+
+.hire-slip-term {
+  display: grid;
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-top: var(--border-hairline) solid color-mix(in oklab, var(--slip-line) 70%, transparent);
+}
+
+.hire-slip-term dt {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+.hire-slip-term dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--foreground);
+  font-size: 0.8rem;
+}
+
+.hire-slip-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.hire-slip-email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.6rem;
+}
+
+.hire-slip-email-link {
+  min-width: 0;
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, var(--foreground) 35%, transparent);
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+  transition: text-decoration-color 180ms var(--ease-swift);
+}
+
+.hire-slip-copy {
+  padding: 0.18rem 0.45rem;
+  border: var(--border-hairline) solid var(--slip-line);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.66rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    color 160ms var(--ease-swift),
+    border-color 160ms var(--ease-swift),
+    transform 120ms var(--ease-swift);
+}
+
+.hire-slip-copy:active {
+  transform: scale(0.96);
+}
+
+.hire-slip-copy[data-state='copied'] {
+  border-color: color-mix(in oklab, var(--signal) 60%, transparent);
+  color: var(--signal);
+}
+
+.hire-slip-copy-label {
+  display: inline-block;
+}
+
+.hire-slip-copy[data-state='copied'] .hire-slip-copy-label {
+  animation: hire-slip-confirm 260ms var(--ease-spring);
+}
+
+@keyframes hire-slip-confirm {
+  from {
+    opacity: 0;
+    transform: translateY(0.3rem);
+  }
+}
+
+/* the tear line: dashed rule with half-moon notches cut into the edges */
+.hire-slip-perforation {
+  position: relative;
+  background: repeating-linear-gradient(180deg, var(--slip-line) 0 5px, transparent 5px 10px);
+  animation: hire-slip-tear-in 700ms var(--ease-enter) 120ms backwards;
+}
+
+.hire-slip-perforation::before,
+.hire-slip-perforation::after {
+  position: absolute;
+  left: 50%;
+  width: var(--slip-notch);
+  height: var(--slip-notch);
+  border: var(--border-hairline) solid var(--slip-line);
+  border-radius: 50%;
+  background: var(--background);
+  content: '';
+  translate: -50% 0;
+}
+
+.hire-slip-perforation::before {
+  top: calc(var(--slip-notch) / -2 - var(--border-hairline));
+  clip-path: inset(50% 0 0 0);
+}
+
+.hire-slip-perforation::after {
+  bottom: calc(var(--slip-notch) / -2 - var(--border-hairline));
+  clip-path: inset(0 0 50% 0);
+}
+
+@keyframes hire-slip-tear-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+.hire-slip-stub {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1.25rem 1.1rem 1.1rem;
+}
+
+.hire-slip-action {
+  position: relative;
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  overflow: hidden;
+  padding-inline: 0.9rem;
+  border: var(--border-hairline) solid var(--slip-line);
+  border-radius: 3px;
+  color: var(--foreground);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition:
+    background-color 200ms var(--ease-swift),
+    border-color 200ms var(--ease-swift),
+    transform 140ms var(--ease-swift);
+  animation: hire-slip-action-in 420ms var(--ease-enter) backwards;
+}
+
+.hire-slip-action > * {
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.hire-slip-action-primary {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--background);
+  animation-delay: 260ms;
+}
+
+/* warm fill sweeps in from the left under the label */
+.hire-slip-action-primary::before {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--foreground) 80%, var(--signal));
+  content: '';
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 420ms var(--ease-enter);
+}
+
+.hire-slip-action-secondary {
+  background: color-mix(in oklab, var(--foreground) 2%, transparent);
+  animation-delay: 330ms;
+}
+
+.hire-slip-arrow {
+  flex: none;
+  transition: transform 260ms var(--ease-spring);
+}
+
+.hire-slip-action:active {
+  transform: scale(0.985);
+}
+
+.hire-slip-action:focus-visible,
+.hire-slip-copy:focus-visible,
+.hire-slip-email-link:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+@keyframes hire-slip-action-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0.6rem, 0, 0);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hire-slip-action-primary:hover::before {
+    transform: scaleX(1);
+  }
+
+  .hire-slip-action:hover .hire-slip-arrow {
+    transform: translateX(3px);
+  }
+
+  .hire-slip-action-secondary:hover {
+    border-color: color-mix(in oklab, var(--foreground) 38%, var(--border));
+    background: color-mix(in oklab, var(--foreground) 5%, transparent);
+  }
+
+  .hire-slip-copy:hover {
+    border-color: color-mix(in oklab, var(--foreground) 35%, var(--border));
+    color: var(--foreground);
+  }
+
+  .hire-slip-email-link:hover {
+    text-decoration-color: var(--signal);
+  }
+}
+
+/* phones: the stub tears off below, so the perforation turns horizontal */
+@media (max-width: 37rem) {
+  .hire-slip {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1px auto;
+  }
+
+  .hire-slip-body {
+    padding: 1.1rem 1rem 0.9rem;
+  }
+
+  .hire-slip-term {
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+  }
+
+  .hire-slip-perforation {
+    background: repeating-linear-gradient(90deg, var(--slip-line) 0 5px, transparent 5px 10px);
+    animation-name: hire-slip-tear-in-x;
+  }
+
+  .hire-slip-perforation::before,
+  .hire-slip-perforation::after {
+    top: 50%;
+    bottom: auto;
+    translate: 0 -50%;
+  }
+
+  .hire-slip-perforation::before {
+    left: calc(var(--slip-notch) / -2 - var(--border-hairline));
+    clip-path: inset(0 0 0 50%);
+  }
+
+  .hire-slip-perforation::after {
+    left: auto;
+    right: calc(var(--slip-notch) / -2 - var(--border-hairline));
+    clip-path: inset(0 50% 0 0);
+  }
+
+  .hire-slip-stub {
+    padding: 0.9rem 1rem 1rem;
+  }
+
+  .hire-slip-action {
+    animation-name: hire-slip-action-rise;
+  }
+}
+
+@keyframes hire-slip-tear-in-x {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+@keyframes hire-slip-action-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.4rem, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hire-slip-beacon::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .hire-slip-perforation,
+  .hire-slip-action,
+  .hire-slip-copy-label {
+    animation: none !important;
+  }
+
+  .hire-slip-action,
+  .hire-slip-action-primary::before,
+  .hire-slip-arrow,
+  .hire-slip-copy {
+    transition: none;
+  }
+}
