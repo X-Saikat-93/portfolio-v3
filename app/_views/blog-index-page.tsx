@@ -35,8 +35,8 @@ export function BlogIndexPageView({ locale, posts }: { locale: Locale; posts: Bl
           </p>
         ) : (
           groupPostsByYear(posts).map(([year, yearPosts]) => (
-            <section key={year}>
-              <h2 className="page-eyebrow">{year}</h2>
+            <section key={year} className="blog-year">
+              <h2 className="blog-year-label page-eyebrow">{year}</h2>
               <ul className="motion-list mt-3 flex flex-col">
                 {yearPosts.map((post) => (
                   <li
