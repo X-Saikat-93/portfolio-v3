@@ -1,0 +1,227 @@
+/* ── Blog index rows: print thumb · title ···· date ───────────────── */
+
+.blog-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  transition:
+    color 160ms ease,
+    transform 180ms var(--ease-swift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .blog-row:hover {
+    transform: translate3d(0.22rem, 0, 0);
+  }
+
+  .blog-row:hover .blog-row-title {
+    color: var(--foreground);
+  }
+}
+
+/* the date is quiet metadata — one step down from the row's title */
+.blog-row-date {
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.blog-row-meta {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+}
+
+.print-pile {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: 4rem;
+  height: 2.75rem;
+  flex: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.print-pile-sheet {
+  position: absolute;
+  inset: 1px;
+  border-radius: 3px;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--paper-ink) 22%, transparent);
+  transition: transform 220ms var(--ease-swift);
+}
+
+.print-pile-sheet:first-child {
+  opacity: 0.62;
+  transform: translate(-2px, 1px) rotate(-1.6deg);
+}
+
+.print-pile-sheet:nth-child(2) {
+  opacity: 0.82;
+  transform: translate(2px, -1px) rotate(1.1deg);
+}
+
+.print-thumb {
+  position: relative;
+  display: block;
+  width: 4rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--border);
+  transition: transform 220ms var(--ease-swift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .blog-row:hover .print-pile-sheet:first-child {
+    transform: translate(-3px, 1px) rotate(-2.4deg);
+  }
+
+  .blog-row:hover .print-pile-sheet:nth-child(2) {
+    transform: translate(3px, -1px) rotate(1.8deg);
+  }
+
+  .blog-row:hover .print-thumb {
+    transform: translate3d(0, -1px, 0);
+  }
+}
+
+.print-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.print-thumb-empty {
+  background: var(--muted);
+}
+
+.blog-row-title {
+  min-width: 0;
+  color: var(--gray-11, var(--foreground));
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 160ms ease;
+}
+
+.list-row-link,
+.collection-row-link {
+  transition:
+    color 160ms ease,
+    transform 180ms var(--ease-swift);
+}
+
+.blog-row:focus-visible,
+.list-row-link:focus-visible,
+.collection-row-link:focus-visible,
+.collection-photo-link:focus-visible,
+.nav-card:focus-visible {
+  border-radius: 2px;
+  color: var(--foreground);
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.collection-photo-link {
+  display: block;
+  min-width: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .list-row-link:hover,
+  .collection-row-link:hover {
+    color: var(--foreground);
+    transform: translate3d(0.2rem, 0, 0);
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .blog-row-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* year heading: the label, then a rule that draws out to the margin */
+.blog-year-label {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes blog-year-rule-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.blog-year-label::after {
+  content: '';
+  flex: 1;
+  height: var(--border-hairline);
+  margin-left: 0.75rem;
+  background: linear-gradient(to right, var(--border), transparent);
+  transform-origin: left;
+  animation: blog-year-rule-in 700ms var(--ease-enter) 160ms backwards;
+}
+
+/* reading focus: the hovered post stays at full ink, the rest recede;
+   the title takes a quiet underline */
+.blog-row-title {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  transition:
+    color 160ms ease,
+    text-decoration-color 200ms ease;
+}
+
+.blog-year > ul > li {
+  transition: opacity 220ms var(--ease-swift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .blog-year > ul:has(.blog-row:hover) > li:not(:has(.blog-row:hover)) {
+    opacity: 0.5;
+  }
+
+  .blog-row:hover .blog-row-title {
+    text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+  }
+}
+
+.blog-row:focus-visible .blog-row-title {
+  text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-year-label::after {
+    animation: none;
+  }
+}
+
+/* dotted leader between title and date — the typewriter TOC register */
+.blog-row-leader {
+  flex: 1;
+  min-width: 1.5rem;
+  height: 1px;
+  align-self: center;
+  background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--muted-foreground) 41%, transparent) 0.5px,
+      transparent 0.5px
+    )
+    0 0 / 6px 1px repeat-x;
+}
