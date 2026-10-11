@@ -1,0 +1,385 @@
+/* ── Per-service hover cards (components/social-cards.tsx) ────────── */
+
+.service-card {
+  gap: 0.5rem;
+}
+
+.service-card[data-starting-style] {
+  transform: scale(0.92) translateY(4px);
+}
+
+/* inner choreography plays once per open; an instant hand-off between
+   triggers (or reduced motion) shows the finished plate */
+.link-card.preview-card-instant *,
+.link-card.preview-card-instant *::before {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-card,
+  .link-card[data-starting-style],
+  .link-card[data-ending-style],
+  .service-card[data-starting-style] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .link-card *,
+  .link-card *::before {
+    animation: none;
+  }
+}
+
+@keyframes card-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+.service-card-glyph {
+  margin-left: auto;
+  align-self: flex-start;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.service-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.service-card-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  object-fit: cover;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.service-card-names {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.service-card-name {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+/* handles are machine text */
+.service-card-sub {
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.service-card-bio {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--foreground);
+  white-space: pre-line;
+}
+
+/* the plate foot: a ledger of figures over labels, hairline columns */
+.service-card-stats {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin-top: 0.125rem;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.service-card-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0.5rem 0;
+  animation: card-row-in 360ms var(--ease-enter) backwards;
+}
+
+.service-card-stat:first-child {
+  padding-left: 0;
+}
+
+.service-card-stat + .service-card-stat {
+  border-left: var(--border-hairline) solid var(--border);
+}
+
+.service-card-stat:nth-child(1) {
+  animation-delay: 260ms;
+}
+
+.service-card-stat:nth-child(2) {
+  animation-delay: 300ms;
+}
+
+.service-card-stat:nth-child(3) {
+  animation-delay: 340ms;
+}
+
+.service-card-stat b {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.service-card-stat > span {
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+
+/* 26-week contribution grid; the ink rolls across it as a diagonal wave,
+   oldest week first, like a press roller */
+.contrib-grid {
+  display: flex;
+  gap: 2px;
+}
+
+.contrib-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@keyframes contrib-cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+}
+
+.contrib-grid i {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--foreground) 7%, transparent);
+  animation: contrib-cell-in 420ms var(--ease-enter) backwards;
+  animation-delay: calc((var(--w, 0) + var(--d, 0)) * 8ms);
+}
+
+.contrib-grid i[data-level='1'] {
+  background: color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+.contrib-grid i[data-level='2'] {
+  background: color-mix(in oklab, var(--foreground) 52%, transparent);
+}
+
+.contrib-grid i[data-level='3'] {
+  background: color-mix(in oklab, var(--foreground) 74%, transparent);
+}
+
+.contrib-grid i[data-level='4'] {
+  background: var(--foreground);
+}
+
+/* LinkedIn hover card: a business-card plate. A brand band wipes in,
+   then the roles settle onto a small timeline — the same register as
+   the homepage experience list. Brand colors stay scoped to the card. */
+.linkedin-card {
+  --linkedin-blue: oklch(0.55 0.16 248);
+  --linkedin-blue-deep: oklch(0.45 0.17 250);
+  --linkedin-green: oklch(0.6 0.15 152);
+  /* vertical centre of a role's first line, where its node sits */
+  --node-y: 0.91rem;
+
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+@keyframes linkedin-band-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+.linkedin-card-banner {
+  position: relative;
+  display: block;
+  height: 1.75rem;
+  background: linear-gradient(115deg, var(--linkedin-blue), var(--linkedin-blue-deep));
+  animation: linkedin-band-in 460ms var(--ease-enter) backwards;
+}
+
+.linkedin-card-banner-glyph {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  color: color-mix(in oklab, #fff 34%, transparent);
+  transform: translateY(-50%);
+}
+
+.linkedin-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.6rem;
+  padding: 0 0.75rem;
+}
+
+.linkedin-card-avatar {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  object-fit: cover;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.linkedin-card-names {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.linkedin-card-name {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.linkedin-card-sub {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+.linkedin-card-roles {
+  display: flex;
+  flex-direction: column;
+  margin: 0.45rem 0 0;
+  padding: 0 0.75rem 0.45rem;
+  list-style: none;
+}
+
+.linkedin-card-role {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.4rem 0 0.4rem 1rem;
+  animation: card-row-in 380ms var(--ease-enter) backwards;
+  animation-delay: calc(140ms + var(--i, 0) * 60ms);
+}
+
+@keyframes linkedin-rail-in {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/* rail segment from this node down to the next one */
+.linkedin-card-role:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: var(--node-y);
+  left: 3px;
+  width: 1px;
+  height: 100%;
+  background: color-mix(in oklab, var(--linkedin-blue) 30%, var(--border));
+  transform-origin: top;
+  animation: linkedin-rail-in 420ms var(--ease-enter) backwards;
+  animation-delay: calc(200ms + var(--i, 0) * 60ms);
+}
+
+.linkedin-card-role-node {
+  position: absolute;
+  top: calc(var(--node-y) - 3.5px);
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border: 1px solid color-mix(in oklab, var(--linkedin-blue) 60%, var(--border));
+  border-radius: 50%;
+  background: var(--surface-3);
+}
+
+.linkedin-card-role[data-current] .linkedin-card-role-node {
+  border-color: var(--linkedin-blue);
+  background: var(--linkedin-blue);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--linkedin-blue) 18%, transparent);
+}
+
+.linkedin-card-role-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.linkedin-card-role-title {
+  min-width: 0;
+  color: var(--foreground);
+  font-size: 0.76rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.35;
+}
+
+.linkedin-card-role:not([data-current]) .linkedin-card-role-title {
+  color: color-mix(in oklab, var(--foreground) 78%, var(--muted-foreground));
+}
+
+.linkedin-card-role-period {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.linkedin-card-role-company {
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.linkedin-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.linkedin-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-medium);
+}
+
+/* two pings on open, then still: availability, not an alarm */
+@keyframes linkedin-open-ping {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--linkedin-green) 55%, transparent);
+  }
+
+  to {
+    box-shadow: 0 0 0 5px color-mix(in oklab, var(--linkedin-green) 0%, transparent);
+  }
+}
+
+.linkedin-card-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--linkedin-green);
+  animation: linkedin-open-ping 1.1s var(--ease-exit) 420ms 2 backwards;
+}
+
+.linkedin-card-foot-glyph {
+  color: var(--linkedin-blue);
+}
