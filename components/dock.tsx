@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { OPEN_COMMAND_PALETTE_EVENT } from '~/components/command-palette'
 import {
   PhotosIcon,
   PreferencesIcon,
   ProjectsIcon,
+  SearchIcon,
   WritingIcon,
 } from '~/components/dock-icons'
 import { CloudinaryAvatar } from '~/components/cloudinary-image'
@@ -30,31 +32,32 @@ const ITEMS = [
   { href: '/projects', zh: '项目', en: 'Projects', icon: ProjectsIcon },
 ] as const
 
+// The dock is frosted glass: iOS-style blur and vibrancy over the pill's
+// thin tint. The blur sits on the nav itself, because view-transition-name
+// makes the nav a backdrop root and a child's blur would only see the pill.
+// The backdrop-filter must stay inline — never in the stylesheet — because
+// LightningCSS strips raw backdrop-filter declarations.
 export const SITE_DOCK_VIEW_TRANSITION_STYLE = {
   viewTransitionName: 'site-dock',
+  backdropFilter: 'blur(20px) saturate(1.8)',
+  WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
 } as React.CSSProperties
 
-// The frosted pane behind the dock: plain translucency over the pill's 68%
-// background, no refraction. The backdrop-filter must stay inline — never in
-// the stylesheet — because LightningCSS strips raw backdrop-filter
-// declarations.
-const DOCK_GLASS_STYLE = {
-  backdropFilter: 'blur(12px) saturate(1.25)',
-  WebkitBackdropFilter: 'blur(12px) saturate(1.25)',
-} as React.CSSProperties
-
+// the sheen and specular rim over the glass
 export function DockGlass() {
-  return <span className="dock-glass" aria-hidden style={DOCK_GLASS_STYLE} />
+  return <span className="dock-glass" aria-hidden />
 }
 
 export function DockTip({
   zh,
   en,
   goKey,
+  shortcut,
 }: {
   zh: string
   en: string
   goKey?: string
+  shortcut?: string
 }) {
   return (
     <span className="dock-tip" aria-hidden>
@@ -65,6 +68,10 @@ export function DockTip({
         <span className="dock-tip-keys">
           <kbd className="dock-tip-key">G</kbd>
           <kbd className="dock-tip-key">{goKey}</kbd>
+        </span>
+      ) : shortcut ? (
+        <span className="dock-tip-keys">
+          <kbd className="dock-tip-key">{shortcut}</kbd>
         </span>
       ) : null}
     </span>
@@ -122,6 +129,22 @@ export function DockItem({
   )
 }
 
+function DockSearch({ locale }: { locale: Locale }) {
+  return (
+    <button
+      type="button"
+      className="dock-item"
+      aria-label={localize(locale, '搜索，/', 'Search, /')}
+      aria-haspopup="dialog"
+      aria-keyshortcuts="/"
+      onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT))}
+    >
+      <SearchIcon />
+      <DockTip zh="搜索" en="Search" shortcut="/" />
+    </button>
+  )
+}
+
 export function DockFallback({ locale }: { locale: Locale }) {
   return (
     <nav
@@ -156,6 +179,7 @@ export function DockFallback({ locale }: { locale: Locale }) {
         </DockItem>
       ))}
       <span className="dock-rule" aria-hidden />
+      <DockSearch locale={locale} />
       <button
         type="button"
         className="dock-item"
@@ -243,6 +267,7 @@ export function Dock() {
         </DockItem>
       ))}
       <span className="dock-rule" aria-hidden />
+      <DockSearch locale={locale} />
       <Preferences ownerAdmin={ownerAdmin} onOwnerAdminChange={setOwnerAdmin} />
     </nav>
   )
