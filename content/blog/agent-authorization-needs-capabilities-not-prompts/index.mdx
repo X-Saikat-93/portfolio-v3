@@ -1,0 +1,252 @@
+---
+title: Agent Authorization Needs Capabilities, Not Prompts
+description: "As agents gain tools and delegation, trustworthy authority must live in scoped capabilities, approval flows, and durable audit trails — not natural-language instructions alone."
+keywords:
+  - AI agent authorization
+  - agent capabilities
+  - agent identity and delegation
+  - prompt injection defense
+  - agent tool security
+  - capability-based security
+  - least privilege AI
+  - human approval workflows
+  - agent audit trail
+  - MCP security
+category: Agent security
+date: 2026-09-20
+readingMinutes: 13
+coverFile: agent-authorization-capabilities.png
+coverSlug: agent-authorization-needs-capabilities-not-prompts
+coverAlt: Security architecture illustration of an agent passing capability gates with approval, delegation, auditing, and a denied path
+---
+
+Prompt instructions are useful for describing intent. They are a poor place to store authority.
+
+An agent may be told to “update the deployment,” “clean up old files,” or “send the report.” Those sentences do not say which deployment, which files, which recipients, under what time limit, with whose approval, or how the action can be reversed.
+
+As agents become persistent and collaborative, authorization needs to move into explicit capabilities.
+
+The [MCP roadmap](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/) points toward agent identity, delegation, and mechanisms such as DPoP. The [world-acting systems research](https://arxiv.org/abs/2609.04894) makes the broader systems argument: protocols can carry actions, but they do not by themselves establish trustworthy delegation, safe authority, or accountability.
+
+The difference between an instruction and a capability is the difference between “please do this” and “this principal may perform this bounded operation.”
+
+## Prompts express goals; capabilities constrain actions
+
+A prompt can include:
+
+- a goal;
+- preferences;
+- context;
+- examples;
+- warnings.
+
+A capability should include:
+
+- principal identity;
+- resource scope;
+- operation;
+- constraints;
+- expiration;
+- delegation rules;
+- approval status;
+- revocation handle;
+- audit identity.
+
+The prompt can say “prepare a production deployment.” The capability can say:
+
+~~~text
+principal: release-agent
+resource: service/payments
+operation: create-release-candidate
+environment: staging
+expires: 2026-09-20T18:00Z
+delegable: false
+approval: incident-4821
+~~~
+
+That capability does not authorize a production rollout. If the agent tries to cross the boundary, the tool broker should deny the call even if the natural-language plan sounds reasonable.
+
+## Least privilege must follow the task
+
+Traditional service accounts often accumulate permissions because it is easier than designing a narrow role for every workflow. Agent systems make that pattern more dangerous because the planner may discover and combine capabilities in unexpected ways.
+
+Start with the task graph:
+
+~~~text
+inspect -> propose -> validate -> approve -> commit -> verify
+~~~
+
+Each step should receive only the authority it needs:
+
+- inspect may read;
+- propose may write an uncommitted artifact;
+- validate may run tests;
+- approve belongs to a human or policy engine;
+- commit may perform the side effect;
+- verify may read the result and emit evidence.
+
+The agent should not hold commit authority while it is still exploring. Temporary capability grants are safer than a permanent role with broad access.
+
+## Delegation creates a graph of authority
+
+When a parent agent starts a subagent, the child inherits some context and some capabilities. That transfer must be visible.
+
+A delegation record should answer:
+
+- who delegated;
+- to whom;
+- which capability was transferred;
+- whether the scope narrowed;
+- how long the delegation lasts;
+- whether further delegation is allowed;
+- how the parent can revoke it;
+- which output is expected.
+
+The child should not receive the parent's entire token or session. It should receive a derived capability with a narrower subject and audience.
+
+For example:
+
+~~~text
+owner -> planning-agent
+planning-agent -> test-agent
+test-agent -> sandbox
+~~~
+
+The test agent may run a repository test in a sandbox. It should not be able to deploy the result simply because the planning agent can.
+
+## Tool brokers should verify before execution
+
+The tool broker is the enforcement point between model-generated intent and a side effect. It should validate:
+
+1. caller identity;
+2. capability signature or trusted provenance;
+3. resource and operation scope;
+4. expiry and revocation;
+5. input constraints;
+6. approval conditions;
+7. idempotency and replay rules;
+8. audit fields.
+
+Do this before invoking the tool. A post-hoc log cannot undo a message sent to the wrong recipient.
+
+The broker should return structured denials:
+
+~~~text
+status: denied
+reason: capability_scope
+required: production.deploy
+present: staging.release_candidate
+next_step: request_human_approval
+~~~
+
+That result helps the harness recover safely. It can ask for approval, revise the plan, or stop. A vague “permission denied” often leads a model to retry with different wording.
+
+## Approval is a state machine
+
+Human approval is often implemented as a button attached to a tool call. That is too small a model for a durable agent.
+
+Approval should specify:
+
+- the exact action or bounded batch;
+- the data and target;
+- the expected impact;
+- the identity of the approver;
+- the time window;
+- whether the action may be retried;
+- what changes invalidate the approval.
+
+An approval for a deployment candidate should not automatically approve a later candidate with a different diff. An approval for a report should not remain valid after the recipient list changes.
+
+Treat approval as a capability transition:
+
+~~~text
+proposed -> reviewed -> approved -> executed -> verified
+      \-> rejected
+      \-> expired
+      \-> superseded
+~~~
+
+This makes it possible to audit and reason about the state instead of attaching a boolean to a session.
+
+## Prompt injection is an authority-confusion problem
+
+Prompt injection is often described as malicious text inside a document. The deeper issue is authority confusion: untrusted content is trying to influence a principal that has more capabilities than the content should control.
+
+A retrieved document can contain instructions. A tool result can contain a link. A webpage can ask the agent to upload secrets. The model may treat those strings as relevant context, but the authorization layer must not treat them as authority.
+
+Separate:
+
+- data supplied by a resource;
+- instructions from the principal;
+- policies from the platform;
+- capabilities granted by the broker;
+- observations returned by a tool.
+
+The model can reason about all of them. Only the appropriate control plane can grant authority.
+
+One practical rule: never let text discovered through a tool grant a new capability. It may request an action, but the broker must require an independent authorization path.
+
+## Capability boundaries need expiry and revocation
+
+Long-running agents create stale-authority risk. A capability granted at the start of a task may no longer be appropriate when the task resumes hours later.
+
+Use short lifetimes for sensitive operations. Revalidate when:
+
+- the user identity changes;
+- the task crosses a trust boundary;
+- the resource state changes;
+- the approval window expires;
+- the agent delegates;
+- a policy or incident flag changes.
+
+Revocation needs to work even when the agent is offline or a task is queued. That usually means checking a revocation source at execution time or issuing capabilities with a short enough lifetime that the exposure is bounded.
+
+The cost is extra latency and coordination. The alternative is a system that keeps acting with yesterday's authority.
+
+## Audit trails should support replay
+
+An audit log that says “agent called tool X” is not enough. To investigate a decision, capture:
+
+- the principal and derived capability;
+- the exact normalized input;
+- the policy decision;
+- approval evidence;
+- tool version;
+- result status and artifacts;
+- retries and timeouts;
+- parent task and delegation chain.
+
+Keep secrets out of the log, but preserve references and integrity checks so the event can be correlated with the real artifact.
+
+Replay does not mean rerunning a side effect. It means reconstructing what the agent saw, what authority it had, which policy decisions were made, and what the tool returned. A dry-run replay can then test whether a different policy would have denied or allowed the action.
+
+## Make authority visible to the product
+
+Users should not have to infer what an agent can do from a friendly description. Show the boundary:
+
+- read-only or write access;
+- resources in scope;
+- current approval requirements;
+- expiration;
+- recent actions;
+- how to revoke;
+- what the agent will ask before doing.
+
+This is especially important for subagents and third-party connectors. A parent may have a broad goal while a child has a narrow capability. The UI can show both without exposing implementation detail.
+
+Trust grows when authority is legible and reversible.
+
+## The engineering rule
+
+Use prompts to express what the user wants. Use policies to decide what the system permits. Use capabilities to carry scoped authority. Use the broker to enforce it. Use the audit trail to explain it.
+
+That separation survives model changes, prompt injection, delegation, retries, and long-running tasks. It also creates a clean boundary for testing: the model can be wrong about intent, but it should not be able to cross a capability boundary by being persuasive.
+
+Agent systems will become more useful as they gain access to real workflows. They will become trustworthy only when that access is represented as explicit, revocable authority rather than a sentence in a context window.
+
+## Further reading
+
+- [MCP roadmap: identity, delegation, and progressive discovery](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/)
+- [MCP 2026 specification update](https://blog.modelcontextprotocol.io/posts/2026-07-28/)
+- [World-acting systems and trustworthy delegation](https://arxiv.org/abs/2609.04894)
+- [The Agent Harness Is the New Runtime](/en/blog/the-agent-harness-is-the-new-runtime)
