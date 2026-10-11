@@ -1,0 +1,406 @@
+/* --------------------------------------------------------------------------
+   GitHub commits — the live contribution plate for the homepage.
+   A hairline playhead sweeps the grid in on reveal, developing each week as
+   it passes, then rests on today; inspecting a day moves it to that week and
+   draws a quiet crosshair through the day's week and weekday.
+   -------------------------------------------------------------------------- */
+
+.github-commits-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: color 180ms var(--ease-swift);
+}
+
+.github-commits-link-arrow {
+  color: color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+  font-size: 0.72rem;
+  transition: transform 200ms var(--ease-spring), color 180ms var(--ease-swift);
+}
+
+.github-commits-link:hover,
+.github-commits-link:focus-visible {
+  color: var(--foreground);
+}
+
+.github-commits-link:hover .github-commits-link-arrow,
+.github-commits-link:focus-visible .github-commits-link-arrow {
+  color: var(--signal);
+  transform: translate(0.1rem, -0.1rem);
+}
+
+.github-commits-link:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+/* The plate: one quiet surface, a hairline edge, nothing else */
+.github-plate {
+  --sweep: 1100ms;
+
+  position: relative;
+  padding: 1.1rem 1.2rem 1rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--foreground) 1.5%, transparent);
+}
+
+.github-plate-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.github-plate-head .service-card-glyph {
+  margin: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--foreground);
+}
+
+.github-plate-handle {
+  color: var(--foreground);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.005em;
+}
+
+.github-plate-updated {
+  margin-left: auto;
+  color: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Readout line above the grid: the label holds still, the value swaps on
+   hover with a quiet mono tick. */
+.github-grid-zone {
+  margin-top: 1rem;
+  container-type: inline-size;
+}
+
+.github-grid-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1.2rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.github-grid-readout-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: color-mix(in oklab, var(--muted-foreground) 78%, transparent);
+  font-variant-numeric: tabular-nums;
+  animation: github-readout-tick 240ms var(--ease-swift) both;
+}
+
+.github-grid-readout-value b {
+  color: var(--foreground);
+  font-weight: var(--font-weight-medium);
+}
+
+.github-grid-readout-date {
+  color: var(--signal);
+  letter-spacing: 0.04em;
+}
+
+@keyframes github-readout-tick {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+}
+
+/* ── Grid frame: month spans, weekday rail, day-cell track ──────────── */
+
+.github-grid-frame {
+  /* cells grow to fill the plate, within a readable range */
+  --cell-size: clamp(
+    9px,
+    calc((100cqi - var(--rail-width) - 1rem - 26 * var(--cell-gap)) / 26),
+    17px
+  );
+  --cell-gap: 3px;
+  --rail-width: 2rem;
+
+  margin-top: 0.55rem;
+  padding: 0.5rem 0.5rem 0.55rem;
+  overflow-x: auto;
+}
+
+.github-grid-months {
+  display: flex;
+  height: 0.9rem;
+  margin-left: var(--rail-width);
+  margin-bottom: 0.2rem;
+  color: color-mix(in oklab, var(--muted-foreground) 62%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  line-height: 0.9rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.github-grid-month {
+  flex: 0 0 calc(var(--cols) * var(--cell-size) + (var(--cols) - 1) * var(--cell-gap));
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.github-grid-body {
+  display: flex;
+  gap: var(--cell-gap);
+}
+
+.github-grid-rail {
+  flex: 0 0 var(--rail-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cell-gap);
+  color: color-mix(in oklab, var(--muted-foreground) 62%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  line-height: 1;
+}
+
+.github-grid-rail span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: var(--cell-size);
+  padding-right: 0.35rem;
+}
+
+.github-grid-track {
+  position: relative;
+  display: flex;
+  gap: var(--cell-gap);
+}
+
+.github-grid-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cell-gap);
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+/* the playhead: a hairline with a small cap, centred on its week */
+.github-grid-playhead {
+  position: absolute;
+  z-index: 2;
+  top: -0.35rem;
+  bottom: -0.35rem;
+  left: 0;
+  width: 1px;
+  background: color-mix(in oklab, var(--signal) 75%, transparent);
+  pointer-events: none;
+  transform: translate3d(
+    calc(var(--play-col, 25) * (var(--cell-size) + var(--cell-gap)) + var(--cell-size) / 2 - 0.5px),
+    0,
+    0
+  );
+  transition: transform 560ms var(--ease-enter);
+  animation: github-playhead-sweep var(--sweep) linear backwards;
+}
+
+.github-grid-playhead::before {
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--signal);
+  content: '';
+}
+
+@keyframes github-playhead-sweep {
+  from {
+    transform: translate3d(calc(var(--cell-size) / 2 - 0.5px), 0, 0);
+  }
+}
+
+/* each week develops as the playhead passes it */
+.github-day {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  padding: 0;
+  border: 0;
+  border-radius: 2.5px;
+  background: color-mix(in oklab, var(--foreground) 6%, transparent);
+  cursor: crosshair;
+  animation: github-cell-in 640ms var(--ease-enter) backwards;
+  animation-delay: calc(var(--col, 0) * var(--sweep) / 26);
+  transition:
+    opacity 260ms var(--ease-swift),
+    transform 260ms var(--ease-spring),
+    box-shadow 200ms var(--ease-swift);
+}
+
+@keyframes github-cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+.github-day[data-level='1'] {
+  background: color-mix(in oklab, var(--foreground) 28%, transparent);
+}
+
+.github-day[data-level='2'] {
+  background: color-mix(in oklab, var(--foreground) 50%, transparent);
+}
+
+.github-day[data-level='3'] {
+  background: color-mix(in oklab, var(--foreground) 72%, transparent);
+}
+
+.github-day[data-level='4'] {
+  background: var(--foreground);
+}
+
+.github-day[data-latest] {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--signal) 80%, transparent);
+}
+
+/* crosshair: everything outside the inspected week and weekday recedes */
+@media (hover: hover) and (pointer: fine) {
+  .github-grid-track:has(.github-day:hover) .github-day {
+    opacity: 0.28;
+  }
+
+  .github-grid-track .github-grid-col:hover .github-day,
+  .github-grid-track:has(.github-day:nth-child(1):hover) .github-day:nth-child(1),
+  .github-grid-track:has(.github-day:nth-child(2):hover) .github-day:nth-child(2),
+  .github-grid-track:has(.github-day:nth-child(3):hover) .github-day:nth-child(3),
+  .github-grid-track:has(.github-day:nth-child(4):hover) .github-day:nth-child(4),
+  .github-grid-track:has(.github-day:nth-child(5):hover) .github-day:nth-child(5),
+  .github-grid-track:has(.github-day:nth-child(6):hover) .github-day:nth-child(6),
+  .github-grid-track:has(.github-day:nth-child(7):hover) .github-day:nth-child(7) {
+    opacity: 1;
+  }
+
+  .github-day:hover {
+    z-index: 1;
+    transform: scale(1.3);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--signal) 70%, transparent);
+  }
+}
+
+.github-day:focus-visible {
+  z-index: 1;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.github-grid-empty {
+  margin: 1.1rem 0 0.2rem;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* Stat foot: three readings divided by hairlines */
+.github-plate-foot {
+  display: flex;
+  margin: 0.85rem 0 0;
+  padding-top: 0.85rem;
+  border-top: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.github-plate-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end; /* column-reverse: packs value to the top */
+  flex: 1 1 0;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0 0.9rem;
+  border-left: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.github-plate-stat:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.github-plate-stat-unit {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.github-plate-stat-value {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.015em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 39.99rem) {
+  .github-plate {
+    padding: 0.95rem 0.85rem 0.85rem;
+  }
+
+  /* the grid fits the phone column instead of side-scrolling */
+  .github-grid-frame {
+    --cell-size: clamp(
+      6px,
+      calc((100cqi - var(--rail-width) - 0.5rem - 26 * var(--cell-gap)) / 26),
+      9px
+    );
+    --cell-gap: 2px;
+    --rail-width: 1.7rem;
+
+    padding: 0.4rem 0.25rem 0.45rem;
+  }
+
+  .github-plate-stat {
+    padding: 0 0.6rem;
+  }
+
+  .github-plate-stat-value {
+    font-size: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .github-grid-readout-value,
+  .github-grid-playhead,
+  .github-day,
+  .github-day:hover,
+  .github-commits-link,
+  .github-commits-link-arrow {
+    animation: none;
+    transition: none;
+  }
+
+  .github-day:hover {
+    transform: none;
+  }
+}
