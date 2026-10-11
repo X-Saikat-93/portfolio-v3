@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { ExternalLabel } from '~/components/external-mark'
 import { ResumeActions } from '~/components/resume-actions'
+import { RevealScope } from '~/components/reveal-scope'
 import { resumeProfile } from '~/lib/personal'
 
 function ResumeSection({
@@ -42,7 +43,12 @@ function ResumeExperienceList({ roles }: { roles: readonly ResumeRole[] }) {
   return (
     <div className="resume-experience-list">
       {roles.map((role) => (
-        <article key={`${role.title}-${role.company}`} className="resume-role">
+        <article
+          key={`${role.title}-${role.company}`}
+          className="resume-role"
+          data-current={/present/i.test(role.period) ? '' : undefined}
+        >
+          <span className="resume-role-node" aria-hidden="true" />
           <header className="resume-role-header">
             <div>
               <h3>{role.title}</h3>
@@ -92,7 +98,11 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
         <header className="resume-header">
           <div className="resume-nameplate">
             <p className="resume-kicker">Curriculum vitae / HTML edition</p>
-            <h1>{resumeProfile.name}</h1>
+            <h1>
+              <span className="resume-name-line">
+                <span>{resumeProfile.name}</span>
+              </span>
+            </h1>
             <p>{resumeProfile.title}</p>
             <p className="resume-headline">{resumeProfile.headline}</p>
           </div>
@@ -103,7 +113,10 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
           </div>
           <address className="resume-contact">
             <a href={`mailto:${resumeProfile.email}`}>{resumeProfile.email}</a>
-            <a href={`tel:${resumeProfile.phone.replace(/\s/g, '')}`}>{resumeProfile.phone}</a>
+            {/* a masked number would dial nothing; list it only once it is real */}
+            {/^\+?[\d\s-]+$/.test(resumeProfile.phone) ? (
+              <a href={`tel:${resumeProfile.phone.replace(/\s/g, '')}`}>{resumeProfile.phone}</a>
+            ) : null}
             <span>{resumeProfile.location}</span>
             <a href={resumeProfile.portfolioUrl} target="_blank" rel="noreferrer">
               <ExternalLabel>xsaikat.vercel.app</ExternalLabel>
@@ -115,7 +128,7 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
         </header>
 
         <div className="resume-layout">
-          <div className="resume-main-column">
+          <RevealScope className="resume-main-column">
             <ResumeSection index="01" title="Professional experience">
               <ResumeExperienceList roles={resumeProfile.experience} />
             </ResumeSection>
@@ -123,9 +136,9 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
             <ResumeSection index="02" title="Additional experience">
               <ResumeExperienceList roles={resumeProfile.additionalExperience} />
             </ResumeSection>
-          </div>
+          </RevealScope>
 
-          <aside className="resume-side-column">
+          <RevealScope as="aside" className="resume-side-column">
             <ResumeSection index="03" title="Technical skills">
               <dl className="resume-skills">
                 {resumeProfile.skills.map((group) => (
@@ -156,7 +169,7 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
                 ))}
               </ul>
             </ResumeSection>
-          </aside>
+          </RevealScope>
         </div>
       </div>
     </article>
