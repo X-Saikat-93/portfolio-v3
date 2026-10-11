@@ -26,6 +26,8 @@ export interface CommandPaletteItem {
   group: string
 }
 
+export const OPEN_COMMAND_PALETTE_EVENT = 'command-palette:open'
+
 const MAX_VISIBLE_ITEMS = 12
 const DISCOVERY_HINT_STORAGE_KEY = 'portfolio:command-palette-hint:v1'
 const DISCOVERY_HINT_DELAY_MS = 900
@@ -133,11 +135,17 @@ export function CommandPalette({ items }: { items: readonly CommandPaletteItem[]
     return () => document.removeEventListener('keydown', handleGlobalKeyDown)
   }, [open])
 
-  function openPalette() {
-    rememberDiscoveryHint()
-    setShowDiscoveryHint(false)
-    setOpen(true)
-  }
+  // the dock's Search button lives in another tree, so it asks by event
+  useEffect(() => {
+    function openPalette() {
+      rememberDiscoveryHint()
+      setShowDiscoveryHint(false)
+      setOpen(true)
+    }
+
+    window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, openPalette)
+    return () => window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, openPalette)
+  }, [])
 
   function navigateTo(item: CommandPaletteItem | undefined) {
     if (!item) return
@@ -178,18 +186,6 @@ export function CommandPalette({ items }: { items: readonly CommandPaletteItem[]
           <span>to search</span>
         </div>
       ) : null}
-
-      <button
-        type="button"
-        className="command-palette-launcher"
-        aria-label="Open site search"
-        aria-haspopup="dialog"
-        aria-keyshortcuts="/"
-        onClick={openPalette}
-      >
-        <kbd>/</kbd>
-        <span>Search</span>
-      </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent size="lg" className="command-palette-dialog">
