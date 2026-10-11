@@ -19,7 +19,7 @@ export function RevealScope({
   style,
   ...props
 }: {
-  as?: 'div' | 'ul' | 'ol'
+  as?: 'div' | 'ul' | 'ol' | 'article' | 'aside'
   children: React.ReactNode
   className?: string
   style?: React.CSSProperties
