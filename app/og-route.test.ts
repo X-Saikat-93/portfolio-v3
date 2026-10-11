@@ -29,6 +29,7 @@ describe('OG image route', () => {
       '/now',
       '/resume',
       '/contact',
+      '/uses',
       '/privacy',
     ]) {
       const response = await GET(requestFor(path))
@@ -38,7 +39,7 @@ describe('OG image route', () => {
     }
 
     expect(ogMocks.createHomeOgImage).toHaveBeenCalledTimes(2)
-    expect(ogMocks.createSectionOgImage).toHaveBeenCalledTimes(9)
+    expect(ogMocks.createSectionOgImage).toHaveBeenCalledTimes(10)
   })
 
   it('does not generate previews for unknown or non-English routes', async () => {
