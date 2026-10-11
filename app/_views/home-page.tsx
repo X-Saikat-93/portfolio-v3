@@ -5,19 +5,23 @@ import { ExternalLabel } from '~/components/external-mark'
 import { HalftonePortrait } from '~/components/halftone-portrait'
 import { HomeIntroduction } from '~/components/home-introduction'
 import { HomeBookshelf } from '~/components/home-bookshelf'
+import { MusicRecordArtwork } from '~/components/music-record-artwork'
 import { NavCards, PhotoNavCard } from '~/components/nav-cards'
 import { PixelCluster } from '~/components/pixel-cluster'
 import { PortraitHiddenStage } from '~/components/portrait-hidden-stage'
 import { PostTitleTransition } from '~/components/post-title-transition'
-import { GitHubCommitsSection } from '~/components/github-commits-section'
-import { TechStackSection } from '~/components/tech-stack-section'
+import { RevealScope } from '~/components/reveal-scope'
+import { CodeSection } from '~/components/code-section'
+import { HireMeSection } from '~/components/hire-me-section'
+import { SelectedWork } from '~/components/selected-work'
 import { T } from '~/lib/i18n'
 import { formatMonthDay } from '~/lib/date'
 import { localePath, type Locale } from '~/lib/locale-route'
 import { safeListPublishedBlogPosts } from '~/lib/blog/repository'
 import { safeListPublishedCollectionItems } from '~/lib/collections/repository'
 import { experience } from '~/lib/personal'
-import { projects } from '~/lib/projects'
+import { safeListPublishedProjectCaseStudies } from '~/lib/project-case-studies/repository'
+import { projects, selectFeaturedProjects } from '~/lib/projects'
 import { getGitHub } from '~/lib/social-live'
 
 function SectionTitle({
@@ -43,13 +47,15 @@ function SectionTitle({
   )
 }
 export async function HomePageView({ locale }: { locale: Locale }) {
-  const [github, photos, books, music, posts] = await Promise.all([
+  const [github, photos, books, music, posts, caseStudies] = await Promise.all([
     getGitHub(),
     safeListPublishedCollectionItems('photo'),
     safeListPublishedCollectionItems('book'),
     safeListPublishedCollectionItems('music'),
     safeListPublishedBlogPosts(),
+    safeListPublishedProjectCaseStudies(),
   ])
+  const caseStudyIds = caseStudies.map(({ projectId }) => projectId)
   const portraitUrl = cloudinaryImageUrl(cloudinaryAvatarPublicId, {
     width: 1000,
     height: 1000,
@@ -61,12 +67,16 @@ export async function HomePageView({ locale }: { locale: Locale }) {
   const nextSectionIndex = () => String(++sectionCount).padStart(2, '0')
 
   return (
-    <div className="mx-auto w-full max-w-[37.5rem] px-6">
-      <div className="flex flex-col-reverse justify-between gap-10 sm:flex-row sm:items-start">
-        <div className="enter max-w-[19rem]">
-          <div className="flex items-center gap-2">
-            <h1 className="text-base font-semibold tracking-tight text-foreground">
-              Saikat Das — Full-Stack Product Engineer
+    <RevealScope className="home-reveal mx-auto w-full max-w-[37.5rem] px-6">
+      <div className="home-hero flex flex-col-reverse justify-between gap-6 sm:flex-row sm:items-start sm:gap-10">
+        <div className="home-hero-copy enter max-w-[19rem]">
+          <div className="flex items-start gap-2">
+            <h1 className="home-hero-title text-base font-semibold tracking-tight text-foreground">
+              <span className="home-hero-name"><span>Saikat Das</span></span>
+              <span className="sr-only"> — </span>
+              <span className="home-hero-role block text-sm font-normal tracking-normal text-muted-foreground">
+                Full-Stack Product Engineer
+              </span>
             </h1>
             <PixelCluster variant={2} className="shrink-0" />
           </div>
@@ -74,18 +84,37 @@ export async function HomePageView({ locale }: { locale: Locale }) {
             <HomeIntroduction github={github} />
           </div>
         </div>
-        <div className="w-[9.35rem] shrink-0 sm:w-60">
-          <PortraitHiddenStage
-            label="Saikat's halftone portrait. Reveal the hidden topographic halo"
-          >
-            <HalftonePortrait
-              srcLight={portraitUrl}
-              srcDark={portraitUrl}
+        <div className="home-hero-portrait shrink-0 sm:w-60 sm:self-auto">
+          {/* phones: a full-bleed cover portrait; desktop keeps the halftone */}
+          <div className="home-profile-portrait-static">
+            <CloudinaryImage
+              publicId={cloudinaryAvatarPublicId}
+              width={800}
+              height={1000}
+              crop="fill"
+              gravity="face"
+              preserveAspectRatio
               fallbackSrc="/images/saikat-avatar-preview.webp"
-              alt="Saikat's halftone portrait"
-              altEn="Saikat's halftone portrait"
+              alt="Saikat Das"
+              sizes="100vw"
+              loading="eager"
+              fetchPriority="high"
+              className="home-profile-portrait-static-image"
             />
-          </PortraitHiddenStage>
+          </div>
+          <div className="home-profile-portrait-interactive">
+            <PortraitHiddenStage
+              label="Saikat's halftone portrait. Reveal the hidden topographic halo"
+            >
+              <HalftonePortrait
+                srcLight={portraitUrl}
+                srcDark={portraitUrl}
+                fallbackSrc="/images/saikat-avatar-preview.webp"
+                alt="Saikat's halftone portrait"
+                altEn="Saikat's halftone portrait"
+              />
+            </PortraitHiddenStage>
+          </div>
         </div>
       </div>
 
@@ -100,13 +129,16 @@ export async function HomePageView({ locale }: { locale: Locale }) {
         <SectionTitle index={nextSectionIndex()} delay={120}>
           <T zh="经历" en="Experience" />
         </SectionTitle>
-        <ul className="mt-4 flex flex-col">
+        {/* a timeline rail: each role's node lands, then the rail draws on to the next */}
+        <ol className="experience-timeline mt-4">
           {experience.map((job, i) => (
             <li
               key={job.company}
-              className="enter-swing hairline-top"
-              style={{ '--enter-delay': `${150 + i * 40}ms` } as React.CSSProperties}
+              className="experience-item"
+              data-current={job.to ? undefined : ''}
+              style={{ '--i': i } as React.CSSProperties}
             >
+              <span className="experience-node" aria-hidden />
               <div className="experience-row text-sm">
                 <div className="experience-details">
                   {job.url ? (
@@ -130,17 +162,22 @@ export async function HomePageView({ locale }: { locale: Locale }) {
                   </span>
                 </div>
                 <span className="experience-date text-muted-foreground tabular-nums">
-                  {job.from}—{job.to ?? <T zh="现在" en="now" />}
+                  {job.from}
+                  <span className="experience-date-dash" aria-hidden> – </span>
+                  <span className="sr-only"> to </span>
+                  <span className="experience-date-to">{job.to ?? <T zh="现在" en="now" />}</span>
                 </span>
               </div>
             </li>
           ))}
-        </ul>
+        </ol>
       </section>
 
-      <TechStackSection index={Number(nextSectionIndex())} />
-
-      <GitHubCommitsSection github={github} index={Number(nextSectionIndex())} />
+      <SelectedWork
+        index={Number(nextSectionIndex())}
+        projects={selectFeaturedProjects(caseStudyIds)}
+        caseStudyIds={new Set(caseStudyIds)}
+      />
 
       <section className="mt-16">
         <div className="flex items-center justify-between gap-4">
@@ -166,15 +203,16 @@ export async function HomePageView({ locale }: { locale: Locale }) {
                 <Link
                   href={localePath(locale, `/blog/${post.slug}`)}
                   className="home-writing-row"
+                  data-lead={index === 0 ? '' : undefined}
                 >
                   <span className="home-writing-cover" aria-hidden={!post.coverImageAlt}>
                     {post.coverImagePublicId ? (
                       <CloudinaryImage
                         publicId={post.coverImagePublicId}
                         alt={post.coverImageAlt}
-                        width={240}
-                        height={144}
-                        sizes="96px"
+                        width={index === 0 ? 720 : 240}
+                        height={index === 0 ? 432 : 144}
+                        sizes={index === 0 ? '(min-width: 40rem) 208px, 100vw' : '96px'}
                         loading={index === 0 ? 'eager' : 'lazy'}
                         className="home-writing-cover-image"
                       />
@@ -190,7 +228,7 @@ export async function HomePageView({ locale }: { locale: Locale }) {
                       </time>
                     </span>
                     <PostTitleTransition slug={post.slug}>
-                      <span className="home-writing-title">{post.title}</span>
+                      <span className="home-writing-title"><span>{post.title}</span></span>
                     </PostTitleTransition>
                     <span className="home-writing-summary">{post.description}</span>
                     <span className="home-writing-time">{post.readingMinutes} min read</span>
@@ -201,6 +239,8 @@ export async function HomePageView({ locale }: { locale: Locale }) {
           )}
         </ul>
       </section>
+
+      <CodeSection github={github} index={Number(nextSectionIndex())} />
 
       {books.length > 0 || music.length > 0 ? (
         <section className="mt-16">
@@ -221,16 +261,28 @@ export async function HomePageView({ locale }: { locale: Locale }) {
           ) : null}
           <ul className="focus-list motion-list flex flex-col">
             {music.length > 0 ? (
-              <li className="hairline-top py-3 text-sm">
-                <Link href={localePath(locale, '/music')} className="list-row-link flex items-center justify-between gap-4">
-                  <span>Music</span>
-                  <span className="text-muted-foreground">{music.length}</span>
+              <li className="music-home-item">
+                <Link href={localePath(locale, '/music')} className="music-home-link">
+                  <span className="music-home-art">
+                    <MusicRecordArtwork item={music[0]} size="home" />
+                  </span>
+                  <span className="music-home-copy">
+                    <span className="music-home-label">Music</span>
+                    <span className="music-home-title">{music[0].title}</span>
+                    {music[0].creator ? <span className="music-home-artist">{music[0].creator}</span> : null}
+                  </span>
+                  <span className="music-home-count" aria-label={`${music.length} records`}>
+                    {String(music.length).padStart(2, '0')}
+                  </span>
                 </Link>
               </li>
             ) : null}
           </ul>
         </section>
       ) : null}
-    </div>
+
+      {/* the closing call, once the evidence is in */}
+      <HireMeSection index={Number(nextSectionIndex())} />
+    </RevealScope>
   )
 }
