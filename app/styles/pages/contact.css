@@ -1,0 +1,398 @@
+/* ── Contact desk: a letter on paper ─────────────────────────────────
+   The form reads as a sheet addressed to Saikat, with his local time in
+   the header so visitors know when a reply is likely. Each field's rule
+   draws in signal ink on focus; sending runs a thin line across the
+   sheet's foot, and a sent letter settles with a check. */
+
+.contact-title {
+  max-width: 31rem;
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.contact-form-shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--paper-ink) 28%, transparent);
+  background: color-mix(in oklab, var(--paper) 96%, var(--paper-ink));
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--paper) 72%, transparent),
+    0 1px 1px color-mix(in oklab, var(--foreground) 4%, transparent),
+    0 0.75rem 2rem -0.75rem color-mix(in oklab, var(--foreground) 14%, transparent),
+    0 2.5rem 4rem -2rem color-mix(in oklab, var(--foreground) 9%, transparent);
+}
+
+.dark .contact-form-shell {
+  --paper: var(--surface-2);
+  --paper-ink: var(--foreground);
+  background: var(--surface-2);
+}
+
+.contact-form-topline,
+.contact-form-bottomline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  color: color-mix(in oklab, var(--paper-ink) 65%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.contact-form-topline {
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-ink) 16%, transparent);
+}
+
+.contact-form-clock {
+  font-variant-numeric: tabular-nums;
+}
+
+.contact-form-bottomline {
+  position: relative;
+  align-items: flex-end;
+  border-top: 1px solid color-mix(in oklab, var(--paper-ink) 16%, transparent);
+}
+
+/* sending: a signal line runs the sheet's foot until the reply lands */
+.contact-form-bottomline::before {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 30%;
+  height: 1px;
+  background: var(--signal);
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+}
+
+.contact-form-shell[data-state='sending'] .contact-form-bottomline::before {
+  opacity: 1;
+  animation: contact-send-run 1100ms var(--ease-swift) infinite;
+}
+
+@keyframes contact-send-run {
+  from {
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  to {
+    transform: translate3d(340%, 0, 0);
+  }
+}
+
+.contact-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem 1.25rem;
+  padding: 1.35rem 1rem 1.45rem;
+}
+
+.contact-field {
+  position: relative;
+  display: grid;
+  gap: 0.45rem;
+  color: color-mix(in oklab, var(--paper-ink) 68%, transparent);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  animation: contact-field-in 520ms var(--ease-enter) backwards;
+  animation-delay: calc(220ms + var(--i, 0) * 60ms);
+  transition: color 180ms var(--ease-swift);
+}
+
+@keyframes contact-field-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.4rem, 0);
+  }
+}
+
+.contact-field:focus-within {
+  color: var(--paper-ink);
+}
+
+.contact-field-wide {
+  grid-column: 1 / -1;
+}
+
+.contact-field-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.contact-field-count {
+  color: color-mix(in oklab, var(--paper-ink) 50%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-ink) 22%, transparent);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.45rem 0;
+  color: var(--paper-ink);
+  font-size: 1rem;
+  line-height: 1.5;
+  outline: none;
+}
+
+.contact-field textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.contact-field input::placeholder,
+.contact-field textarea::placeholder {
+  color: color-mix(in oklab, var(--paper-ink) 34%, transparent);
+  transition: color 180ms var(--ease-swift);
+}
+
+.contact-field input:focus::placeholder,
+.contact-field textarea:focus::placeholder {
+  color: color-mix(in oklab, var(--paper-ink) 22%, transparent);
+}
+
+/* the focus rule: drawn over the field's own hairline, from the left */
+.contact-field-rule {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--signal);
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 420ms var(--ease-enter);
+}
+
+.contact-field:focus-within .contact-field-rule {
+  transform: scaleX(1);
+}
+
+/* a field the visitor has left invalid gets a quiet destructive rule */
+.contact-field:has(:user-invalid) .contact-field-rule {
+  background: var(--destructive);
+  transform: scaleX(1);
+}
+
+.contact-form-note {
+  max-width: 18rem;
+  color: color-mix(in oklab, var(--paper-ink) 56%, transparent);
+  font-family: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.contact-form-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.2em;
+  transition: color 150ms ease;
+}
+
+.contact-form-note a:hover,
+.contact-form-note a:focus-visible {
+  color: var(--paper-ink);
+}
+
+.contact-submit-group {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.contact-submit-hint {
+  display: none;
+  color: color-mix(in oklab, var(--paper-ink) 45%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  transition: color 180ms var(--ease-swift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact-submit-hint {
+    display: inline;
+  }
+
+  .contact-form-shell:has(textarea:focus) .contact-submit-hint {
+    color: var(--paper-ink);
+  }
+}
+
+.contact-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--paper-ink);
+  background: var(--paper-ink);
+  padding: 0.6rem 0.8rem;
+  color: var(--paper);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  transition:
+    transform 200ms var(--ease-swift),
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.contact-submit-mark {
+  display: inline-block;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 260ms var(--ease-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact-submit:hover:not(:disabled) {
+    background: transparent;
+    color: var(--paper-ink);
+  }
+
+  .contact-submit:hover:not(:disabled) .contact-submit-mark {
+    transform: translate(0.12rem, -0.12rem);
+  }
+}
+
+.contact-submit:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.contact-form-shell[data-state='sent'] .contact-submit-mark {
+  animation: contact-sent-mark 420ms var(--ease-spring) backwards;
+}
+
+@keyframes contact-sent-mark {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+.contact-submit:focus-visible {
+  outline: 1px solid var(--paper-ink);
+  outline-offset: 3px;
+}
+
+.contact-submit:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.contact-form-status {
+  border-top: 1px dashed color-mix(in oklab, var(--paper-ink) 22%, transparent);
+  padding: 0.8rem 1rem 1rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 160ms ease,
+    transform 200ms var(--ease-enter);
+}
+
+@starting-style {
+  .contact-form-status {
+    opacity: 0;
+    transform: translate3d(0, 0.35rem, 0);
+  }
+}
+
+.contact-form-status[data-state='sent'] {
+  color: color-mix(in oklab, #32835c 76%, var(--paper-ink));
+}
+
+.contact-form-status[data-state='error'] {
+  color: var(--destructive);
+}
+
+.contact-honeypot {
+  position: absolute;
+  left: -10rem;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.contact-page-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  margin-top: 1.5rem;
+  padding-top: 0.8rem;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+}
+
+.contact-page-footer a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.2em;
+  transition: color 150ms ease;
+}
+
+@media (max-width: 39.99rem) {
+  .contact-form-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-field-wide {
+    grid-column: auto;
+  }
+
+  .contact-form-bottomline,
+  .contact-page-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .contact-submit-group,
+  .contact-submit {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-field,
+  .contact-submit-mark,
+  .contact-form-shell[data-state='sent'] .contact-submit-mark {
+    animation: none;
+  }
+
+  .contact-field-rule,
+  .contact-submit,
+  .contact-submit-mark {
+    transition: none;
+  }
+
+  /* sending still shows, as a steady line rather than a moving one */
+  .contact-form-shell[data-state='sending'] .contact-form-bottomline::before {
+    width: 100%;
+    animation: none;
+  }
+}
