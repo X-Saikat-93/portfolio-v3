@@ -1,5 +1,6 @@
 import { PixelCluster } from '~/components/pixel-cluster'
 import { CollectionShelf } from '~/components/collection-shelf'
+import { MusicExperience, type MusicExperienceItem } from '~/components/music-experience'
 import type { CollectionKind, PortfolioItem } from '~/lib/collections/repository'
 
 const copy: Record<CollectionKind, { title: string; description: string }> = {
@@ -8,8 +9,37 @@ const copy: Record<CollectionKind, { title: string; description: string }> = {
   photo: { title: 'Photos', description: 'Photographs by Saikat Das.' },
 }
 
-export function CollectionPageView({ kind, items }: { kind: CollectionKind; items: PortfolioItem[] }) {
+export function CollectionPageView({
+  kind,
+  items,
+  displayFontClassName,
+}: {
+  kind: CollectionKind
+  items: PortfolioItem[]
+  displayFontClassName?: string
+}) {
   const section = copy[kind]
+
+  if (kind === 'music') {
+    const musicItems: MusicExperienceItem[] = items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      creator: item.creator,
+      year: item.year,
+      url: item.url,
+      imagePublicId: item.imagePublicId,
+    }))
+
+    return (
+      <MusicExperience
+        title={section.title}
+        description={section.description}
+        items={musicItems}
+        displayFontClassName={displayFontClassName}
+      />
+    )
+  }
+
   return (
     <div className="mx-auto w-full max-w-[37.5rem] px-6">
       <div className="flex items-start justify-between gap-4">
@@ -19,7 +49,7 @@ export function CollectionPageView({ kind, items }: { kind: CollectionKind; item
             {section.description}
           </p>
         </header>
-        <PixelCluster variant={kind === 'book' ? 2 : kind === 'music' ? 3 : 4} className="enter shrink-0" />
+        <PixelCluster variant={kind === 'book' ? 2 : 4} className="enter shrink-0" />
       </div>
       <CollectionShelf kind={kind} items={items} />
     </div>
