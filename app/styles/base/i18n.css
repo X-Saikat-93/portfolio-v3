@@ -1,0 +1,46 @@
+/* ── Bilingual chrome (lib/i18n.tsx) — CSS-swapped, no hydration ────
+   Public routes render a single language per segment, so only the inline
+   [data-zh]/[data-en] pair from <T> appears there. The block variant
+   survives solely for admin, which swaps locale in place (no route
+   change) and needs both DOM branches present in scheduling controls. */
+
+[data-en] {
+  display: none;
+}
+
+[data-en-block] {
+  display: none;
+}
+
+html[data-locale='en'] [data-zh] {
+  display: none;
+}
+
+html[data-locale='en'] [data-en] {
+  display: inline;
+}
+
+html[data-locale='en'] [data-zh-block] {
+  display: none;
+}
+
+html[data-locale='en'] [data-en-block] {
+  display: block;
+}
+
+.locale-toggle {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  transition: color 150ms ease;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .locale-toggle:hover {
+    color: var(--foreground);
+  }
+}
+
+.locale-toggle:active {
+  transform: scale(0.97);
+}
