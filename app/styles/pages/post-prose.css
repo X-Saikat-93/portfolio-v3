@@ -1,0 +1,250 @@
+/* ── Post prose ───────────────────────────────────────────────────── */
+
+.prose {
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.875rem;
+  line-height: 1.72;
+}
+
+.prose:lang(zh-CN),
+.prose:lang(zh) {
+  line-height: 1.9;
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose {
+  counter-reset: prose-section prose-figure;
+}
+
+.prose h2 {
+  margin-top: 2.5em;
+  color: var(--gray-12, var(--foreground));
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  counter-increment: prose-section;
+}
+
+/* prose h2s open with the section tag — a boxed counter ordinal and hatch
+   strip in one pseudo (the .section-tag register, sized for the heading
+   line); the heading text itself keeps its editorial size */
+.prose h2::before {
+  content: counter(prose-section, decimal-leading-zero) / '';
+  display: inline-block;
+  margin-right: 0.625rem;
+  padding: 0.1875rem 1.1875rem 0.1875rem 0.4375rem;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+  background:
+    repeating-linear-gradient(
+        -45deg,
+        color-mix(in oklab, var(--muted-foreground) 55%, transparent) 0,
+        color-mix(in oklab, var(--muted-foreground) 55%, transparent) 1px,
+        transparent 1px,
+        transparent 3.5px
+      )
+      right center / 0.75rem 100% no-repeat,
+    linear-gradient(
+        color-mix(in oklab, var(--muted-foreground) 45%, transparent),
+        color-mix(in oklab, var(--muted-foreground) 45%, transparent)
+      )
+      calc(100% - 0.75rem) 0 / var(--border-hairline) 100% no-repeat;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  vertical-align: 0.125em;
+}
+
+.prose h3 {
+  margin-top: 2em;
+  color: var(--gray-12, var(--foreground));
+  font-size: 1rem;
+  line-height: 1.45;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.prose a {
+  color: var(--gray-10, var(--foreground));
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.16em;
+  text-decoration-color: color-mix(in oklab, currentColor 38%, transparent);
+  text-decoration-skip-ink: auto;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .prose a:hover {
+    color: var(--gray-12, var(--foreground));
+    text-decoration-color: currentColor;
+  }
+}
+
+.prose a:focus-visible {
+  color: var(--gray-12, var(--foreground));
+  text-decoration-color: currentColor;
+}
+
+.prose strong {
+  color: var(--gray-12, var(--foreground));
+  font-weight: var(--font-weight-semibold);
+}
+
+.prose .inline-product-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  color: var(--gray-12, var(--foreground));
+  font-weight: var(--font-weight-medium);
+  vertical-align: -0.08em;
+  white-space: nowrap;
+}
+
+.prose .inline-product-logo {
+  width: 0.875em;
+  height: 0.875em;
+  flex: none;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.dark .prose .inline-product-logo-ats,
+.dark .prose .inline-product-logo-control,
+.dark .prose .inline-product-logo-dex {
+  filter: brightness(1.45) contrast(0.9);
+}
+
+.dark .prose .inline-product-logo-codex {
+  filter: invert(1);
+}
+
+.post-title-card h1 {
+  color: var(--gray-12, var(--foreground));
+  font-size: clamp(1.75rem, 4vw, 2rem);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+}
+
+.post-title-meta {
+  color: var(--gray-8, var(--muted-foreground));
+}
+
+/* the post plate breathes under the title (wins over .spec-plate margin: 0) */
+.post-title-card .spec-plate {
+  margin-top: 1.5rem;
+}
+
+/* anchored headings clear the viewport edge fade */
+.prose h2,
+.prose h3 {
+  scroll-margin-top: 4.5rem;
+}
+
+/* reading progress: a signal hairline along the top edge, driven by the
+   page scroll; browsers without scroll timelines simply don't show it */
+.post-progress {
+  display: none;
+}
+
+@keyframes post-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .post-progress {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: var(--z-nav);
+    display: block;
+    height: 2px;
+    background: var(--signal);
+    transform-origin: left;
+    pointer-events: none;
+    animation: post-progress-fill linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+.post-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  transition: color 160ms ease;
+}
+
+.post-back-arrow {
+  transition: transform 200ms var(--ease-swift);
+}
+
+.post-back-link:hover,
+.post-back-link:focus-visible {
+  color: var(--foreground);
+}
+
+.post-back-link:hover .post-back-arrow,
+.post-back-link:focus-visible .post-back-arrow {
+  transform: translateX(-0.2rem);
+}
+
+/* continue reading: the hovered post keeps full ink, the rest recede */
+.post-related li {
+  transition: opacity 220ms var(--ease-swift);
+}
+
+span.post-related-cover {
+  display: block;
+  background: color-mix(in oklab, var(--paper-ink) 6%, var(--paper));
+}
+
+.post-related-cover {
+  transition:
+    transform 260ms var(--ease-swift),
+    box-shadow 260ms var(--ease-swift);
+}
+
+.post-related-title {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .post-related ul:has(.post-related-link:hover) > li:not(:has(.post-related-link:hover)) {
+    opacity: 0.5;
+  }
+
+  .post-related-link:hover .post-related-cover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -10px color-mix(in oklab, var(--foreground) 35%, transparent);
+  }
+
+  .post-related-link:hover .post-related-title {
+    text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-back-arrow,
+  .post-related li,
+  .post-related-cover {
+    transition: none;
+  }
+}
