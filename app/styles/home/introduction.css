@@ -22,7 +22,7 @@
 .intro-mask-word {
   display: inline-block;
   animation: intro-rise 900ms var(--ease-enter) backwards;
-  animation-delay: calc(80ms + var(--w) * 70ms);
+  animation-delay: calc(80ms + var(--w) * 70ms + var(--mount, 0ms));
 }
 
 @keyframes intro-rise {
@@ -79,7 +79,7 @@
 
 .intro-rotator-phrase[data-first] .intro-char {
   animation: intro-char-in 820ms var(--ease-enter) backwards;
-  animation-delay: calc(480ms + var(--c) * 20ms);
+  animation-delay: calc(480ms + var(--c) * 20ms + var(--mount, 0ms));
 }
 
 @keyframes intro-char-in {
@@ -114,7 +114,7 @@
 }
 
 .intro-rotator:has([data-first]) .intro-rotator-clock {
-  animation-delay: 1100ms;
+  animation-delay: calc(1100ms + var(--mount, 0ms));
 }
 
 .intro-rotator:hover .intro-rotator-clock {
@@ -144,7 +144,7 @@
 
 .intro-settle {
   animation: intro-settle 700ms var(--ease-enter) backwards;
-  animation-delay: calc(620ms + var(--settle) * 110ms);
+  animation-delay: calc(620ms + var(--settle) * 110ms + var(--mount, 0ms));
 }
 
 @keyframes intro-settle {
