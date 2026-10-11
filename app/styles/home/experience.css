@@ -1,0 +1,144 @@
+/* ── Experience: a timeline rail ──────────────────────────────────────
+   Each role's node lands, then its rail segment draws down to the next
+   one, so the list reads back through time as it arrives. The current
+   role keeps a filled signal node; past roles are hollow rings. */
+
+.experience-timeline {
+  --node: 7px;
+  --node-y: 1.25rem; /* row padding + half the first text line */
+  --step: 150ms;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.experience-item {
+  position: relative;
+  padding-left: 1.5rem;
+  animation: experience-item-in 520ms var(--ease-enter) backwards;
+  animation-delay: calc(140ms + var(--i, 0) * var(--step));
+}
+
+/* rail segment from this node to the next one */
+.experience-item:not(:last-child)::before {
+  position: absolute;
+  top: var(--node-y);
+  left: calc(var(--node) / 2 - 0.5px);
+  width: 1px;
+  height: 100%;
+  background: color-mix(in oklab, var(--foreground) 14%, transparent);
+  content: '';
+  transform-origin: top;
+  animation: experience-rail-draw calc(var(--step) + 60ms) var(--ease-swift) backwards;
+  animation-delay: calc(240ms + var(--i, 0) * var(--step));
+}
+
+.experience-node {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--node-y) - var(--node) / 2);
+  left: 0;
+  width: var(--node);
+  height: var(--node);
+  border: 1px solid color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+  border-radius: 999px;
+  background: var(--background);
+  animation: experience-node-in 420ms var(--ease-spring) backwards;
+  animation-delay: calc(160ms + var(--i, 0) * var(--step));
+  transition:
+    transform 240ms var(--ease-spring),
+    border-color 180ms var(--ease-swift),
+    background-color 180ms var(--ease-swift);
+}
+
+.experience-item[data-current] .experience-node {
+  border-color: var(--signal);
+  background: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--signal) 16%, transparent);
+}
+
+.experience-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: start;
+  gap: 1rem;
+  padding: 0.625rem 0;
+}
+
+.experience-item + .experience-item .experience-row {
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.experience-details {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.experience-company,
+.experience-role {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.experience-date {
+  white-space: nowrap;
+  transition: color 180ms var(--ease-swift);
+}
+
+.experience-date-dash {
+  color: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+}
+
+.experience-item[data-current] .experience-date-to {
+  color: var(--foreground);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .experience-item:hover .experience-node {
+    transform: scale(1.3);
+    border-color: var(--foreground);
+  }
+
+  .experience-item:hover .experience-date {
+    color: var(--foreground);
+  }
+}
+
+@keyframes experience-item-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.4rem, 0);
+  }
+}
+
+@keyframes experience-node-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+@keyframes experience-rail-draw {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .experience-item {
+    padding-left: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experience-item,
+  .experience-item::before,
+  .experience-node {
+    animation: none;
+    transition: none;
+  }
+}
