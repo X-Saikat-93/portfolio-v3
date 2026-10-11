@@ -14,7 +14,8 @@ vi.mock('geist/font/pixel', () => ({
   GeistPixelSquare: { className: 'pixel-square' },
 }))
 vi.mock('next/font/google', () => ({
-  Geist: () => ({ variable: 'font-geist' }),
+  Funnel_Sans: () => ({ variable: 'font-funnel' }),
+  Funnel_Display: () => ({ variable: 'font-funnel-display' }),
   Geist_Mono: () => ({ variable: 'font-geist-mono' }),
 }))
 vi.mock('next/font/local', () => ({
@@ -27,7 +28,7 @@ describe('public error recovery', () => {
   it('renders an English forbidden surface', () => {
     render(<ForbiddenPageView />)
 
-    expect(screen.getByText('ERROR / 403')).toBeTruthy()
+    expect(screen.getByText('ERR / 403')).toBeTruthy()
     expect(screen.getByText('You do not have access to this page.')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Go home' }).getAttribute('href')).toBe('/en')
   })
