@@ -54,6 +54,21 @@ describe('HomeBookshelf', () => {
     expect(screen.getByText('Second Author')).toBeTruthy()
   })
 
+  it('renders every book as an individually selectable mobile entry', () => {
+    const { container } = render(<HomeBookshelf books={books} allBooksHref="/en/books" />)
+    const mobileBooks = container.querySelectorAll<HTMLButtonElement>(
+      '.home-bookshelf-mobile-book',
+    )
+
+    expect(mobileBooks).toHaveLength(books.length)
+    expect(mobileBooks[1].getAttribute('aria-label')).toBe('Select Second Book')
+
+    fireEvent.click(mobileBooks[1])
+
+    expect(mobileBooks[1].getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByText('Second Author')).toBeTruthy()
+  })
+
   it('moves through the shelf with arrow keys', () => {
     render(<HomeBookshelf books={books} allBooksHref="/en/books" />)
 
