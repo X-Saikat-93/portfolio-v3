@@ -134,6 +134,7 @@ export function CollectionEditor({ kind }: { kind: Kind }) {
           <CloudinaryAssetPicker
             value={form.imagePublicId || null}
             onChange={(value) => setField('imagePublicId', value ?? '')}
+            kind="photo"
             label="Photo asset"
             help="Upload or select the photo directly here."
           />
