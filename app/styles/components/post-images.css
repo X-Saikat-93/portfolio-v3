@@ -1,0 +1,18 @@
+/* ── Post images: scattered prints that straighten on attention ───── */
+
+.zoom-trigger {
+  transform: rotate(var(--img-tilt, 0deg));
+  transition: transform 300ms var(--ease-swift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zoom-trigger:hover {
+    transform: rotate(0deg) scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zoom-trigger {
+    transition: none;
+  }
+}
