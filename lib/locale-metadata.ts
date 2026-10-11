@@ -24,8 +24,36 @@ const SECTION_IMAGE_PATHS = new Set([
   '/now',
   '/resume',
   '/contact',
+  '/uses',
   '/privacy',
 ])
+
+const BASE_KEYWORDS = ['Saikat Das', 'Saikat Das portfolio', 'full-stack product engineer']
+
+// Only facts already on the site: stack and sections it actually publishes.
+const SECTION_KEYWORDS: Record<string, string[]> = {
+  '/': [
+    'software engineer',
+    'full-stack developer',
+    'web products',
+    'APIs',
+    'data systems',
+    'Node.js',
+    'React',
+    'Next.js',
+    'PostgreSQL',
+    'Redis',
+  ],
+  '/blog': ['engineering blog', 'engineering notes', 'AI systems', 'data architecture', 'real-time software', 'web applications'],
+  '/projects': ['projects', 'case studies', 'Zaruro', 'recruitment operations platform', 'open-source', 'production software'],
+  '/resume': ['resume', 'CV', 'full-stack software engineer resume', 'hire a full-stack engineer'],
+  '/now': ['now page', 'current work', 'open to work'],
+  '/uses': ['uses page', 'developer setup', 'tech stack', 'tools'],
+  '/contact': ['contact', 'hire Saikat Das', 'work with Saikat Das'],
+  '/photos': ['photography', 'photos'],
+  '/books': ['reading list', 'books'],
+  '/music': ['music', 'listening list'],
+}
 
 export function socialImageUrl(locale: Locale, path: string) {
   const url = new URL('/og', seo.url)
@@ -75,6 +103,7 @@ export function localeMetadata({
   return {
     title,
     description,
+    ...(SECTION_KEYWORDS[path] ? { keywords: [...BASE_KEYWORDS, ...SECTION_KEYWORDS[path]] } : {}),
     authors: [{ name: 'Saikat Das', url: new URL('/en', seo.url) }],
     creator: 'Saikat Das',
     publisher: 'Saikat Das',
