@@ -32,6 +32,9 @@ describe('DockFallback', () => {
     expect(
       screen.getByRole('link', { name: /写作|Writing/ }).getAttribute('href'),
     ).toBe(entry.writing)
-    expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(true)
+    expect(
+      (screen.getByRole('button', { name: /Loading preferences/ }) as HTMLButtonElement).disabled,
+    ).toBe(true)
+    expect(screen.getByRole('button', { name: /Search/ }).getAttribute('aria-keyshortcuts')).toBe('/')
   })
 })
