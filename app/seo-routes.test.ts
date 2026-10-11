@@ -62,7 +62,7 @@ describe('localized discovery routes', () => {
   it('publishes only the English public routes', async () => {
     const entries = await sitemap()
     expect(entries.map(({ url }) => url)).toEqual([
-      ...['/en', '/en/blog', '/en/photos', '/en/books', '/en/music', '/en/projects', '/en/resume', '/en/now', '/en/contact', '/en/privacy'].map(
+      ...['/en', '/en/blog', '/en/photos', '/en/books', '/en/music', '/en/projects', '/en/resume', '/en/now', '/en/contact', '/en/uses', '/en/privacy'].map(
         (path) => new URL(path, seo.url).href,
       ),
       ...projects.map(({ id }) => new URL(`/en/projects/${id}`, seo.url).href),
