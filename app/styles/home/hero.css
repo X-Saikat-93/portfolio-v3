@@ -27,7 +27,7 @@
 }
 
 [data-halftone][data-ready] .halftone-canvas {
-  animation: halftone-reveal 400ms var(--ease-swift) both;
+  animation: halftone-reveal 400ms var(--ease-swift) var(--mount, 0ms) both;
 }
 
 .home-profile-portrait-static {
@@ -82,7 +82,7 @@
     height: 132%;
     object-fit: cover;
     object-position: 50% 0;
-    animation: home-cover-settle 1400ms var(--ease-enter) backwards;
+    animation: home-cover-settle 1400ms var(--ease-enter) var(--mount, 0ms) backwards;
   }
 
   /* film grain over the print, plus one pass of light once it settles */
@@ -103,7 +103,7 @@
     mix-blend-mode: soft-light;
     opacity: 0.16;
     pointer-events: none;
-    animation: home-cover-sheen 1600ms var(--ease-swift) 1100ms backwards;
+    animation: home-cover-sheen 1600ms var(--ease-swift) calc(1100ms + var(--mount, 0ms)) backwards;
   }
 
   /* the name rises out of its own line, lifted off the photo by a halo */
@@ -117,11 +117,11 @@
   .home-hero-name > span {
     display: block;
     text-shadow: 0 0.04em 0.6em color-mix(in oklab, var(--background) 75%, transparent);
-    animation: home-name-rise 1100ms var(--ease-enter) 280ms backwards;
+    animation: home-name-rise 1100ms var(--ease-enter) calc(280ms + var(--mount, 0ms)) backwards;
   }
 
   .home-hero-role {
-    animation: intro-settle 700ms var(--ease-enter) 620ms backwards;
+    animation: intro-settle 700ms var(--ease-enter) calc(620ms + var(--mount, 0ms)) backwards;
   }
 
   .home-hero-copy {
@@ -360,7 +360,7 @@
 
 .enter-swing {
   animation: enter-swing 380ms var(--ease-enter) backwards;
-  animation-delay: var(--enter-delay, 0ms);
+  animation-delay: calc(var(--enter-delay, 0ms) + var(--mount, 0ms));
 }
 
 @media (prefers-reduced-motion: reduce) {
