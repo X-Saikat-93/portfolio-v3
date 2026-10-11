@@ -15,16 +15,6 @@ export const metadata: Metadata = {
     title: seoEn.title,
     description: seoEn.description,
   }),
-  keywords: [
-    'full-stack product engineer',
-    'software engineer',
-    'web products',
-    'APIs',
-    'Node.js',
-    'React',
-    'Next.js',
-    'PostgreSQL',
-  ],
   title: { absolute: seoEn.title },
 }
 
