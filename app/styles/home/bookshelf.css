@@ -1,0 +1,315 @@
+/* ── Home bookshelf: one open cover, five readable spines ───────── */
+
+.home-bookshelf {
+  margin-top: 1.35rem;
+}
+
+.home-bookshelf-mobile-grid {
+  display: none;
+}
+
+.home-bookshelf-viewport {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 220px;
+  overflow: clip;
+  perspective: 1200px;
+}
+
+.home-bookshelf-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: var(--home-bookshelf-layout-width);
+  height: 220px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+  transform: scale(var(--home-bookshelf-scale, 1));
+  transform-origin: center bottom;
+  --home-bookshelf-scale: 1;
+}
+
+.home-book-frame {
+  position: relative;
+  flex: 0 0 auto;
+  width: 35px;
+  height: 212px;
+  min-width: 35px;
+  animation: home-book-arrive 500ms var(--ease-enter) both;
+  will-change: transform;
+}
+
+.home-book-frame:nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.home-book-frame:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.home-book-frame:nth-child(4) {
+  animation-delay: 135ms;
+}
+
+.home-book-frame:nth-child(5) {
+  animation-delay: 180ms;
+}
+
+.home-book-frame:nth-child(6) {
+  animation-delay: 225ms;
+}
+
+.home-book-contact-shadow {
+  position: absolute;
+  z-index: 0;
+  bottom: -3px;
+  left: 0;
+  width: var(--home-book-contact-width);
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in oklab, var(--foreground) 25%, transparent) 0%,
+    color-mix(in oklab, var(--foreground) 11%, transparent) 48%,
+    transparent 84%
+  );
+  opacity: 0.9;
+  pointer-events: none;
+  transform: scaleX(var(--home-book-contact-scale));
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.home-book-control {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  perspective: 1200px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 180ms var(--ease-swift);
+}
+
+.home-book-control::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: max(100%, calc(44px / var(--home-bookshelf-scale, 1)));
+  transform: translateX(-50%);
+  content: '';
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-book-control[data-hover] {
+    transform: translateY(-5px);
+  }
+}
+
+.home-book-control:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.home-book-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.home-book-cover {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent);
+  border-radius: 2px 4px 4px 2px;
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--foreground) 8%, transparent),
+    1px 2px 3px -1px color-mix(in oklab, var(--foreground) 14%, transparent),
+    4px 9px 16px -9px color-mix(in oklab, var(--foreground) 28%, transparent);
+  user-select: none;
+}
+
+.home-book-cover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.home-book-cover-fallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.home-book-cover-glaze {
+  position: absolute;
+  inset: 0;
+  border-left: 3px solid color-mix(in oklab, white 22%, transparent);
+  box-shadow: inset -1px 0 color-mix(in oklab, var(--foreground) 12%, transparent);
+  pointer-events: none;
+}
+
+.home-book-spine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.625rem 0;
+  backface-visibility: hidden;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  border-radius: 2px;
+  color: var(--paper-ink);
+  background:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--foreground) 12%, transparent),
+      transparent 35%,
+      color-mix(in oklab, white 12%, transparent) 75%,
+      color-mix(in oklab, var(--foreground) 8%, transparent)
+    ),
+    color-mix(in oklab, var(--paper) 82%, var(--foreground) 18%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 8%, transparent);
+  transform: rotateY(-90deg);
+  transform-origin: left center;
+}
+
+.home-book-spine-title {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.59rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+
+.home-bookshelf-edge {
+  position: relative;
+  height: 0.52rem;
+  border-top: 1px solid color-mix(in oklab, var(--foreground) 34%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  background: color-mix(in oklab, var(--paper) 84%, var(--foreground) 16%);
+  box-shadow: 0 0.55rem 0.9rem color-mix(in oklab, var(--foreground) 7%, transparent);
+}
+
+.home-bookshelf-note {
+  display: flex;
+  min-height: 4.6rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-top: 1rem;
+}
+
+.home-bookshelf-selection {
+  animation: home-bookshelf-selection-in 240ms var(--ease-enter) both;
+}
+
+.home-bookshelf-kicker {
+  color: var(--muted-foreground);
+  font-size: 0.61rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.home-bookshelf-title {
+  margin-top: 0.28rem;
+  color: var(--foreground);
+  font-size: 0.88rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+.home-bookshelf-creator {
+  margin-top: 0.18rem;
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+}
+
+.home-bookshelf-actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  padding-top: 0.95rem;
+  font-size: 0.68rem;
+}
+
+.home-bookshelf-actions a {
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.23em;
+  transition: color 150ms ease;
+}
+
+.home-bookshelf-actions a:hover {
+  color: var(--foreground);
+}
+
+@keyframes home-book-arrive {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes home-bookshelf-selection-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.22rem, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-book-frame {
+    animation: none;
+  }
+
+  .home-book-control {
+    transition: none;
+  }
+
+  .home-book-control[data-hover] {
+    transform: none;
+  }
+}
