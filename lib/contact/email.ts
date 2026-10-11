@@ -39,6 +39,11 @@ function getTransporter() {
     },
     disableFileAccess: true,
     disableUrlAccess: true,
+    // nodemailer's defaults wait minutes on an unreachable host; fail fast
+    // so a bad SMTP host is recorded as 'failed' within the route's budget
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
   })
   return transporter
 }
