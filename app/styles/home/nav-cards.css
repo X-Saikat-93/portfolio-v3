@@ -1,0 +1,301 @@
+/* ── Home nav cards: analog vignettes on soft surfaces ────────────── */
+
+.nav-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 3.5rem;
+  /* bleed to the column's outer edges (through the px-6 padding), not
+     the viewport */
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  border-top: var(--border-hairline) solid var(--border);
+  border-bottom: var(--border-hairline) solid var(--border);
+}
+
+/* one signal hairline rides the top rule to whichever doorway is hovered */
+.nav-cards {
+  position: relative;
+}
+
+.nav-cards::after {
+  --nc-at: 0;
+  --nc-on: 0;
+
+  position: absolute;
+  top: calc(var(--border-hairline) * -1);
+  left: 0;
+  width: calc(100% / 3);
+  height: 1px;
+  background: var(--signal);
+  content: '';
+  pointer-events: none;
+  opacity: var(--nc-on);
+  transform: translate3d(calc(var(--nc-at) * 100%), 0, 0) scaleX(calc(0.25 + var(--nc-on) * 0.75));
+  transition:
+    transform 420ms var(--ease-enter),
+    opacity 220ms var(--ease-swift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-cards:has(.nav-card:hover, .nav-card:focus-visible)::after {
+    --nc-on: 1;
+  }
+
+  .nav-cards:has(.nav-card:nth-child(2):is(:hover, :focus-visible))::after {
+    --nc-at: 1;
+  }
+
+  .nav-cards:has(.nav-card:nth-child(3):is(:hover, :focus-visible))::after {
+    --nc-at: 2;
+  }
+}
+
+.nav-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.5rem 0.75rem 1.25rem;
+  transition:
+    background-color 180ms ease,
+    transform 200ms var(--ease-swift);
+}
+
+.nav-card + .nav-card {
+  border-left: var(--border-hairline) solid var(--border);
+}
+
+.nav-card:active {
+  transform: translate3d(0, 0, 0) scale(0.985);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-card:hover {
+    background: color-mix(in oklab, var(--foreground) 2.5%, transparent);
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+.nc-vignette {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 3.5rem;
+  width: 100%;
+  margin-bottom: 0.375rem;
+}
+
+/* manuscript pages: three ruled sheets, loosely stacked */
+.nc-sheets span {
+  position: absolute;
+  width: 2.375rem;
+  height: 2.875rem;
+  transition: transform 300ms var(--ease-spring);
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 7px,
+      color-mix(in oklab, var(--paper-ink) 35%, transparent) 7px 7.5px
+    )
+    50% 60% / 70% 60% no-repeat,
+    var(--paper);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+.nc-sheets span:nth-child(1) {
+  transform: rotate(-7deg) translateX(-9px);
+}
+
+.nc-sheets span:nth-child(2) {
+  transform: rotate(4deg) translateX(9px);
+}
+
+.nc-sheets span:nth-child(3) {
+  transform: rotate(-1deg) translateY(-2px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-card:hover .nc-sheets span:nth-child(1) {
+    transform: rotate(-13deg) translateX(-16px) translateY(-2px);
+  }
+
+  .nav-card:hover .nc-sheets span:nth-child(2) {
+    transform: rotate(9deg) translateX(16px) translateY(-1px);
+  }
+
+  .nav-card:hover .nc-sheets span:nth-child(3) {
+    transform: rotate(-2deg) translateY(-5px);
+  }
+}
+
+/* fanned polaroid minis */
+.nc-polaroid {
+  position: absolute;
+  padding: 3px 3px 8px;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.15);
+  transform: rotate(calc(var(--i) * 9deg - 9deg)) translateX(calc(var(--i) * 16px - 16px));
+  transition: transform 300ms var(--ease-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-card:hover .nc-polaroid {
+    transform: rotate(calc(var(--i) * 15deg - 15deg)) translateX(calc(var(--i) * 24px - 24px))
+      translateY(calc((1 - var(--i)) * (1 - var(--i)) * 2px - 3px));
+  }
+}
+
+.nc-polaroid img {
+  display: block;
+  width: 2.25rem;
+  height: 1.875rem;
+  object-fit: cover;
+}
+
+.nc-polaroid-placeholder::before {
+  display: block;
+  width: 2.25rem;
+  height: 1.875rem;
+  background: color-mix(in oklab, var(--foreground) 8%, var(--paper));
+  content: '';
+}
+
+/* standalone construction icon + the crossed project mark */
+.nc-project-icon {
+  position: absolute;
+  isolation: isolate;
+  width: 3.25rem;
+  height: 3.25rem;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 20%, var(--border));
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--foreground) 4%, var(--background));
+  box-shadow: var(--shadow-3);
+  transition: transform 300ms var(--ease-spring);
+}
+
+@media (max-width: 39.99rem) {
+  .nav-card {
+    min-width: 0;
+    gap: 0.125rem;
+    padding: 1.25rem 0.375rem 1rem;
+  }
+
+  .nc-vignette {
+    min-width: 0;
+    max-width: 100%;
+    height: 3.25rem;
+    margin-bottom: 0.25rem;
+  }
+}
+
+.nc-construction-guides {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.nc-guide-solid {
+  stroke: color-mix(in oklab, var(--foreground) 25%, transparent);
+  stroke-width: 0.65;
+  vector-effect: non-scaling-stroke;
+}
+
+.nc-project-mark {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  color: color-mix(in oklab, var(--foreground) 84%, var(--muted-foreground));
+  overflow: visible;
+  transform: translate(-50%, -50%);
+}
+
+.nc-explode-a,
+.nc-explode-b,
+.nc-explode-c {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 300ms var(--ease-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-card:hover .nc-project-icon {
+    transform: translate(-50%, calc(-50% - 2px));
+  }
+
+  .nav-card:hover .nc-explode-a {
+    transform: translate(1.5px, -1.5px) rotate(3deg);
+  }
+
+  .nav-card:hover .nc-explode-b {
+    transform: translate(-2.5px, -2px) rotate(-6deg);
+  }
+
+  .nav-card:hover .nc-explode-c {
+    transform: translate(2px, 2.5px) rotate(5deg);
+  }
+}
+
+.nc-label {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+.nc-sub {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 39.99rem) {
+  .nc-label {
+    font-size: 0.8125rem;
+    line-height: 1.25;
+  }
+
+  .nc-sub {
+    font-size: 0.75rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-cards::after,
+  .nav-card,
+  .nc-sheets span,
+  .nc-polaroid,
+  .nc-project-icon,
+  .nc-explode-a,
+  .nc-explode-b,
+  .nc-explode-c {
+    transition: none;
+  }
+
+  .nav-card:hover .nc-project-icon {
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* The final safety net covers shared component primitives as well as page
+   styles. JS-driven Motion components use MotionConfig in ThemeProvider. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
