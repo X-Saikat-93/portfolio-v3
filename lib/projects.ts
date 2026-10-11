@@ -563,3 +563,23 @@ export function getProjectById(id: string) {
 export function projectPath(id: string) {
   return `/en/projects/${id}`
 }
+
+// Status reads as a small lamp: live work is lit, everything else is a
+// quiet ring.
+export function projectStatusTone(status: string) {
+  if (status.startsWith('Live')) return 'live'
+  if (status === 'Work in progress' || status === 'Prototype') return 'draft'
+  return 'source'
+}
+
+// Homepage selection: projects with a published case study lead, then
+// shipped products (status exactly 'Live', not a 'Live demo') fill the
+// rest, both in registry order.
+export function selectFeaturedProjects(caseStudyIds: readonly string[], limit = 3) {
+  const studied = new Set(caseStudyIds)
+  const ranked = [
+    ...projects.filter(({ id }) => studied.has(id)),
+    ...projects.filter(({ id, status }) => !studied.has(id) && status === 'Live'),
+  ]
+  return ranked.slice(0, limit)
+}
