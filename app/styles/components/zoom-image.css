@@ -1,0 +1,64 @@
+/* ── Image lightbox (components/zoom-image.tsx) ───────────────────── */
+
+.zoom-trigger {
+  display: block;
+  width: 100%;
+  cursor: zoom-in;
+}
+
+.zoom-trigger[data-zoomed] img {
+  /* the photo has been picked up — leave its shadow spot empty */
+  visibility: hidden;
+}
+
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  cursor: zoom-out;
+  outline: none;
+}
+
+.zoom-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--background) 94%, transparent);
+  opacity: 0;
+  transition: opacity 300ms var(--ease-swift);
+}
+
+.zoom-overlay[data-state='open'] .zoom-overlay-backdrop {
+  opacity: 1;
+}
+
+.zoom-overlay img {
+  position: fixed;
+  border-radius: 2px;
+  background: var(--surface-1);
+  will-change: transform;
+  transition: transform 300ms var(--ease-swift), box-shadow 300ms var(--ease-swift);
+}
+
+.zoom-overlay[data-state='open'] img {
+  box-shadow: var(--shadow-large);
+}
+
+/* viewfinder brackets develop just outside the settled photo */
+.zoom-overlay-marks {
+  position: fixed;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.zoom-overlay[data-state='open'] .zoom-overlay-marks {
+  opacity: 0.55;
+  transition: opacity 200ms ease 140ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zoom-overlay-backdrop,
+  .zoom-overlay img,
+  .zoom-overlay-marks {
+    transition: none;
+  }
+}
