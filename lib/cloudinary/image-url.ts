@@ -14,8 +14,6 @@ export const cloudinaryAvatarPublicId =
 export const cloudinaryAvatarVersion = process.env.NEXT_PUBLIC_CLOUDINARY_AVATAR_VERSION ?? ''
 export const cloudinaryResumePublicId =
   process.env.NEXT_PUBLIC_CLOUDINARY_RESUME_PUBLIC_ID ?? 'saikat-das/resume'
-export const cloudinaryOgPublicId =
-  process.env.NEXT_PUBLIC_CLOUDINARY_OG_PUBLIC_ID ?? 'saikat-das/og/portfolio-systems-v3'
 
 function encodePublicId(publicId: string) {
   return publicId
