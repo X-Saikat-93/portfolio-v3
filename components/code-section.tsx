@@ -2,12 +2,14 @@ import type { CSSProperties } from 'react'
 
 import { GitHubActivityGrid } from '~/components/github-activity-grid'
 import { SectionTag } from '~/components/section-tag'
+import { TechStackRegister } from '~/components/tech-stack-register'
 import { GitHubGlyph, type GitHubSnapshot } from '~/components/social-cards'
 import { formatMonthDay } from '~/lib/date'
 import { T } from '~/lib/i18n'
 
 function Stat({ value, unit }: { value?: number; unit: string }) {
-  if (value == null) return null
+  // an empty reading (no followers yet) says nothing, so it is left out
+  if (!value) return null
   return (
     <div className="github-plate-stat">
       <dt className="github-plate-stat-unit">{unit}</dt>
@@ -16,10 +18,11 @@ function Stat({ value, unit }: { value?: number; unit: string }) {
   )
 }
 
-// Homepage live-activity plate: the same contribution blocks shown when
-// hovering the GitHub link in the footer, set as a numbered section with a
-// hover-inspectable grid and a ruled stat foot.
-export function GitHubCommitsSection({
+// Homepage "Code" section: the live GitHub activity plate (the same
+// contribution blocks as the footer hover card; a playhead sweeps the grid
+// in on reveal, rests on today, and follows the inspected week), then the
+// verified stack those commits are written in.
+export function CodeSection({
   github,
   index,
 }: {
@@ -28,10 +31,10 @@ export function GitHubCommitsSection({
 }) {
   const { user, to, levels, weeks, dates, counts } = github
   return (
-    <section className="mt-16" aria-labelledby="github-commits-title">
+    <section className="code-section mt-16" aria-labelledby="code-title">
       <div className="flex items-end justify-between gap-4">
-        <SectionTag index={index} id="github-commits-title">
-          Commits
+        <SectionTag index={index} id="code-title">
+          Code
         </SectionTag>
         <a
           href={`https://github.com/${user}`}
@@ -51,7 +54,7 @@ export function GitHubCommitsSection({
         style={{ '--enter-delay': '120ms' } as CSSProperties}
       >
         <div className="github-plate-head">
-          <span className="github-plate-flag" aria-hidden />
+          <GitHubGlyph />
           <span className="github-plate-handle">@{user}</span>
           {to ? (
             <time className="github-plate-updated" dateTime={to}>
@@ -63,12 +66,14 @@ export function GitHubCommitsSection({
         <GitHubActivityGrid levels={levels} weeks={weeks} dates={dates} counts={counts} />
 
         <dl className="github-plate-foot">
-          <Stat value={github.total} unit="contributions · 12mo" />
-          <Stat value={github.publicRepos} unit="public repos" />
+          <Stat value={github.total} unit="contributions this year" />
+          <Stat value={github.publicRepos} unit="public repositories" />
           <Stat value={github.followers} unit="followers" />
-          <GitHubGlyph />
         </dl>
       </div>
+
+      <h3 className="code-stack-title">Written with</h3>
+      <TechStackRegister />
     </section>
   )
 }
