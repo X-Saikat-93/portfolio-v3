@@ -1,3 +1,4 @@
+import { after } from 'next/server'
 import { z } from 'zod'
 
 import {
@@ -54,9 +55,14 @@ export async function POST(request: Request) {
       message: input.message,
     })
 
-    if (!isContactSmtpConfigured()) {
-      await recordNotificationStatus(submission.id, 'not_configured')
-    } else {
+    // The message is safely stored; the email notification runs after the
+    // response so a slow or unreachable SMTP host never keeps the visitor
+    // waiting. Its outcome is still recorded on the submission.
+    after(async () => {
+      if (!isContactSmtpConfigured()) {
+        await recordNotificationStatus(submission.id, 'not_configured')
+        return
+      }
       try {
         await sendContactNotification(submission)
         await recordNotificationStatus(submission.id, 'sent')
@@ -67,7 +73,7 @@ export async function POST(request: Request) {
         )
         await recordNotificationStatus(submission.id, 'failed')
       }
-    }
+    })
 
     return Response.json({ ok: true }, { status: 201 })
   } catch {
