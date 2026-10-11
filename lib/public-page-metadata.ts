@@ -77,6 +77,16 @@ export const publicPageMetadata = {
       description: 'Send a private message to Saikat Das.',
     },
   },
+  uses: {
+    zh: {
+      title: 'Uses',
+      description: 'The tools, stack, and services Saikat Das works with, and what this site is built on.',
+    },
+    en: {
+      title: 'Uses',
+      description: 'The tools, stack, and services Saikat Das works with, and what this site is built on.',
+    },
+  },
   privacy: {
     zh: {
       title: 'Privacy policy',
