@@ -1,7 +1,7 @@
 import { getCloudinaryClient } from '~/lib/cloudinary/server'
 import { ownerRequest } from '~/lib/admin/request'
 
-const kinds = new Set(['avatar', 'resume', 'image'])
+const kinds = new Set(['avatar', 'resume', 'image', 'photo'])
 
 export async function POST(request: Request) {
   const access = await ownerRequest(request, { mutation: true })
@@ -26,6 +26,8 @@ export async function POST(request: Request) {
         ? `${config.uploadFolder}/avatar`
         : kind === 'resume'
           ? configuredResumeId || `${config.uploadFolder}/resume`
+          : kind === 'photo'
+            ? `${config.uploadFolder}/photos/${crypto.randomUUID()}`
           : `${config.uploadFolder}/${crypto.randomUUID()}`
     const publicId = targetPublicId.split('/').at(-1) ?? targetPublicId
     const folder = targetPublicId.split('/').slice(0, -1).join('/') || config.uploadFolder
