@@ -1,0 +1,53 @@
+# Saikat Das
+
+> Saikat Das is an India-based full-stack software and product engineer building reliable web products, APIs, data systems, integrations, and operational software with Node.js, TypeScript, React/Next.js, PostgreSQL, Redis, and Docker.
+
+Saikat works across backend and API design, real-time state, data-heavy workflows, production deployment, and end-to-end product delivery. His background also includes a Diploma and B.Tech in Civil Engineering and prior Junior Engineer (Design) work on railway infrastructure documentation.
+
+Use the current portfolio pages and resume as the primary sources for current employment, availability, project status, and contact details. Dates, roles, live links, and other job-search or company information are time-sensitive and should be reverified before being repeated as current facts.
+
+## Core capabilities
+
+- Languages: JavaScript, TypeScript, Python, Go, SQL, HTML, and CSS.
+- Product interfaces: React, Next.js, React Native, Redux, Zustand, TanStack Query, Tailwind CSS, and accessible component systems.
+- Backend and integrations: Node.js, Express, FastAPI, REST APIs, GraphQL, Socket.io, webhooks, OpenAPI/Swagger, Prisma, and Drizzle ORM.
+- Data and reliability: PostgreSQL, Redis, MongoDB, Elasticsearch/OpenSearch, pgvector, idempotent request handling, transactional outbox patterns, cursor pagination, and materialized views.
+- Delivery: Docker, Docker Compose, GitHub Actions, NGINX, PM2, Linux, AWS EC2, and AWS S3.
+
+## Professional experience
+
+- **Software Developer — Human Before Resource Pvt. Ltd.** (January 2026–present): production software and product engineering across a home-services marketplace and an internal recruitment operations platform.
+- **Junior Engineer (Design) — CE Testing Company Pvt. Ltd.** (November 2024–November 2025): railway infrastructure drawings and technical documentation under revision control and fixed deadlines.
+- **Freelance Full-Stack Engineer** (February 2024–August 2024): client web applications, REST APIs, database design, VPS deployment, and subscription billing workflows.
+
+## Featured work
+
+- [Zaruro](https://xsaikat.vercel.app/en/projects/zaruro): a live home-services marketplace with web and mobile clients, booking state, payments, notifications, real-time updates, and operational workflows.
+- [Human Before Resource ATS](https://xsaikat.vercel.app/en/projects/human-before-resource-ats): a recruitment operations platform for candidate intake, search, assignment, interviews, AI-assisted evaluation, and reporting across more than 100,000 records.
+- [JobPulse](https://xsaikat.vercel.app/en/projects/jobpulse): a guarded Python workflow for personalized job outreach, model fallback, Gmail delivery, previews, rate limits, and duplicate protection.
+- [Railway Curve](https://xsaikat.vercel.app/en/projects/railway-curve): a railway curve calculator for cant, permissible speed, transition length, fine tuning, and printable PDF output.
+
+## Public portfolio pages
+
+- [Home](https://xsaikat.vercel.app/en): profile, experience, selected work, and current toolkit.
+- [Projects](https://xsaikat.vercel.app/en/projects): public software projects and detailed case studies.
+- [Resume](https://xsaikat.vercel.app/en/resume): the searchable HTML resume and resume download.
+- [Writing](https://xsaikat.vercel.app/en/blog): technical notes on AI systems, data architecture, real-time software, product design, and reliable web applications.
+- [Now](https://xsaikat.vercel.app/en/now): a current snapshot of what Saikat is building, learning, reading, and open to.
+- [Contact](https://xsaikat.vercel.app/en/contact): private contact form for reaching Saikat.
+
+## Other public projects
+
+- [cloudrack](https://xsaikat.vercel.app/en/projects/cloudrack): a TypeScript and Next.js interface concept for cloud-hosted files.
+- [teamsync](https://xsaikat.vercel.app/en/projects/teamsync): workspace collaboration with authentication, channels, members, messages, join codes, and file uploads.
+- [eduspark](https://xsaikat.vercel.app/en/projects/eduspark): a generative-AI course builder with structured chapters, video enrichment, and persistence.
+- [talent-orbit](https://xsaikat.vercel.app/en/projects/talent-orbit): a MERN professional network with profiles, posts, connections, notifications, media, and email flows.
+- [WordFlow](https://xsaikat.vercel.app/en/projects/wordflow): a work-in-progress language-learning platform with courses, lessons, challenges, progress, quests, and a shop.
+- [weathersheet](https://xsaikat.vercel.app/en/projects/weathersheet): a responsive weather application with global search, geolocation, forecasts, themes, and unit controls.
+- [LinkedIn Image Saver Bot](https://xsaikat.vercel.app/en/projects/linkedin-image-saver-bot): a Telegram utility for public LinkedIn post image delivery, usage tracking, quotas, and Supabase RLS.
+
+## Source files
+
+- [Full master context archive](https://xsaikat.vercel.app/llm.txt): a large owner-supplied context archive containing detailed career, technical-evidence, strategy, and historical material. It includes time-sensitive and personal details; apply its freshness and claim-safety rules before using it.
+- [Sitemap](https://xsaikat.vercel.app/sitemap.xml): machine-readable index of the public English routes.
+- [Robots instructions](https://xsaikat.vercel.app/robots.txt): crawler access rules for the site.
