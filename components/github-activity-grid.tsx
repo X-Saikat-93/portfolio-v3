@@ -141,6 +141,9 @@ export function GitHubActivityGrid({
   const gridLevels = levels?.slice(-GRID_WEEKS * GRID_DAYS) ?? ''
   const total = counts?.reduce((sum, count) => sum + count, 0) ?? weeks?.reduce((sum, week) => sum + week, 0) ?? 0
   const startWeekday = dates?.[0] ? dateFromIso(dates[0]).getUTCDay() : 0
+  // the playhead rests on today's week and follows the inspected week
+  const latestWeek = dates?.length ? Math.floor((dates.length - 1) / GRID_DAYS) : GRID_WEEKS - 1
+  const playWeek = activeDay != null ? Math.floor(activeDay / GRID_DAYS) : latestWeek
 
   if (!levels) {
     return (
@@ -195,9 +198,19 @@ export function GitHubActivityGrid({
               return <span key={day}>{label}</span>
             })}
           </div>
-          <div className="github-grid-track" role="group" aria-label="GitHub contribution activity, last 26 weeks">
+          <div
+            className="github-grid-track"
+            role="group"
+            aria-label="GitHub contribution activity, last 26 weeks"
+            style={{ '--play-col': playWeek } as React.CSSProperties}
+          >
+            <span className="github-grid-playhead" aria-hidden />
             {Array.from({ length: GRID_WEEKS }, (_, week) => (
-              <div key={week} className="github-grid-col">
+              <div
+                key={week}
+                className="github-grid-col"
+                style={{ '--col': week } as React.CSSProperties}
+              >
                 {Array.from({ length: GRID_DAYS }, (_, day) => {
                   const index = week * GRID_DAYS + day
                   const iso = dates?.[index]
@@ -214,7 +227,6 @@ export function GitHubActivityGrid({
                           ? `${count ?? 0} commits on ${fullDayFormatter.format(dateFromIso(iso))}`
                           : `Week ${week + 1} of 26, day ${day + 1}`
                       }
-                      style={{ '--ci': index } as React.CSSProperties}
                       onPointerEnter={() => setActiveDay(index)}
                       onFocus={() => setActiveDay(index)}
                     />
