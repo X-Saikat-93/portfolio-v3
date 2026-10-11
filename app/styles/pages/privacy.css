@@ -1,0 +1,238 @@
+/* ── Privacy: a compact, readable data-handling register ─────────── */
+
+.privacy-page {
+  padding-bottom: 5rem;
+}
+
+.privacy-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: start;
+  gap: 2.5rem;
+  border-bottom: var(--border-hairline) solid var(--border);
+  padding-bottom: 1.5rem;
+}
+
+.privacy-title {
+  color: var(--foreground);
+  font-size: clamp(2.35rem, 7vw, 4.25rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.06em;
+  line-height: 0.96;
+}
+
+.privacy-lede {
+  max-width: 32rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.privacy-header-mark {
+  display: flex;
+  min-width: 7rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.75rem;
+}
+
+.privacy-header-mark p {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.075em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.privacy-header-mark time {
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.privacy-register {
+  margin-top: 2.75rem;
+  border-bottom: var(--border-hairline) solid var(--border);
+}
+
+.privacy-section {
+  position: relative;
+  display: grid;
+  grid-template-columns: 10rem minmax(0, 1fr);
+  align-items: start;
+  gap: 2rem;
+  border-top: var(--border-hairline) solid var(--border);
+  padding: 1.65rem 0 1.8rem;
+}
+
+/* a short signal tick rides the section's top rule; it draws in as the
+   section develops */
+.privacy-section::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--border-hairline) * -1);
+  left: 0;
+  width: 1.5rem;
+  height: var(--border-hairline);
+  background: var(--signal);
+  transform-origin: left;
+  transition: width 320ms var(--ease-swift);
+}
+
+@keyframes privacy-tick-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.privacy-section.reveal-in::before {
+  animation: privacy-tick-draw 520ms var(--ease-enter) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 140ms);
+}
+
+/* the label stays beside its copy while a long section scrolls */
+.privacy-section > .section-tag {
+  position: sticky;
+  top: 1.5rem;
+  margin-top: 0.15rem;
+  transition: color 200ms ease;
+}
+
+.privacy-section > .section-tag .section-tag-index {
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .privacy-section:hover::before {
+    width: 3rem;
+  }
+
+  .privacy-section:hover > .section-tag {
+    color: var(--foreground);
+  }
+
+  .privacy-section:hover > .section-tag .section-tag-index {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+}
+
+.privacy-effective {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.privacy-effective-lamp {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--signal) 16%, transparent);
+}
+
+.privacy-copy {
+  min-width: 0;
+  color: var(--gray-10, var(--foreground));
+  font-size: 0.82rem;
+  line-height: 1.72;
+  text-wrap: pretty;
+}
+
+.privacy-copy p + p,
+.privacy-copy ul + p {
+  margin-top: 0.9rem;
+}
+
+.privacy-copy code {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.92em;
+}
+
+.privacy-copy a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+  text-decoration-style: dotted;
+  text-underline-offset: 0.22em;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+.privacy-copy a:hover,
+.privacy-copy a:focus-visible {
+  color: var(--signal);
+  text-decoration-color: currentColor;
+}
+
+.privacy-provider-list {
+  margin-top: 1rem;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.privacy-provider-list li {
+  display: grid;
+  grid-template-columns: 7.25rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: var(--border-hairline) solid var(--border);
+  padding: 0.7rem 0;
+}
+
+.privacy-provider-list a,
+.privacy-provider-name {
+  color: var(--foreground);
+  font-weight: var(--font-weight-medium);
+}
+
+.privacy-provider-list li > span:last-child {
+  color: var(--muted-foreground);
+  transition: color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .privacy-provider-list li:hover > span:last-child {
+    color: var(--foreground);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .privacy-section::before {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .privacy-header {
+    gap: 1rem;
+  }
+
+  .privacy-header-mark {
+    min-width: 0;
+  }
+
+  .privacy-header-mark p {
+    display: none;
+  }
+
+  .privacy-section {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .privacy-section > .section-tag {
+    position: static;
+  }
+
+  .privacy-provider-list li {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}
