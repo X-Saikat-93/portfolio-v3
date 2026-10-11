@@ -311,13 +311,16 @@ describe('preview card timing', () => {
   })
 
   it('keeps the pointer cascade but disables it for instant popup states', () => {
-    const stylesheet = readFileSync('app/globals.css', 'utf8')
+    // globals.css is an entry of @imports; read the partials it pulls in
+    const stylesheet = [...readFileSync('app/globals.css', 'utf8').matchAll(/@import '\.\/(styles\/[^']+)'/g)]
+      .map(([, partial]) => readFileSync(`app/${partial}`, 'utf8'))
+      .join('\n')
 
     expect(stylesheet).toMatch(
-      /\.contrib-grid i \{[\s\S]*animation: contrib-cell-in 480ms/,
+      /\.contrib-grid i \{[\s\S]*animation: contrib-cell-in 420ms/,
     )
     expect(stylesheet).toMatch(
-      /\.link-card\.preview-card-instant \.contrib-grid i \{\s*animation: none;/,
+      /\.link-card\.preview-card-instant \*,\s*\.link-card\.preview-card-instant \*::before \{\s*animation: none;/,
     )
     expect(stylesheet).toMatch(
       /transition:\s*opacity 200ms var\(--ease-swift\),\s*transform 200ms var\(--ease-swift\);/,
