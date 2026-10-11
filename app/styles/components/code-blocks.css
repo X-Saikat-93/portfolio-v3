@@ -1,0 +1,49 @@
+/* ── Code blocks (rehype-pretty-code + shiki dual themes) ─────────── */
+
+/* the code block is a nameplate: a hairline frame, a ruled filename row
+   with a boxed language tag, and the sheet of code below */
+figure[data-rehype-pretty-code-figure] {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--border);
+}
+
+/* the code sheet rests one step up the surface ladder; the fade strips
+   tint with the same surface so continuation reads seamlessly */
+.code-frame {
+  position: relative;
+  background: var(--surface-1);
+  --scroll-fade-surface: var(--surface-1);
+}
+
+.code-frame pre {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  overflow-x: auto;
+  padding: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.code-frame pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.code-frame pre::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 20%, transparent);
+  border-radius: 4px;
+}
+
+.mermaid-error {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1rem;
+  border: var(--border-hairline) solid var(--border);
+  background: var(--surface-1);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  white-space: pre;
+}
