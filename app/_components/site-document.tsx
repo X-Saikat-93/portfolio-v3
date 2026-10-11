@@ -5,6 +5,7 @@ import { AmbientBackground } from '~/components/ambient-background'
 import { CommandPalette, type CommandPaletteItem } from '~/components/command-palette'
 import { Dock, DockFallback } from '~/components/dock'
 import { JsonLd } from '~/components/json-ld'
+import { SiteIntro } from '~/components/site-intro'
 import { PreviewCardTimingProvider } from '~/components/preview-card-timing'
 import { RouteViewTransition } from '~/components/route-motion-controller'
 import { SiteFooter } from '~/components/site-footer'
@@ -208,6 +209,7 @@ export async function SiteDocument({
     <html
       lang="en"
       data-locale="en"
+      data-intro=""
       suppressHydrationWarning
       className={cn('font-sans', fontVariables, 'public-site')}
     >
@@ -226,12 +228,18 @@ export async function SiteDocument({
               url: new URL('/en', seo.url).href,
               jobTitle: 'Full-Stack Software Engineer',
               description: seo.description,
+              mainEntityOfPage: new URL('/en', seo.url).href,
               knowsAbout: [
                 'Web product engineering',
                 'API design',
                 'Real-time systems',
                 'Data systems',
                 'Automation',
+                'Node.js',
+                'React',
+                'Next.js',
+                'PostgreSQL',
+                'Redis',
               ],
               sameAs: [
                 'https://github.com/X-Saikat-93',
@@ -246,6 +254,7 @@ export async function SiteDocument({
               url: new URL('/en', seo.url).href,
               description: seo.description,
               inLanguage: 'en',
+              publisher: { '@id': new URL('/en#person', seo.url).href },
               author: { '@id': new URL('/en#person', seo.url).href },
             },
           ]}
@@ -255,6 +264,7 @@ export async function SiteDocument({
         <ThemeProvider>
           <PreviewCardTimingProvider>
             <AmbientBackground />
+            <SiteIntro />
             <div className="flex min-h-screen flex-col">
               <a className="skip-link" href="#main-content">
                 Skip to content
