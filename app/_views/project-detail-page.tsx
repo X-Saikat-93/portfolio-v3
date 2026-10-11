@@ -4,6 +4,7 @@ import { CloudinaryImage } from '~/components/cloudinary-image'
 import { ExternalLabel } from '~/components/external-mark'
 import { GhostSchematic } from '~/components/ghost-schematic'
 import { PixelCluster } from '~/components/pixel-cluster'
+import { RevealScope } from '~/components/reveal-scope'
 import type { ProjectCaseStudy, ProjectWithCaseStudy } from '~/lib/projects'
 import { projectPath } from '~/lib/projects'
 
@@ -109,7 +110,7 @@ export function ProjectDetailPage({
   const caseTotal = String(total).padStart(2, '0')
 
   return (
-    <article className="project-dossier relative mx-auto w-full max-w-[37.5rem] px-6">
+    <RevealScope as="article" className="project-dossier relative mx-auto w-full max-w-[37.5rem] px-6">
       <GhostSchematic className="project-dossier-ghost hidden sm:block" />
 
       <nav className="project-dossier-register enter" aria-label="Project context">
@@ -196,9 +197,9 @@ export function ProjectDetailPage({
           <span>{project.flow.length ? `${project.flow.length} stages` : 'record only'}</span>
         </div>
         {project.flow.length ? (
-          <ol className="project-system-flow">
+          <ol className="project-system-flow" style={{ '--n': project.flow.length } as React.CSSProperties}>
             {project.flow.map((stage, index) => (
-              <li key={stage}>
+              <li key={stage} style={{ '--i': index } as React.CSSProperties}>
                 <span className="project-system-node" aria-hidden="true">
                   {String(index + 1).padStart(2, '0')}
                 </span>
@@ -291,6 +292,6 @@ export function ProjectDetailPage({
           </Link>
         )}
       </nav>
-    </article>
+    </RevealScope>
   )
 }
