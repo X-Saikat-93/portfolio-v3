@@ -1,0 +1,57 @@
+/* ── Primary call-to-action: a compact pill ───────────────────────── */
+
+/* Trim visual height with a pill silhouette; a pseudo-element restores the
+   44px hit target (design language: 44px minimum, pseudo if visually smaller). */
+.btn-cta {
+  position: relative;
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding-inline: 1.125rem;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  touch-action: manipulation;
+  outline: none;
+  transition:
+    transform 100ms ease,
+    background-color 150ms ease;
+}
+
+.btn-cta::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 2.75rem;
+  transform: translateY(-50%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-cta:hover {
+    background: color-mix(in oklab, var(--foreground) 90%, var(--background));
+  }
+}
+
+.btn-cta:active {
+  transform: scale(0.97);
+}
+
+.btn-cta:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 3px var(--focus-ring, var(--foreground));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-cta {
+    transition: none;
+  }
+
+  .btn-cta:active {
+    transform: none;
+  }
+}
