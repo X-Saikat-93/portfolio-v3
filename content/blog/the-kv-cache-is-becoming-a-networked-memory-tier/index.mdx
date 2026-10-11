@@ -1,0 +1,246 @@
+---
+title: The KV Cache Is Becoming a Networked Memory Tier
+description: "As inference separates prefill from decode, the KV cache is moving from an accelerator-local buffer into a distributed, routable, and failure-prone memory system."
+keywords:
+  - KV cache architecture
+  - disaggregated LLM serving
+  - prefill decode disaggregation
+  - memory heterogeneous accelerators
+  - AI inference networking
+  - context caching
+  - LLM serving systems
+  - tokens per watt
+  - distributed AI memory
+  - inference goodput
+category: AI infrastructure
+date: 2026-09-20
+readingMinutes: 14
+coverFile: kv-cache-memory-tier.png
+coverSlug: the-kv-cache-is-becoming-a-networked-memory-tier
+coverAlt: Rack-scale illustration of prefill accelerators sending KV-cache data through a networked memory tier to decode accelerators
+---
+
+The KV cache began as an implementation detail: keep the attention keys and values from previous tokens so the decoder does not recompute them.
+
+That description is no longer large enough for modern inference systems.
+
+Long contexts, multi-turn agents, speculative decoding, and high concurrency make the cache a major consumer of memory capacity and bandwidth. Once prefill and decode are separated across different devices, the cache becomes something that must be moved, formatted, scheduled, invalidated, secured, and recovered.
+
+It is becoming a networked memory tier.
+
+The [MemHA research paper](https://arxiv.org/abs/2606.29986) describes the split directly: prefill is compute-bound, decode is memory-bound, and different accelerator types may be better suited to each phase. Its HMA-Serve design pairs GDDR-based accelerators for prefill with HBM-based GPUs for decode, using phase-wise quantization, overlapped transfers, and deferred dequantization. The paper reports large goodput gains on its evaluated workloads, but the deeper point is architectural: one model request can now span heterogeneous memory systems.
+
+[Qualcomm's September 2026 infrastructure announcement](https://www.qualcomm.com/news/onq/2026/09/qualcomm-dragonfly-ai-infra-summit-2026) makes the market direction explicit from a vendor perspective. It frames agentic inference around memory efficiency, connectivity, and “tokens per watt,” and describes rack-scale systems that coordinate compute, memory, and networking.
+
+The cache is moving into the control plane.
+
+## Prefill and decode want different machines
+
+Prefill processes the input context. It performs large, parallel operations and creates the initial KV state. Decode generates output one step at a time, repeatedly reading and extending that state.
+
+The phases have different pressure:
+
+~~~text
+prefill:
+  high arithmetic intensity
+  large input batch
+  compute and input bandwidth
+  fast time to first token
+
+decode:
+  repeated KV reads
+  memory capacity and bandwidth
+  long-lived sessions
+  tail latency and fairness
+~~~
+
+A single accelerator can handle both, but it may be inefficient. Prefill can leave some high-bandwidth memory idle while decode consumes it heavily. A heterogeneous fleet can place each phase on a better-fit device, at the cost of transferring the cache across a network.
+
+That tradeoff is only attractive when the transfer path is part of the design.
+
+## The cache is a stateful object
+
+A KV cache entry is not just bytes. It is valid only for a particular execution context:
+
+- model and weights;
+- tokenizer and chat template;
+- attention implementation;
+- precision and quantization;
+- prefix and position encoding;
+- tenant and authorization scope;
+- sequence position;
+- cache format version.
+
+A cache hit with the wrong semantics is worse than a miss. It can return a fluent but incorrect continuation while bypassing the intended context.
+
+Give each cache segment a typed identity:
+
+~~~ts
+type CacheSegmentKey = {
+  modelRevision: string
+  runtimeRevision: string
+  prefixDigest: string
+  tokenizerRevision: string
+  attentionMode: string
+  precision: "fp8" | "bf16" | "int8"
+  tenantScope: string
+  expiresAt: string
+}
+~~~
+
+The key is part of the correctness boundary. It also determines whether the segment may be reused across users or only within one session.
+
+## Routing becomes memory-aware
+
+A normal request router chooses a worker based on load, locality, or capacity. A KV-aware router must also choose the worker that already owns useful state.
+
+The decision may be:
+
+~~~text
+if matching_prefix_cache exists:
+    route decode to cache owner
+elif transfer_cost < recompute_cost:
+    route prefill result to memory tier
+    choose decode worker with capacity
+else:
+    recompute on a warm worker
+~~~
+
+The system needs estimates for:
+
+- cache hit probability;
+- transfer bandwidth and congestion;
+- dequantization cost;
+- decode memory pressure;
+- queue delay at the cache owner;
+- expected remaining output length;
+- eviction risk before the session finishes.
+
+Routing to a cache owner can reduce compute but create a hotspot. Routing to a fresh decode worker can add transfer time but improve tail latency. The correct decision changes with the workload.
+
+## Quantization is now a transport decision
+
+When the cache crosses a network boundary, precision affects more than memory capacity. It affects bytes on the wire, conversion cost, compatibility, and output quality.
+
+The MemHA paper uses phase-wise quantization and deferred dequantization to move compressed data efficiently, then reconstruct it where decode needs it. This suggests a broader rule: choose cache representation per stage, not only per model.
+
+Possible representations include:
+
+- high-precision local decode state;
+- compressed transfer format;
+- cold storage format for paused sessions;
+- prefix cache format for reusable context;
+- telemetry summary for eviction and cost prediction.
+
+Every conversion path needs correctness tests. Two formats that produce similar benchmark scores may diverge on long context, tool calls, or rare tokens.
+
+## A networked cache changes failure semantics
+
+A local cache miss is usually a performance event. A remote cache failure can become a distributed-systems event.
+
+The serving path must handle:
+
+- partial transfer;
+- duplicate segments;
+- stale ownership;
+- network partition;
+- decode worker loss;
+- cache eviction during generation;
+- version mismatch;
+- tenant isolation failure;
+- cancellation after transfer begins.
+
+Use a state machine for each segment:
+
+~~~text
+created -> serialized -> transfer_pending -> resident
+    |             |                 |
+    v             v                 v
+ invalidated   failed            evicted
+                                      |
+                                      v
+                                  recompute
+~~~
+
+Do not treat cache transfer as an untracked side effect. It consumes network and memory capacity, and it may need to be cancelled or retried independently from the user request.
+
+## Agent sessions make locality harder
+
+An agent may call tools, wait for an approval, and resume with a much larger context. The prefix may be reusable, but the session is not necessarily pinned to one worker. Multiple subagents may share some context while keeping private state separate.
+
+This creates three choices:
+
+1. **Pin the session.** Simple locality, poor failure recovery and uneven load.
+2. **Replicate the cache.** Better failover, higher memory and network cost.
+3. **Persist and reconstruct.** Flexible placement, higher recompute or storage cost.
+
+The right choice depends on pause duration, output length, memory price, and task value. A short interactive request may stay local. A long-running agent should have explicit checkpoints and a cache policy that can survive worker loss.
+
+The design resembles a distributed database buffer pool more than a traditional request cache.
+
+## Security and privacy move with the cache
+
+KV state can encode user context. Moving it across devices or storing it for later reuse creates data-governance questions:
+
+- who may read the segment;
+- whether it can cross regions;
+- how long it survives;
+- how deletion propagates;
+- whether it can be reused across tenants;
+- how encryption keys follow the segment;
+- whether debugging traces contain enough to reconstruct it.
+
+A cache policy should carry the same scope as the original request. “It is only an embedding” is not a sufficient privacy argument; the representation can still carry sensitive information.
+
+The cache should also be excluded from general-purpose observability by default. Log identifiers, sizes, and lifecycle events, but avoid dumping the content into traces.
+
+## What should be benchmarked
+
+The interesting metric is not cache hit rate alone. A hit that pins a hot worker or requires a slow transfer may reduce goodput.
+
+Measure:
+
+- time to first token with and without transfer;
+- decode latency under cache pressure;
+- transfer bytes and bandwidth;
+- cache residency and eviction;
+- goodput per dollar;
+- goodput per watt;
+- recovery after worker loss;
+- quality under quantized cache formats;
+- cross-tenant isolation;
+- tail latency during topology changes.
+
+Qualcomm's “tokens per watt” framing is a useful market signal, but teams should extend it to “verified tokens per watt” or “completed tasks per watt.” An agent that generates quickly but needs repeated retries is not efficient.
+
+## The next serving abstraction
+
+The next inference platform will not simply schedule requests onto accelerators. It will schedule:
+
+- compute phases;
+- memory residency;
+- network transfers;
+- precision changes;
+- session locality;
+- verification;
+- power and cost budgets.
+
+That is why the KV cache matters strategically. It is the state that connects the phases of inference. Once it moves across a fabric, its design affects model portability, cluster topology, privacy, recovery, and economics.
+
+The engineering shift is straightforward to state:
+
+1. Treat KV state as a typed, versioned object.
+2. Make cache placement visible to the scheduler.
+3. Benchmark transfer and recovery, not only hit rate.
+4. Quantize for the whole path.
+5. Carry tenant and authorization scope with the cache.
+6. Optimize for verified workflow goodput.
+
+Inference is becoming a distributed memory problem because context is no longer local to the machine that first read it.
+
+## Further reading
+
+- [HBM Is Not All You Need: Disaggregated LLM Serving](https://arxiv.org/abs/2606.29986)
+- [Qualcomm Dragonfly and agentic AI inference infrastructure](https://www.qualcomm.com/news/onq/2026/09/qualcomm-dragonfly-ai-infra-summit-2026)
+- [AI chips are becoming a software portability problem](/en/blog/ai-chips-are-becoming-a-software-portability-problem)
+- [AI FinOps is becoming a product primitive](/en/blog/ai-finops-is-becoming-a-product-primitive)
