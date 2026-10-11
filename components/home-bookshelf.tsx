@@ -523,6 +523,46 @@ export function HomeBookshelf({
 
   return (
     <div className="home-bookshelf">
+      <ul className="home-bookshelf-mobile-grid" aria-label="Books in this collection">
+        {books.map((book, index) => {
+          const isSelected = index === selectedIndex
+
+          return (
+            <li key={'mobile-' + book.id}>
+              <button
+                type="button"
+                className="home-bookshelf-mobile-book"
+                data-selected={isSelected ? 'true' : undefined}
+                aria-label={'Select ' + book.title}
+                aria-pressed={isSelected}
+                onClick={(event) =>
+                  selectBook(index, event.detail === 0 ? 'instant' : 'animated')
+                }
+              >
+                <span className="home-bookshelf-mobile-cover" aria-hidden="true">
+                  {book.imagePublicId ? (
+                    <CloudinaryImage
+                      publicId={book.imagePublicId}
+                      alt=""
+                      width={96}
+                      height={144}
+                      sizes="(max-width: 39.99rem) 44px, 60px"
+                      loading="lazy"
+                      className="home-bookshelf-mobile-cover-image"
+                    />
+                  ) : (
+                    <span className="home-bookshelf-mobile-cover-fallback">
+                      {book.title}
+                    </span>
+                  )}
+                </span>
+                <span className="home-bookshelf-mobile-title">{book.title}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+
       <div ref={viewportRef} className="home-bookshelf-viewport">
         <ul
           ref={shelfRef}
