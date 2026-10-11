@@ -135,6 +135,11 @@ export function SiteFooter({
               </Link>
             </li>
             <li>
+              <Link href={localePath(locale, '/uses')} className="footer-tree-link">
+                <T zh="工具" en="Uses" />
+              </Link>
+            </li>
+            <li>
               <Link href={localePath(locale, '/contact')} className="footer-tree-link">
                 <T zh="联系" en="Contact" />
               </Link>
