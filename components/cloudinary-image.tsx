@@ -16,6 +16,7 @@ type CloudinaryImageProps = Omit<ImageProps, 'src' | 'loader' | 'width' | 'heigh
   crop?: CloudinaryCrop
   gravity?: 'auto' | 'center' | 'face'
   fallbackSrc?: string
+  preserveAspectRatio?: boolean
 }
 
 export function CloudinaryImage({
@@ -26,6 +27,7 @@ export function CloudinaryImage({
   gravity = 'auto',
   alt,
   fallbackSrc,
+  preserveAspectRatio = false,
   ...props
 }: CloudinaryImageProps) {
   const url = cloudinaryImageUrl(publicId, { width, height, crop, gravity })
@@ -66,14 +68,18 @@ export function CloudinaryImage({
         props.onError?.(event)
         setFailed(true)
       }}
-      loader={({ width: requestedWidth }) =>
-        cloudinaryImageUrl(publicId, {
+      loader={({ width: requestedWidth }) => {
+        const requestedHeight = preserveAspectRatio
+          ? Math.max(1, Math.round((height * requestedWidth) / width))
+          : height
+
+        return cloudinaryImageUrl(publicId, {
           width: requestedWidth,
-          height,
+          height: requestedHeight,
           crop,
           gravity,
         }) ?? url
-      }
+      }}
     />
   )
 }
