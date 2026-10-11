@@ -66,6 +66,9 @@ describe('contact SMTP delivery', () => {
         auth: { user: 'sender@example.com', pass: 'secret' },
         disableFileAccess: true,
         disableUrlAccess: true,
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 20_000,
       }),
     )
     expect(mocks.sendMail).toHaveBeenCalledWith(
