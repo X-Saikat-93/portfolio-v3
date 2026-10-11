@@ -1,0 +1,424 @@
+/* ── Homepage introduction: a kinetic statement ───────────────────────
+   The lead rises out of word masks; the closing phrase cycles letter by
+   letter, timed by a signal underline that pauses under the pointer. */
+
+.home-intro-statement {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.035em;
+  line-height: 1.14;
+}
+
+.intro-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.intro-mask-word {
+  display: inline-block;
+  animation: intro-rise 900ms var(--ease-enter) backwards;
+  animation-delay: calc(80ms + var(--w) * 70ms);
+}
+
+@keyframes intro-rise {
+  from {
+    transform: translate3d(0, 105%, 0);
+  }
+}
+
+.intro-rotator {
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  padding-bottom: 0.4rem;
+}
+
+/* every phrase shares one cell: the line holds the longest phrase's box */
+.intro-rotator-window {
+  display: grid;
+}
+
+.intro-rotator-phrase {
+  grid-area: 1 / 1;
+}
+
+.intro-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.intro-char {
+  display: inline-block;
+  transition:
+    transform 760ms var(--ease-enter),
+    opacity 520ms var(--ease-enter),
+    filter 520ms var(--ease-enter);
+  transition-delay: calc(var(--c) * 14ms);
+}
+
+.intro-rotator-phrase[data-state='idle'] .intro-char {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translate3d(0, 0.55em, 0);
+  transition: none;
+}
+
+.intro-rotator-phrase[data-state='out'] .intro-char {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translate3d(0, -0.45em, 0);
+  transition-duration: 420ms;
+  transition-delay: calc(var(--c) * 8ms);
+}
+
+.intro-rotator-phrase[data-first] .intro-char {
+  animation: intro-char-in 820ms var(--ease-enter) backwards;
+  animation-delay: calc(480ms + var(--c) * 20ms);
+}
+
+@keyframes intro-char-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translate3d(0, 0.55em, 0);
+  }
+}
+
+/* the clock: a hairline track with a signal stroke drawing across it */
+.intro-rotator::before {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  content: '';
+}
+
+.intro-rotator-clock {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: intro-clock 3400ms linear forwards;
+}
+
+.intro-rotator:has([data-first]) .intro-rotator-clock {
+  animation-delay: 1100ms;
+}
+
+.intro-rotator:hover .intro-rotator-clock {
+  animation-play-state: paused;
+}
+
+@keyframes intro-clock {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.home-intro-body {
+  margin-top: 1.15rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.home-intro-contact {
+  margin-top: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+
+.intro-settle {
+  animation: intro-settle 700ms var(--ease-enter) backwards;
+  animation-delay: calc(620ms + var(--settle) * 110ms);
+}
+
+@keyframes intro-settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.35rem, 0);
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .home-intro-statement {
+    font-size: clamp(1.5rem, 7vw, 1.75rem);
+  }
+
+  .home-intro-body {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-mask-word,
+  .intro-rotator-phrase[data-first] .intro-char,
+  .intro-settle {
+    animation: none;
+  }
+
+  .intro-char {
+    transition: none;
+  }
+
+  .intro-rotator-clock {
+    display: none;
+  }
+}
+
+.home-contact-link {
+  color: var(--gray-10, var(--foreground));
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.16em;
+  text-decoration-color: color-mix(in oklab, currentColor 38%, transparent);
+  text-decoration-skip-ink: auto;
+}
+
+.home-contact-link {
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+  touch-action: manipulation;
+}
+
+.home-contact-link .external-label {
+  white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-contact-link:hover {
+    color: var(--gray-12, var(--foreground));
+    text-decoration-color: currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .external-label .external-mark {
+    transition: none;
+  }
+
+  a:hover .external-label .external-mark {
+    transform: none;
+  }
+
+  .home-contact-link {
+    transition: none;
+  }
+}
+
+.external-link img {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 0.3em;
+  vertical-align: -0.125em;
+  user-select: none;
+}
+
+.link-card {
+  /* informational only: never selectable, never a pointer target */
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 16rem;
+  padding: 0.625rem 0.75rem;
+  /* a printed label: the register's corner, elevation from the ladder */
+  border-radius: 2px;
+  background: var(--surface-3);
+  box-shadow: 0 0 0 1px var(--border), var(--shadow-tooltip), var(--shadow-medium);
+  /* set by the Base UI positioner, inherited by the popup */
+  transform-origin: var(--transform-origin);
+  backface-visibility: hidden;
+  z-index: var(--z-card);
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 200ms var(--ease-swift),
+    transform 200ms var(--ease-swift);
+}
+
+/* Image-enabled preview cards: height comes from the content (the 16:9
+   frame still holds its slot while the image loads). Uniform padding so
+   the frame's corners run concentric with the card's. */
+.link-card-with-image {
+  padding: 0.625rem;
+}
+
+.link-card-image-frame {
+  display: block;
+  flex: none;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in oklch, var(--muted) 72%, var(--paper));
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.link-card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.external-link img[data-failed],
+.link-card img[data-failed] {
+  visibility: hidden;
+}
+
+/* External image tone treatment keeps light and dark marks legible. */
+.external-link img[data-tone='light-mono'],
+.link-card-site img[data-tone='light-mono'],
+.dark .external-link img[data-tone='dark-mono'],
+.dark .link-card-site img[data-tone='dark-mono'] {
+  filter: invert(1);
+}
+
+.dark .external-link img[data-tone='light-mono'],
+.dark .link-card-site img[data-tone='light-mono'] {
+  filter: none;
+}
+
+.external-link img[data-tone='light'],
+.link-card-site img[data-tone='light'],
+.dark .external-link img[data-tone='dark'],
+.dark .link-card-site img[data-tone='dark'] {
+  box-sizing: border-box;
+  padding: 2px;
+  background: color-mix(in oklab, var(--primary) 88%, var(--background));
+}
+
+.dark .external-link img[data-tone='light'],
+.dark .link-card-site img[data-tone='light'] {
+  padding: 0;
+  background: none;
+}
+
+.external-link img[data-tone='flat'],
+.link-card-site img[data-tone='flat'] {
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.dark .external-link img[data-tone='flat'],
+.dark .link-card-site img[data-tone='flat'] {
+  box-shadow: none;
+}
+
+.link-card[data-starting-style] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.link-card[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.97);
+  transition-duration: 130ms;
+}
+
+.link-card.preview-card-instant,
+.link-card.preview-card-instant[data-starting-style],
+.link-card.preview-card-instant[data-ending-style] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* the domain is machine text: mono, one step down */
+.link-card-site {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.link-card-site img {
+  border-radius: 2px;
+}
+
+.link-card-title {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+  color: var(--foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.link-card-description {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* a single dated line from /now: lamp, current build, last update */
+.home-now-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  margin-top: 0.9rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  transition: color 150ms ease;
+}
+
+.home-now-lamp {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--signal) 16%, transparent);
+}
+
+.home-now-title {
+  color: var(--gray-10, var(--foreground));
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, currentColor 38%, transparent);
+  text-underline-offset: 0.16em;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+.home-now-date {
+  color: color-mix(in oklab, var(--muted-foreground) 75%, transparent);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-now-line:hover .home-now-title,
+.home-now-line:focus-visible .home-now-title {
+  color: var(--foreground);
+  text-decoration-color: currentColor;
+}
+
+.home-now-line:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 3px;
+}
