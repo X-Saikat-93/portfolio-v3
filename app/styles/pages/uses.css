@@ -1,0 +1,236 @@
+/* ── Uses: an inventory sheet of numbered plates ───────────────────── */
+
+.uses-page {
+  padding-bottom: 5rem;
+}
+
+.uses-title {
+  color: var(--foreground);
+  font-size: clamp(1.6rem, 4.5vw, 2.1rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.uses-lede {
+  max-width: 30rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.uses-dateline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.uses-dateline time {
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.uses-dateline-lamp {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--signal) 16%, transparent);
+}
+
+/* ── Plates ── */
+
+.uses-register {
+  margin-top: 3rem;
+}
+
+.uses-plate {
+  position: relative;
+  padding: 1.4rem 0 1.7rem;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.uses-plate:last-child {
+  border-bottom: var(--border-hairline) solid var(--border);
+}
+
+/* a signal tick rides each plate's top rule and draws in on reveal */
+@keyframes uses-tick-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.uses-plate::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--border-hairline) * -1);
+  left: 0;
+  width: 1.5rem;
+  height: var(--border-hairline);
+  background: var(--signal);
+  transform-origin: left;
+  transition: width 320ms var(--ease-swift);
+}
+
+.uses-plate.reveal-in::before {
+  animation: uses-tick-draw 520ms var(--ease-enter) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 140ms);
+}
+
+.uses-plate-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+}
+
+.uses-plate-index {
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-normal);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  transition: color 200ms ease;
+}
+
+/* ── Lines: name ···· note ── */
+
+.uses-list {
+  margin-top: 1rem;
+}
+
+.uses-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  transition: opacity 220ms var(--ease-swift);
+}
+
+.uses-item-name {
+  flex-shrink: 0;
+  color: var(--foreground);
+  font-weight: var(--font-weight-medium);
+}
+
+.uses-item-link {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, currentColor 38%, transparent);
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 150ms ease;
+}
+
+.uses-item-link:hover,
+.uses-item-link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* the dotted leader from the writing index, so eye travels name to note */
+.uses-item-leader {
+  flex: 1;
+  min-width: 1.5rem;
+  height: 1px;
+  align-self: center;
+  background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--muted-foreground) 41%, transparent) 0.5px,
+      transparent 0.5px
+    )
+    0 0 / 6px 1px repeat-x;
+}
+
+.uses-item-note {
+  max-width: 60%;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-align: right;
+  text-wrap: pretty;
+  transition: color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .uses-plate:hover::before {
+    width: 3rem;
+  }
+
+  .uses-plate:hover .uses-plate-index {
+    color: var(--signal);
+  }
+
+  /* reading focus: the hovered line keeps full ink, its neighbours recede */
+  .uses-list:has(.uses-item:hover) > .uses-item:not(:hover) {
+    opacity: 0.5;
+  }
+
+  .uses-item:hover .uses-item-note {
+    color: var(--foreground);
+  }
+}
+
+.uses-foot {
+  margin-top: 2.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.uses-foot a {
+  color: var(--foreground);
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, currentColor 38%, transparent);
+  text-underline-offset: 0.18em;
+}
+
+.uses-foot a:hover,
+.uses-foot a:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* phones: the leader goes, the note drops under its name */
+@media (max-width: 39.99rem) {
+  .uses-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    padding: 0.6rem 0;
+  }
+
+  .uses-item + .uses-item {
+    border-top: var(--border-hairline) solid color-mix(in oklab, var(--border) 60%, transparent);
+  }
+
+  .uses-item-leader {
+    display: none;
+  }
+
+  .uses-item-note {
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uses-plate::before {
+    transition: none;
+    animation: none;
+  }
+
+  .uses-item {
+    transition: none;
+  }
+}
