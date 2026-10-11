@@ -1,0 +1,421 @@
+/* ── Owner console editors ───────────────────────────────────────── */
+
+.admin-dashboard-menu {
+  display: grid;
+  gap: 0;
+  margin-top: 2rem;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.admin-dashboard-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.25rem;
+  padding: 0.8rem 0;
+  border-bottom: var(--border-hairline) solid var(--border);
+  color: var(--muted-foreground);
+  transition: color 150ms ease, transform 180ms var(--ease-swift);
+}
+
+.admin-dashboard-menu a > span:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-dashboard-menu strong {
+  color: var(--foreground);
+  font-size: 0.84rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.admin-dashboard-menu small {
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.admin-dashboard-menu a > span:last-child,
+.admin-project-register-status,
+.admin-back-link,
+.admin-form-section-heading > span,
+.admin-repeat-card-header > span {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .admin-dashboard-menu a:hover {
+    color: var(--foreground);
+    transform: translate3d(0.18rem, 0, 0);
+  }
+}
+
+.admin-editor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-back-link {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  transition: color 150ms ease;
+}
+
+.admin-back-link:hover {
+  color: var(--foreground);
+}
+
+.admin-secondary-button,
+.admin-primary-button,
+.admin-danger-button,
+.admin-upload-button,
+.admin-add-button {
+  display: inline-flex;
+  min-height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-hairline) solid var(--border);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+
+.admin-secondary-button,
+.admin-add-button {
+  color: var(--muted-foreground);
+}
+
+.admin-secondary-button:hover,
+.admin-add-button:hover {
+  border-color: var(--foreground);
+  color: var(--foreground);
+}
+
+.admin-primary-button,
+.admin-upload-button {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.admin-primary-button:hover,
+.admin-upload-button:hover {
+  background: color-mix(in oklab, var(--foreground) 86%, var(--signal));
+}
+
+.admin-primary-button:disabled,
+.admin-danger-button:disabled,
+.admin-upload-button:has(input:disabled) {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.admin-danger-button {
+  color: var(--destructive);
+}
+
+.admin-danger-button:hover,
+.admin-remove-button:hover {
+  border-color: var(--destructive);
+  color: var(--destructive);
+}
+
+.admin-project-register {
+  margin-top: 2rem;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.admin-project-register li {
+  border-bottom: var(--border-hairline) solid var(--border);
+}
+
+.admin-project-register-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 4.4rem;
+  color: var(--muted-foreground);
+  transition: color 150ms ease, transform 180ms var(--ease-swift);
+}
+
+.admin-project-register-link:hover {
+  color: var(--foreground);
+  transform: translate3d(0.18rem, 0, 0);
+}
+
+.admin-project-register-index {
+  width: 1.5rem;
+  color: var(--signal);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+
+.admin-project-register-link > span:nth-child(2) {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.admin-project-register-link strong {
+  color: var(--foreground);
+  font-size: 0.82rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.admin-project-register-link span:nth-child(2) span {
+  font-size: 0.68rem;
+}
+
+.admin-editor-form {
+  display: grid;
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+}
+
+.admin-form-section {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  padding-top: 1rem;
+  border-top: var(--border-hairline) solid var(--border);
+}
+
+.admin-form-section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.admin-form-section-heading h2 {
+  color: var(--foreground);
+  font-size: 0.98rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.admin-form-label,
+.admin-field-label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--foreground);
+  font-size: 0.74rem;
+}
+
+.admin-form-hint,
+.admin-field-help {
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+}
+
+.admin-text-input,
+.admin-textarea,
+.admin-select {
+  width: 100%;
+  min-width: 0;
+  border: var(--border-hairline) solid var(--border);
+  border-radius: 2px;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.78rem;
+  outline: none;
+}
+
+.admin-text-input,
+.admin-select {
+  height: 2.35rem;
+  padding: 0 0.7rem;
+}
+
+.admin-textarea {
+  min-height: 6rem;
+  padding: 0.7rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.admin-text-input:focus,
+.admin-textarea:focus,
+.admin-select:focus,
+.admin-asset-picker select:focus {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--focus-ring) 18%, transparent);
+}
+
+.admin-repeat-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.admin-repeat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.admin-repeat-card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: var(--border-hairline) solid var(--border);
+  background: color-mix(in oklab, var(--surface-1) 68%, transparent);
+}
+
+.admin-repeat-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-remove-button {
+  border: 0;
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.admin-add-button {
+  width: max-content;
+  cursor: pointer;
+}
+
+.admin-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  padding-top: 0.5rem;
+}
+
+.admin-editor-actions .admin-select {
+  width: auto;
+  min-width: 11rem;
+}
+
+.admin-form-message {
+  margin-top: -1.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+.admin-asset-picker {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.admin-asset-picker-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.admin-asset-picker-fixed {
+  display: flex;
+  min-height: 2.25rem;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  border: var(--border-hairline) solid var(--border);
+  padding: 0 0.7rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-asset-picker-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.45rem;
+  border: var(--border-hairline) solid var(--border);
+}
+
+.admin-asset-picker-file {
+  display: grid;
+  width: 7rem;
+  height: 5rem;
+  flex: none;
+  place-items: center;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+
+@media (max-width: 31.999rem) {
+  .admin-editor-header {
+    display: grid;
+  }
+
+  .admin-secondary-button {
+    width: max-content;
+  }
+
+  .admin-repeat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-asset-picker-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-upload-button {
+    width: max-content;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-dashboard-menu a,
+  .admin-project-register-link,
+  .admin-secondary-button,
+  .admin-primary-button,
+  .admin-danger-button,
+  .admin-upload-button,
+  .admin-add-button {
+    transition: none;
+  }
+}
+
+.contact-inbox-list {
+  border-top: 1px solid var(--border);
+}
+
+.contact-inbox-item {
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0.7rem;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.contact-inbox-item[data-status='new'] {
+  background: color-mix(in oklab, var(--paper-ink) 3%, transparent);
+}
+
+.contact-inbox-message {
+  max-height: 8rem;
+  overflow: auto;
+  margin: 0.9rem 0;
+  white-space: pre-wrap;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
