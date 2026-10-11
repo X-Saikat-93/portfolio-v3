@@ -2,6 +2,7 @@ import { cacheLife } from 'next/cache'
 import Link from 'next/link'
 
 import { FooterClock } from '~/components/footer-clock'
+import { FooterStage } from '~/components/footer-stage'
 import { FooterUtilities } from '~/components/footer-utilities'
 import { EmailCard, GitHubCard, LinkedInCard, type GitHubSnapshot } from '~/components/social-cards'
 import { brailleText } from '~/lib/braille'
@@ -11,14 +12,16 @@ import { localePath, type Locale } from '~/lib/locale-route'
 function Tree({
   zh,
   en,
+  className,
   children,
 }: {
   zh: string
   en: string
+  className?: string
   children: React.ReactNode
 }) {
   return (
-    <div className="footer-tree">
+    <div className={className ? `footer-tree ${className}` : 'footer-tree'}>
       <h2 className="footer-label">
         <T zh={zh} en={en} />
       </h2>
@@ -34,8 +37,9 @@ async function CopyrightYear() {
   return new Date().getFullYear()
 }
 
-// Swiss editorial footer, set as folder trees: each column is a directory
-// listing with box-drawing connectors.
+// Three bands: a maker's signature with local time, the directory trees,
+// and the utilities line, closed by an oversized wordmark that dissolves
+// into the page. FooterStage owns the entrance and the wordmark's light.
 export function SiteFooter({
   github,
   locale = 'en',
@@ -44,72 +48,9 @@ export function SiteFooter({
   locale?: Locale
 }) {
   return (
-    <footer className="mx-auto mt-24 w-full max-w-[37.5rem] px-6 pb-24 text-sm text-muted-foreground sm:pb-12">
-      <div className="hairline-top grid grid-cols-2 gap-x-6 gap-y-8 pt-8 sm:grid-cols-3">
-        <Tree zh="联系" en="contact">
-          <li>
-            <GitHubCard data={github} />
-          </li>
-          <li>
-            <LinkedInCard />
-          </li>
-          <li>
-            <EmailCard address="ibx.saikat37@gmail.com" />
-          </li>
-        </Tree>
-        <Tree zh="索引" en="index">
-          <li>
-            <Link href={localePath(locale, '/')} className="footer-tree-link">
-              <T zh="首页" en="Home" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/projects')} className="footer-tree-link">
-              <T zh="项目" en="Projects" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/photos')} className="footer-tree-link">
-              <T zh="照片" en="Photos" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/books')} className="footer-tree-link">
-              <T zh="书籍" en="Books" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/music')} className="footer-tree-link">
-              <T zh="音乐" en="Music" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/blog')} className="footer-tree-link">
-              <T zh="写作" en="Writing" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/resume')} className="footer-tree-link">
-              <T zh="简历" en="Resume" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/now')} className="footer-tree-link">
-              <T zh="现在" en="Now" />
-            </Link>
-          </li>
-          <li>
-            <Link href={localePath(locale, '/contact')} className="footer-tree-link">
-              <T zh="联系" en="Contact" />
-            </Link>
-          </li>
-          <li>
-            <a href="/en/feed.xml" className="footer-tree-link">
-              RSS
-            </a>
-          </li>
-        </Tree>
-        <div className="footer-colophon col-span-2 sm:order-first sm:col-span-1">
+    <footer className="site-footer mx-auto mt-24 w-full max-w-[37.5rem] text-sm text-muted-foreground">
+      <FooterStage>
+        <div className="footer-band footer-colophon" style={{ '--band': 0 } as React.CSSProperties}>
           <div className="footer-signature">
             <span className="footer-signature-mark" aria-hidden="true">
               SD
@@ -124,7 +65,7 @@ export function SiteFooter({
               {brailleText('saikat das')}
             </p>
           </div>
-          <div className="flex flex-col gap-2.5">
+          <div className="footer-whereabouts">
             <FooterClock />
             <div className="footer-geo" aria-hidden>
               <svg className="footer-geo-globe" viewBox="0 0 20 20">
@@ -139,8 +80,85 @@ export function SiteFooter({
             </div>
           </div>
         </div>
-      </div>
-      <FooterUtilities locale={locale} />
+
+        <div className="footer-band footer-directory" style={{ '--band': 1 } as React.CSSProperties}>
+          <Tree zh="联系" en="contact">
+            <li>
+              <GitHubCard data={github} />
+            </li>
+            <li>
+              <LinkedInCard />
+            </li>
+            <li>
+              <EmailCard address="ibx.saikat37@gmail.com" />
+            </li>
+          </Tree>
+          <Tree zh="索引" en="index" className="footer-tree-index">
+            <li>
+              <Link href={localePath(locale, '/')} className="footer-tree-link">
+                <T zh="首页" en="Home" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/projects')} className="footer-tree-link">
+                <T zh="项目" en="Projects" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/photos')} className="footer-tree-link">
+                <T zh="照片" en="Photos" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/books')} className="footer-tree-link">
+                <T zh="书籍" en="Books" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/music')} className="footer-tree-link">
+                <T zh="音乐" en="Music" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/blog')} className="footer-tree-link">
+                <T zh="写作" en="Writing" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/resume')} className="footer-tree-link">
+                <T zh="简历" en="Resume" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/now')} className="footer-tree-link">
+                <T zh="现在" en="Now" />
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(locale, '/contact')} className="footer-tree-link">
+                <T zh="联系" en="Contact" />
+              </Link>
+            </li>
+            <li>
+              <a href="/en/feed.xml" className="footer-tree-link">
+                RSS
+              </a>
+            </li>
+          </Tree>
+        </div>
+
+        <div className="footer-band" style={{ '--band': 2 } as React.CSSProperties}>
+          <FooterUtilities locale={locale} />
+        </div>
+
+        <p className="footer-wordmark" aria-hidden="true">
+          {[...'Saikat'].map((letter, i) => (
+            <span key={i} className="footer-wordmark-letter" style={{ '--i': i } as React.CSSProperties}>
+              {letter}
+            </span>
+          ))}
+        </p>
+      </FooterStage>
     </footer>
   )
 }
