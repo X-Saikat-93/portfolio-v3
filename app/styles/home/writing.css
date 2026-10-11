@@ -1,0 +1,203 @@
+/* ── Motion: entrances, reveals, page transitions ─────────────────── */
+
+/* One quiet entrance language: a short rise and opacity handoff. Keeping
+   this to compositor properties avoids soft text and expensive repaints. */
+@keyframes enter-develop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.45rem, 0) scale(0.995);
+  }
+}
+
+/* ── Home writing: illustrated engineering notes ─────────────────────
+   The newest note leads with a larger plate; the rest follow as an
+   index. Hovering one note lets the others recede, draws a hairline
+   under its title and lifts its cover off the page. */
+
+.home-writing-row {
+  --cover-w: 6rem;
+
+  display: grid;
+  grid-template-columns: var(--cover-w) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 0;
+  color: inherit;
+  transition: opacity 260ms var(--ease-swift);
+}
+
+.home-writing-row[data-lead] {
+  --cover-w: 13rem;
+
+  gap: 1.25rem;
+  padding: 1.25rem 0 1.35rem;
+}
+
+.home-writing-cover {
+  position: relative;
+  align-self: start;
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  border-radius: 2px;
+  background: var(--muted);
+  box-shadow: 0 0.35rem 1rem color-mix(in oklab, var(--foreground) 7%, transparent);
+  transition:
+    transform 320ms var(--ease-enter),
+    box-shadow 320ms var(--ease-enter);
+}
+
+/* a printed plate: a fine inner keyline over the image */
+.home-writing-cover::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, white 14%, transparent);
+  content: '';
+  pointer-events: none;
+}
+
+/* covers develop top-down a beat after their row lands */
+.home-writing-list > li .home-writing-cover {
+  animation: writing-cover-develop 760ms var(--ease-enter) backwards;
+  animation-delay: calc(180ms + var(--motion-index, 0) * 60ms);
+}
+
+@keyframes writing-cover-develop {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+.home-writing-cover-image,
+.home-writing-cover-empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 520ms var(--ease-enter), filter 240ms ease;
+}
+
+.home-writing-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.64rem;
+  letter-spacing: 0.075em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.home-writing-meta > span {
+  transition: color 200ms var(--ease-swift);
+}
+
+.home-writing-title {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--foreground);
+  font-size: 0.94rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.012em;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+/* the hairline that draws under a hovered title, following its lines */
+.home-writing-title > span {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 420ms var(--ease-enter);
+}
+
+.home-writing-row[data-lead] .home-writing-title {
+  margin-top: 0.45rem;
+  font-size: 1.06rem;
+  letter-spacing: -0.016em;
+  line-height: 1.3;
+}
+
+.home-writing-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  margin-top: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.home-writing-row[data-lead] .home-writing-summary {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.home-writing-time {
+  display: block;
+  margin-top: 0.45rem;
+  color: color-mix(in oklab, var(--muted-foreground) 76%, transparent);
+  font-size: 0.65rem;
+  letter-spacing: 0.035em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-writing-list:has(.home-writing-row:hover) .home-writing-row:not(:hover) {
+    opacity: 0.5;
+  }
+
+  .home-writing-row:hover .home-writing-cover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow: 0 0.75rem 1.6rem color-mix(in oklab, var(--foreground) 12%, transparent);
+  }
+
+  .home-writing-row:hover .home-writing-cover-image {
+    filter: saturate(1.06) contrast(1.02);
+    transform: scale(1.04);
+  }
+
+  .home-writing-row:hover .home-writing-title > span {
+    background-size: 100% 1px;
+  }
+
+  .home-writing-row:hover .home-writing-meta > span:first-child {
+    color: var(--foreground);
+  }
+}
+
+.home-writing-row:focus-visible {
+  border-radius: 2px;
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+.home-writing-row:focus-visible .home-writing-title > span {
+  background-size: 100% 1px;
+}
+
+/* phones: the lead note stacks, its cover full-width above the copy */
+@media (max-width: 39.99rem) {
+  .home-writing-row[data-lead] {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .home-writing-row[data-lead] .home-writing-cover {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-writing-list > li .home-writing-cover {
+    animation: none;
+  }
+
+  .home-writing-row,
+  .home-writing-cover,
+  .home-writing-title > span {
+    transition: none;
+  }
+}
