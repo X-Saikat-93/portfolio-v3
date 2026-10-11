@@ -158,3 +158,13 @@ export function PreferencesIcon() {
     </Base>
   )
 }
+
+export function SearchIcon() {
+  return (
+    <Base>
+      <circle cx="7.75" cy="7.75" r="5" fill="currentColor" opacity=".3" strokeWidth="0" />
+      <circle cx="7.75" cy="7.75" r="5" />
+      <line x1="11.5" y1="11.5" x2="15.25" y2="15.25" />
+    </Base>
+  )
+}
