@@ -31,6 +31,7 @@
 @import './styles/home/bookshelf.css';
 @import './styles/pages/writing-index.css';
 @import './styles/base/motion.css';
+@import './styles/base/site-intro.css';
 @import './styles/components/external-links.css';
 @import './styles/home/introduction.css';
 @import './styles/home/hero.css';
@@ -55,6 +56,7 @@
 @import './styles/admin/editors.css';
 @import './styles/pages/privacy.css';
 @import './styles/pages/now.css';
+@import './styles/pages/uses.css';
 @import './styles/pages/resume.css';
 @import './styles/admin/sign-in.css';
 @import './styles/home/github-commits.css';
