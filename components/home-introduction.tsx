@@ -96,7 +96,7 @@ export function HomeIntroduction({ github }: { github: GitHubSnapshot }) {
       </p>
 
       <HomeContact github={github} />
-      <HomeNowLine />
+      {/* <HomeNowLine /> */}
     </div>
   )
 }
