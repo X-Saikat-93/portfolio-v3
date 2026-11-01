@@ -141,7 +141,7 @@ const books = [
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 
-async function uploadContentCovers(blogEntries: BlogSeedEntry[]) {
+async function uploadContentCovers(blogEntries: BlogSeedEntry[], includeBooks: boolean) {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim()
   const apiKey = process.env.CLOUDINARY_API_KEY?.trim()
   const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim()
@@ -154,7 +154,7 @@ async function uploadContentCovers(blogEntries: BlogSeedEntry[]) {
   const bookUploads = new Map<string, UploadedImage>()
   const blogUploads = new Map<string, UploadedImage>()
 
-  for (const book of books) {
+  for (const book of includeBooks ? books : []) {
     const asset = await cloudinary.uploader.upload(
       join(root, 'public', 'images', 'books', book.coverFile),
       {
@@ -236,8 +236,14 @@ async function seed() {
   let inTransaction = false
 
   try {
-    const blogEntries = await readBlogEntries()
-    const { bookUploads, blogUploads } = await uploadContentCovers(blogEntries)
+    // Optional slugs publish only those posts and skip books, so one new post
+    // never re-uploads every cover or overwrites admin edits to other rows.
+    const only = new Set(process.argv.slice(2))
+    const blogEntries = (await readBlogEntries()).filter(({ slug }) => only.size === 0 || only.has(slug))
+    const missing = [...only].filter((slug) => !blogEntries.some((entry) => entry.slug === slug))
+    if (missing.length) throw new Error(`No blog post directory for: ${missing.join(', ')}`)
+    const includeBooks = only.size === 0
+    const { bookUploads, blogUploads } = await uploadContentCovers(blogEntries, includeBooks)
     await client.query('BEGIN')
     inTransaction = true
 
@@ -278,7 +284,7 @@ async function seed() {
       )
     }
 
-    for (const book of books) {
+    for (const book of includeBooks ? books : []) {
       const cover = bookUploads.get(book.title)
       if (!cover) throw new Error(`Cover upload missing for ${book.title}.`)
       await upsertMedia(client, cover, book.coverFile)
@@ -303,7 +309,7 @@ async function seed() {
 
     await client.query('COMMIT')
     inTransaction = false
-    console.log(`Seeded ${blogEntries.length} blog posts and ${books.length} books.`)
+    console.log(`Seeded ${blogEntries.length} blog posts and ${includeBooks ? books.length : 0} books.`)
   } catch (error) {
     if (inTransaction) await client.query('ROLLBACK')
     throw error
