@@ -4,6 +4,7 @@ import './globals.css'
 
 import { AmbientBackground } from '~/components/ambient-background'
 import { ThemeProvider } from '~/components/theme-provider'
+import { WashiArtDefs } from '~/components/washi-art'
 import { PREPAINT_SCRIPT } from '~/lib/security/inline-scripts'
 import { cn } from '~/lib/utils'
 
@@ -24,6 +25,7 @@ export default function GlobalError({ retry }: ErrorBoundaryProps) {
       <body className="antialiased">
         <ThemeProvider>
           <AmbientBackground />
+          <WashiArtDefs />
           <main className="min-h-screen pt-14">
             <ErrorPageView retry={retry} />
           </main>
