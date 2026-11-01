@@ -23,29 +23,18 @@ function fixture(input?: {
     | { status: 'unauthenticated' }
   blocked?: Response | null
   getAccess?: () => Promise<never>
-  limited?: Response | null
   signOut?: () => Promise<Response>
 }) {
-  const recordAuthenticationDenial = vi.fn()
   const recordPrivilegedAction = vi.fn()
-  const limitAdminMutation = vi.fn(async () => input?.limited ?? null)
   const protectOwnerAdminMutation = vi.fn(async () => input?.blocked ?? null)
   const signOut = vi.fn(
     input?.signOut ?? (async () => new Response(null, { status: 200 })),
   )
   const handler = createAdminLogoutHandler({
     security: {
-      limitAdminMutation,
       protectOwnerAdminMutation,
-      recordAuthenticationDenial,
       recordPrivilegedAction,
-    } as Pick<
-      AdminSecurity,
-      | 'limitAdminMutation'
-      | 'protectOwnerAdminMutation'
-      | 'recordAuthenticationDenial'
-      | 'recordPrivilegedAction'
-    >,
+    } as Pick<AdminSecurity, 'protectOwnerAdminMutation' | 'recordPrivilegedAction'>,
     async getAccess() {
       if (input?.getAccess) return input.getAccess()
       return input?.access ?? {
@@ -55,68 +44,34 @@ function fixture(input?: {
     },
     signOut,
   })
-  return {
-    handler,
-    limitAdminMutation,
-    protectOwnerAdminMutation,
-    recordAuthenticationDenial,
-    recordPrivilegedAction,
-    signOut,
-  }
+  return { handler, protectOwnerAdminMutation, recordPrivilegedAction, signOut }
 }
 
 describe('owner admin logout', () => {
-  it('rejects cross-origin requests before authentication', async () => {
+  it('rejects cross-origin requests before signing out', async () => {
     const blocked = new Response(null, { status: 403 })
-    const { handler, limitAdminMutation, signOut } = fixture({ blocked })
+    const { handler, signOut } = fixture({ blocked })
 
     expect((await handler(request('https://attacker.example'))).status).toBe(403)
-    expect(limitAdminMutation).not.toHaveBeenCalled()
     expect(signOut).not.toHaveBeenCalled()
   })
 
-  it.each([
-    [{ status: 'unauthenticated' as const }, 401],
-    [{ status: 'forbidden' as const }, 403],
-  ])('returns the correct denial for %o', async (access, status) => {
-    const { handler, recordAuthenticationDenial, signOut } = fixture({ access })
-
-    expect((await handler(request())).status).toBe(status)
-    expect(recordAuthenticationDenial).toHaveBeenCalledOnce()
-    expect(signOut).not.toHaveBeenCalled()
-  })
-
-  it('returns the limiter response without signing out', async () => {
-    const limited = new Response(null, { status: 429 })
-    const { handler, limitAdminMutation, signOut } = fixture({ limited })
-
-    expect((await handler(request())).status).toBe(429)
-    expect(limitAdminMutation).toHaveBeenCalledWith(
-      expect.any(Request),
-      'user_owner',
-    )
-    expect(signOut).not.toHaveBeenCalled()
-  })
-
-  it('fails closed when Better Auth sign-out fails', async () => {
-    const { handler, recordPrivilegedAction } = fixture({
-      signOut: async () => new Response(null, { status: 503 }),
+  it('redirects to the English site with Better Auth cookies', async () => {
+    const { handler, signOut, recordPrivilegedAction } = fixture({
+      signOut: async () =>
+        new Response(null, {
+          status: 200,
+          headers: { 'set-cookie': 'better-auth.session_token=; Max-Age=0' },
+        }),
     })
-
-    const response = await handler(request())
-
-    expect(response.status).toBe(503)
-    expect(response.headers.get('cache-control')).toBe('no-store')
-    expect(recordPrivilegedAction).not.toHaveBeenCalled()
-  })
-
-  it('redirects to the English site after signing out', async () => {
-    const { handler, signOut, recordPrivilegedAction } = fixture()
 
     const response = await handler(request())
 
     expect(response.status).toBe(303)
     expect(response.headers.get('location')).toBe('https://xsaikat.vercel.app/en')
+    expect(response.headers.getSetCookie()).toEqual([
+      'better-auth.session_token=; Max-Age=0',
+    ])
     expect(signOut).toHaveBeenCalledOnce()
     expect(recordPrivilegedAction).toHaveBeenCalledWith(
       expect.any(Request),
@@ -125,18 +80,18 @@ describe('owner admin logout', () => {
     )
   })
 
-  it('fails closed when the Better Auth lookup fails', async () => {
-    const { handler, recordPrivilegedAction, signOut } = fixture({
-      getAccess: async () => {
-        throw new Error('private auth error')
-      },
-    })
+  it.each([
+    ['sign-out errors', { signOut: async () => new Response(null, { status: 503 }) }],
+    ['sign-out throws', { signOut: async () => Promise.reject(new Error('db down')) }],
+    ['session lookup throws', { getAccess: async () => Promise.reject(new Error('db down')) }],
+    ['session already ended', { access: { status: 'unauthenticated' as const } }],
+  ])('still signs the browser out when %s', async (_case, input) => {
+    const response = await fixture(input).handler(request())
 
-    const response = await handler(request())
-
-    expect(response.status).toBe(503)
+    expect(response.status).toBe(303)
     expect(response.headers.get('cache-control')).toBe('no-store')
-    expect(recordPrivilegedAction).not.toHaveBeenCalled()
-    expect(signOut).not.toHaveBeenCalled()
+    expect(response.headers.getSetCookie()).toContain(
+      '__Secure-better-auth.session_token=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax',
+    )
   })
 })

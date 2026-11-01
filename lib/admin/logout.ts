@@ -2,27 +2,34 @@ import 'server-only'
 
 import type { OwnerAccess } from './authorization'
 import type { AdminSecurity } from './security'
-import { securityDenialHeaders } from './security'
 
 type LogoutDependencies = {
   security: Pick<
     AdminSecurity,
-    | 'limitAdminMutation'
-    | 'protectOwnerAdminMutation'
-    | 'recordAuthenticationDenial'
-    | 'recordPrivilegedAction'
+    'protectOwnerAdminMutation' | 'recordPrivilegedAction'
   >
   getAccess(): Promise<OwnerAccess>
   signOut(): Promise<Response>
 }
 
-function denied(status: 401 | 403 | 503) {
-  return new Response(null, {
-    status,
-    headers: securityDenialHeaders(),
-  })
+// Better Auth's default cookie names; expired directly when its sign-out
+// cannot answer, so the browser never keeps a session the owner meant to end.
+const authCookieNames = [
+  'better-auth.session_token',
+  'better-auth.session_data',
+  'better-auth.dont_remember',
+]
+
+function expiredAuthCookies() {
+  return authCookieNames.flatMap((name) => [
+    `${name}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`,
+    `__Secure-${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`,
+  ])
 }
 
+// Signing out only lowers privilege, so it is never rate limited or refused
+// for a stale session: any same-origin POST ends at the public site with the
+// session cookies cleared.
 export function createAdminLogoutHandler({
   security,
   getAccess,
@@ -32,39 +39,24 @@ export function createAdminLogoutHandler({
     const blocked = await security.protectOwnerAdminMutation(request)
     if (blocked) return blocked
 
-    let access: OwnerAccess
+    const access = await getAccess().catch(() => null)
+
+    let cookies = expiredAuthCookies()
     try {
-      access = await getAccess()
+      const signedOut = await signOut()
+      const fromAuth = signedOut.ok ? signedOut.headers.getSetCookie() : []
+      if (fromAuth.length) cookies = fromAuth
     } catch {
-      return denied(503)
-    }
-    if (access.status !== 'authorized') {
-      security.recordAuthenticationDenial(request)
-      return denied(access.status === 'forbidden' ? 403 : 401)
+      // Fall through with the locally expired cookies.
     }
 
-    const limited = await security.limitAdminMutation(
-      request,
-      access.principal.actorId,
-    )
-    if (limited) return limited
-
-    let signedOut: Response
-    try {
-      signedOut = await signOut()
-    } catch {
-      return denied(503)
+    if (access?.status === 'authorized') {
+      security.recordPrivilegedAction(
+        request,
+        'admin_logout.succeeded',
+        access.principal.actorId,
+      )
     }
-    if (!signedOut.ok) {
-      security.recordAuthenticationDenial(request)
-      return denied(503)
-    }
-
-    security.recordPrivilegedAction(
-      request,
-      'admin_logout.succeeded',
-      access.principal.actorId,
-    )
 
     const response = new Response(null, {
       status: 303,
@@ -74,13 +66,7 @@ export function createAdminLogoutHandler({
         'referrer-policy': 'no-referrer',
       },
     })
-
-    const headersWithCookies = signedOut.headers as Headers & {
-      getSetCookie?: () => string[]
-    }
-    for (const cookie of headersWithCookies.getSetCookie?.() ?? []) {
-      response.headers.append('set-cookie', cookie)
-    }
+    for (const cookie of cookies) response.headers.append('set-cookie', cookie)
 
     return response
   }
