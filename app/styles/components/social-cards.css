@@ -1,146 +1,179 @@
-/* ── Per-service hover cards (components/social-cards.tsx) ────────── */
+/* ── Calling cards (components/social-cards.tsx) ─────────────────────
+   GitHub, LinkedIn and email open the same card, printed on the site's
+   paper: a registration label over a ruled hairline, the name with the
+   seal pressed beside it, then what the service holds. On open the sheet
+   settles, the rule is drawn, the rows ink in and the seal is stamped,
+   once; a hand-off between cards or reduced motion shows the finished
+   card. */
 
-.service-card {
-  gap: 0.5rem;
+.link-card.calling-card {
+  --card-at: 60ms;
+
+  position: relative;
+  gap: var(--space-3);
+  width: 17.5rem;
+  padding: var(--space-4);
+  border-radius: var(--radius-2);
+  background: var(--surface);
+  box-shadow: var(--sheet-shadow-lift);
+  transition:
+    opacity var(--dur-base) var(--ease-settle),
+    transform var(--dur-base) var(--ease-settle),
+    filter var(--dur-base) var(--ease-settle);
 }
 
-.service-card[data-starting-style] {
-  transform: scale(0.92) translateY(4px);
+/* paper fibre, as on the page sheets */
+.calling-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-color: var(--ink);
+  opacity: calc(var(--fibre-opacity) * 1.6);
+  -webkit-mask: var(--fibre-mask) 0 0 / calc(var(--fibre-size) * 0.8) repeat;
+  mask: var(--fibre-mask) 0 0 / calc(var(--fibre-size) * 0.8) repeat;
 }
 
-/* inner choreography plays once per open; an instant hand-off between
-   triggers (or reduced motion) shows the finished plate */
-.link-card.preview-card-instant *,
-.link-card.preview-card-instant *::before {
-  animation: none;
+.link-card.calling-card[data-starting-style] {
+  opacity: 0;
+  filter: blur(2px);
+  transform: translate3d(0, 4px, 0) scale(0.985);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .link-card,
-  .link-card[data-starting-style],
-  .link-card[data-ending-style],
-  .service-card[data-starting-style] {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
-  .link-card *,
-  .link-card *::before {
-    animation: none;
-  }
+.link-card.calling-card[data-ending-style] {
+  opacity: 0;
+  transform: translate3d(0, 2px, 0) scale(0.99);
+  transition-duration: var(--dur-exit-base);
+  transition-timing-function: var(--ease-exit);
 }
 
-@keyframes card-row-in {
-  from {
-    opacity: 0;
-    transform: translateY(3px);
-  }
+/* the registration label, over a hairline that is drawn on open */
+.calling-card-label {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
-.service-card-glyph {
-  margin-left: auto;
-  align-self: flex-start;
-  color: var(--muted-foreground);
-  flex-shrink: 0;
+.calling-card-label::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--border-hairline);
+  background: var(--hairline);
+  transform-origin: left center;
+  animation: calling-card-rule var(--dur-slow) var(--ease-settle) var(--card-at) backwards;
 }
 
-.service-card-head {
+.calling-card-handle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.calling-card-identity {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: var(--space-3);
+  animation: calling-card-ink var(--dur-gentle) var(--ease-settle) calc(var(--card-at) + 60ms) backwards;
 }
 
-.service-card-avatar {
+.calling-card-avatar {
+  flex: none;
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 999px;
+  border-radius: 2px;
   object-fit: cover;
-  box-shadow: inset 0 0 0 1px var(--border);
+  filter: grayscale(0.35) contrast(1.02);
+  box-shadow: 0 0 0 var(--border-hairline) var(--edge);
 }
 
-.service-card-names {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.3;
-}
-
-.service-card-name {
-  font-size: 0.875rem;
-  font-weight: var(--font-weight-medium);
-  color: var(--foreground);
-}
-
-/* handles are machine text */
-.service-card-sub {
-  color: var(--muted-foreground);
-  font-family: var(--font-geist-mono), var(--font-frex-gb, ui-monospace), ui-monospace, monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.02em;
-}
-
-.service-card-bio {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--foreground);
-  white-space: pre-line;
-}
-
-/* the plate foot: a ledger of figures over labels, hairline columns */
-.service-card-stats {
+.calling-card-names {
   display: grid;
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
-  margin-top: 0.125rem;
-  border-top: var(--border-hairline) solid var(--border);
+  min-width: 0;
+  gap: 2px;
 }
 
-.service-card-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  padding: 0.5rem 0.5rem 0;
-  animation: card-row-in 360ms var(--ease-enter) backwards;
-}
-
-.service-card-stat:first-child {
-  padding-left: 0;
-}
-
-.service-card-stat + .service-card-stat {
-  border-left: var(--border-hairline) solid var(--border);
-}
-
-.service-card-stat:nth-child(1) {
-  animation-delay: 260ms;
-}
-
-.service-card-stat:nth-child(2) {
-  animation-delay: 300ms;
-}
-
-.service-card-stat:nth-child(3) {
-  animation-delay: 340ms;
-}
-
-.service-card-stat b {
-  color: var(--foreground);
-  font-size: 0.875rem;
-  font-variant-numeric: tabular-nums;
+.calling-card-name {
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: var(--text-body);
   font-weight: var(--font-weight-medium);
   letter-spacing: -0.01em;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
-.service-card-stat > span {
-  color: var(--muted-foreground);
-  font-size: 0.625rem;
-  letter-spacing: 0.01em;
-  line-height: 1.3;
+.calling-card-sub {
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  line-height: 1.45;
+  text-wrap: pretty;
 }
 
-/* 26-week contribution grid; the ink rolls across it as a diagonal wave,
-   oldest week first, like a press roller */
+.calling-card-seal {
+  flex: none;
+  align-self: flex-start;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: auto;
+  transform: rotate(-5deg);
+  animation: calling-card-stamp var(--dur-gentle) var(--ease-settle) calc(var(--card-at) + 300ms) backwards;
+}
+
+/* each row after the identity inks in one step later */
+.calling-card-row {
+  animation: calling-card-ink var(--dur-gentle) var(--ease-settle) calc(var(--card-at) + 140ms) backwards;
+}
+
+.calling-card-row + .calling-card-row {
+  animation-delay: calc(var(--card-at) + 200ms);
+}
+
+.calling-card-row + .calling-card-row + .calling-card-row {
+  animation-delay: calc(var(--card-at) + 260ms);
+}
+
+@keyframes calling-card-rule {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes calling-card-ink {
+  from {
+    opacity: 0;
+    filter: blur(var(--settle-blur));
+    transform: translate3d(0, var(--rise), 0);
+  }
+}
+
+@keyframes calling-card-stamp {
+  0% {
+    opacity: 0;
+    transform: rotate(-12deg) scale(1.35);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(-4deg) scale(0.96);
+  }
+  100% {
+    transform: rotate(-5deg);
+  }
+}
+
+/* GitHub: 26 weeks of contributions in sumi, rolled on like a press roller */
 .contrib-grid {
   display: flex;
   gap: 2px;
@@ -152,236 +185,181 @@
   gap: 2px;
 }
 
-@keyframes contrib-cell-in {
-  from {
-    opacity: 0;
-    transform: scale(0.35);
-  }
-}
-
 .contrib-grid i {
   width: 7px;
   height: 7px;
-  border-radius: 2px;
-  background: color-mix(in oklab, var(--foreground) 7%, transparent);
-  animation: contrib-cell-in 420ms var(--ease-enter) backwards;
-  animation-delay: calc((var(--w, 0) + var(--d, 0)) * 8ms);
+  border-radius: 1px;
+  background: color-mix(in oklab, var(--ink) 7%, transparent);
+  animation: contrib-cell-in var(--dur-gentle) var(--ease-settle) backwards;
+  animation-delay: calc(var(--card-at) + 160ms + (var(--w, 0) + var(--d, 0)) * 7ms);
 }
 
 .contrib-grid i[data-level='1'] {
-  background: color-mix(in oklab, var(--foreground) 30%, transparent);
+  background: color-mix(in oklab, var(--ink) 26%, transparent);
 }
 
 .contrib-grid i[data-level='2'] {
-  background: color-mix(in oklab, var(--foreground) 52%, transparent);
+  background: color-mix(in oklab, var(--ink) 46%, transparent);
 }
 
 .contrib-grid i[data-level='3'] {
-  background: color-mix(in oklab, var(--foreground) 74%, transparent);
+  background: color-mix(in oklab, var(--ink) 68%, transparent);
 }
 
 .contrib-grid i[data-level='4'] {
-  background: var(--foreground);
+  background: var(--ink);
 }
 
-/* LinkedIn hover card: a business-card plate. A brand band wipes in,
-   then the roles settle onto a small timeline — the same register as
-   the homepage experience list. Brand colors stay scoped to the card. */
-.linkedin-card {
-  --linkedin-blue: oklch(0.55 0.16 248);
-  --linkedin-blue-deep: oklch(0.45 0.17 250);
-  --linkedin-green: oklch(0.6 0.15 152);
-  /* vertical centre of a role's first line, where its node sits */
-  --node-y: 0.91rem;
-
-  gap: 0;
-  overflow: hidden;
-  padding: 0;
-}
-
-@keyframes linkedin-band-in {
+@keyframes contrib-cell-in {
   from {
-    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: scale(0.4);
   }
 }
 
-.linkedin-card-banner {
-  position: relative;
-  display: block;
-  height: 1.75rem;
-  background: linear-gradient(115deg, var(--linkedin-blue), var(--linkedin-blue-deep));
-  animation: linkedin-band-in 460ms var(--ease-enter) backwards;
+/* figures over labels, ruled like a ledger */
+.calling-card-stats {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  padding-top: var(--space-2);
+  border-top: var(--border-hairline) solid var(--hairline);
 }
 
-.linkedin-card-banner-glyph {
-  position: absolute;
-  top: 50%;
-  right: 0.65rem;
-  color: color-mix(in oklab, #fff 34%, transparent);
-  transform: translateY(-50%);
+.calling-card-stat {
+  display: grid;
+  gap: 1px;
+  padding-inline: var(--space-2);
 }
 
-.linkedin-card-head {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-top: 0.6rem;
-  padding: 0 0.75rem;
+.calling-card-stat:first-child {
+  padding-left: 0;
 }
 
-.linkedin-card-avatar {
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: 999px;
-  object-fit: cover;
-  box-shadow: inset 0 0 0 1px var(--border);
+.calling-card-stat + .calling-card-stat {
+  border-left: var(--border-hairline) solid var(--hairline);
 }
 
-.linkedin-card-names {
-  display: flex;
-  flex-direction: column;
+.calling-card-stat b {
+  color: var(--ink);
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+}
+
+.calling-card-stat > span {
+  color: var(--ink-faint);
+  font-size: 0.625rem;
   line-height: 1.3;
 }
 
-.linkedin-card-name {
-  color: var(--foreground);
-  font-size: 0.875rem;
-  font-weight: var(--font-weight-medium);
-}
-
-.linkedin-card-sub {
-  color: var(--muted-foreground);
-  font-size: 0.72rem;
-}
-
-.linkedin-card-roles {
-  display: flex;
-  flex-direction: column;
-  margin: 0.45rem 0 0;
-  padding: 0 0.75rem 0.45rem;
+/* LinkedIn: the roles as a short register, the current one marked */
+.calling-card-roles {
+  display: grid;
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
-.linkedin-card-role {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  padding: 0.4rem 0 0.4rem 1rem;
-  animation: card-row-in 380ms var(--ease-enter) backwards;
-  animation-delay: calc(140ms + var(--i, 0) * 60ms);
+.calling-card-role {
+  display: grid;
+  gap: 1px;
+  padding-block: var(--space-2);
 }
 
-@keyframes linkedin-rail-in {
-  from {
-    transform: scaleY(0);
-  }
+.calling-card-role + .calling-card-role {
+  border-top: var(--border-hairline) dashed color-mix(in oklab, var(--hairline) 80%, transparent);
 }
 
-/* rail segment from this node down to the next one */
-.linkedin-card-role:not(:last-child)::before {
-  content: '';
-  position: absolute;
-  top: var(--node-y);
-  left: 3px;
-  width: 1px;
-  height: 100%;
-  background: color-mix(in oklab, var(--linkedin-blue) 30%, var(--border));
-  transform-origin: top;
-  animation: linkedin-rail-in 420ms var(--ease-enter) backwards;
-  animation-delay: calc(200ms + var(--i, 0) * 60ms);
-}
-
-.linkedin-card-role-node {
-  position: absolute;
-  top: calc(var(--node-y) - 3.5px);
-  left: 0;
-  width: 7px;
-  height: 7px;
-  border: 1px solid color-mix(in oklab, var(--linkedin-blue) 60%, var(--border));
-  border-radius: 50%;
-  background: var(--surface-3);
-}
-
-.linkedin-card-role[data-current] .linkedin-card-role-node {
-  border-color: var(--linkedin-blue);
-  background: var(--linkedin-blue);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--linkedin-blue) 18%, transparent);
-}
-
-.linkedin-card-role-line {
+.calling-card-role-line {
   display: flex;
   align-items: baseline;
-  gap: 0.45rem;
+  gap: var(--space-2);
 }
 
-.linkedin-card-role-title {
+.calling-card-role-title {
   min-width: 0;
-  color: var(--foreground);
-  font-size: 0.76rem;
+  color: var(--ink-soft);
+  font-size: var(--text-small);
   font-weight: var(--font-weight-medium);
   line-height: 1.35;
 }
 
-.linkedin-card-role:not([data-current]) .linkedin-card-role-title {
-  color: color-mix(in oklab, var(--foreground) 78%, var(--muted-foreground));
+.calling-card-role[data-current] .calling-card-role-title {
+  color: var(--ink);
 }
 
-.linkedin-card-role-period {
-  flex-shrink: 0;
+.calling-card-role[data-current] .calling-card-role-title::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: var(--space-2);
+  border-radius: 50%;
+  background: var(--sun);
+  vertical-align: 0.15em;
+}
+
+.calling-card-role-period {
+  flex: none;
   margin-left: auto;
-  color: var(--muted-foreground);
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
   font-size: 0.625rem;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
-.linkedin-card-role-company {
-  color: var(--muted-foreground);
-  font-size: 0.7rem;
+.calling-card-role-company {
+  color: var(--ink-faint);
+  font-size: var(--text-meta);
   line-height: 1.35;
 }
 
-.linkedin-card-foot {
+.calling-card-foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.45rem 0.75rem;
-  border-top: var(--border-hairline) solid var(--border);
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: var(--border-hairline) solid var(--hairline);
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
-.linkedin-card-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--foreground);
-  font-size: 0.72rem;
-  font-weight: var(--font-weight-medium);
+/* Email: the address, set as the line on an envelope */
+.calling-card-address {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.01em;
 }
 
-/* two pings on open, then still: availability, not an alarm */
-@keyframes linkedin-open-ping {
-  from {
-    box-shadow: 0 0 0 0 color-mix(in oklab, var(--linkedin-green) 55%, transparent);
+/* a hand-off between cards, or reduced motion: the finished card */
+.link-card.preview-card-instant *,
+.link-card.preview-card-instant *::before,
+.link-card.preview-card-instant *::after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-card,
+  .link-card[data-starting-style],
+  .link-card[data-ending-style] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
   }
 
-  to {
-    box-shadow: 0 0 0 5px color-mix(in oklab, var(--linkedin-green) 0%, transparent);
+  .link-card *,
+  .link-card *::before,
+  .link-card *::after {
+    animation: none;
   }
-}
-
-.linkedin-card-badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--linkedin-green);
-  animation: linkedin-open-ping 1.1s var(--ease-exit) 420ms 2 backwards;
-}
-
-.linkedin-card-foot-glyph {
-  color: var(--linkedin-blue);
 }
 
 /* ── Preview link cards (moved from the old intro styles) ─────────── */

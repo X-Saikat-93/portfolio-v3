@@ -317,10 +317,10 @@ describe('preview card timing', () => {
       .join('\n')
 
     expect(stylesheet).toMatch(
-      /\.contrib-grid i \{[\s\S]*animation: contrib-cell-in 420ms/,
+      /\.contrib-grid i \{[\s\S]*animation: contrib-cell-in var\(--dur-gentle\)/,
     )
     expect(stylesheet).toMatch(
-      /\.link-card\.preview-card-instant \*,\s*\.link-card\.preview-card-instant \*::before \{\s*animation: none;/,
+      /\.link-card\.preview-card-instant \*,\s*\.link-card\.preview-card-instant \*::before,\s*\.link-card\.preview-card-instant \*::after \{\s*animation: none;/,
     )
     expect(stylesheet).toMatch(
       /transition:\s*opacity 200ms var\(--ease-swift\),\s*transform 200ms var\(--ease-swift\);/,
