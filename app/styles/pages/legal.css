@@ -1,0 +1,55 @@
+/* ── Legal pages (privacy-page.tsx, terms-page.tsx) ─────────────────
+   The notice on one sheet, set in the prose column, so its sections are
+   numbered and spaced as the posts are. Providers are a ruled ledger. */
+
+.legal-sheet {
+  padding: var(--space-6) var(--space-5) var(--space-8);
+}
+
+.legal-text {
+  max-width: var(--measure);
+}
+
+.legal-text > h2:first-child {
+  margin-top: 0;
+}
+
+.prose .privacy-providers {
+  padding: 0;
+  border-top: var(--border-hairline) solid var(--hairline);
+}
+
+.prose .privacy-providers > li {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding-block: var(--space-3);
+  border-bottom: var(--border-hairline) solid var(--hairline);
+}
+
+.prose .privacy-providers > li::before {
+  content: none;
+}
+
+.prose .privacy-provider-name {
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-medium);
+}
+
+@media (min-width: 40rem) {
+  .legal-sheet {
+    padding: var(--space-10) var(--space-10) var(--space-12);
+  }
+
+  .prose .privacy-providers > li {
+    grid-template-columns: 10rem minmax(0, 1fr);
+    column-gap: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  .legal-sheet {
+    padding-inline: var(--space-16);
+  }
+}

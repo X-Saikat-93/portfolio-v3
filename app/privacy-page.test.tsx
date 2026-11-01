@@ -12,8 +12,9 @@ describe('PrivacyPageView', () => {
     expect(html).toContain('Neon Postgres')
     expect(html).toContain('SHA-256')
     expect(html).toContain('Browser storage')
-    expect(html).toContain('No automatic deletion schedule is currently configured')
+    expect(html).toContain('kept for 36 months')
     expect(html).toContain('href="mailto:ibx.saikat37@gmail.com"')
+    expect(html).toContain('Data Protection Board of India')
   })
 
   it('links to each named infrastructure provider’s privacy information', () => {
