@@ -2,11 +2,10 @@ import Link from 'next/link'
 
 import { CloudinaryImage } from '~/components/cloudinary-image'
 import { ExternalLabel } from '~/components/external-mark'
-import { GhostSchematic } from '~/components/ghost-schematic'
-import { PixelCluster } from '~/components/pixel-cluster'
 import { RevealScope } from '~/components/reveal-scope'
 import type { ProjectCaseStudy, ProjectFigure, ProjectWithCaseStudy } from '~/lib/projects'
 import { projectPath } from '~/lib/projects'
+import { toRoman } from '~/lib/roman'
 
 function SectionHeading({
   index,
@@ -32,7 +31,7 @@ function CaseStudySection({
 }) {
   return (
     <section className="project-case-study" aria-labelledby="project-case-study-title">
-      <SectionHeading index="01" id="project-case-study-title">
+      <SectionHeading index="I" id="project-case-study-title">
         Evidence case study
       </SectionHeading>
 
@@ -143,17 +142,15 @@ export function ProjectDetailPage({
 }) {
   const caseNumber = String(position).padStart(2, '0')
   const caseTotal = String(total).padStart(2, '0')
-  // Sections number themselves in render order; the case study claims 01.
+  // Sections number themselves in render order; the case study claims I.
   let sectionCount = project.caseStudy ? 1 : 0
-  const nextSection = () => String(++sectionCount).padStart(2, '0')
+  const nextSection = () => toRoman(++sectionCount)
 
   return (
-    <RevealScope as="article" className="project-dossier relative mx-auto w-full max-w-[37.5rem] px-6">
-      <GhostSchematic className="project-dossier-ghost hidden sm:block" />
-
-      <nav className="project-dossier-register enter" aria-label="Project context">
+    <RevealScope as="article" className="project-dossier page">
+      <nav className="project-dossier-register" aria-label="Project context">
         <Link href="/en/projects" className="project-dossier-back">
-          <span aria-hidden="true">←</span> Project register
+          <span aria-hidden="true">←</span> All projects
         </Link>
         <span className="project-dossier-case">
           Case file {caseNumber} / {caseTotal}
@@ -161,39 +158,27 @@ export function ProjectDetailPage({
       </nav>
 
       <header className="project-dossier-header">
-        <div className="project-dossier-mast enter" style={{ '--enter-delay': '50ms' } as React.CSSProperties}>
-          <div>
-            <p className="project-dossier-kicker">{project.category}</p>
-            <h1>{project.nameEn}</h1>
-          </div>
-          <PixelCluster variant={position + 2} className="shrink-0" />
-        </div>
-
-        <p
-          className="project-dossier-lede enter"
-          style={{ '--enter-delay': '90ms' } as React.CSSProperties}
-        >
+        <p className="project-dossier-kicker page-label">{project.category}</p>
+        <h1 className="page-title">{project.nameEn}</h1>
+        <p className="project-dossier-lede page-lede">
           {project.descriptionEn ?? project.description}
         </p>
 
         {project.caseStudy?.heroImagePublicId ? (
-          <figure className="project-dossier-hero enter" style={{ '--enter-delay': '110ms' } as React.CSSProperties}>
+          <figure className="project-dossier-hero paper">
             <CloudinaryImage
               publicId={project.caseStudy.heroImagePublicId}
               alt={project.caseStudy.heroImageAlt || `${project.nameEn} project image`}
               width={1200}
               height={720}
               preserveAspectRatio
-              sizes="(max-width: 640px) calc(100vw - 3rem), 600px"
+              sizes="(min-width: 64rem) 46rem, calc(100vw - 2rem)"
               className="project-dossier-hero-image"
             />
           </figure>
         ) : null}
 
-        <div
-          className="project-dossier-actions enter"
-          style={{ '--enter-delay': '130ms' } as React.CSSProperties}
-        >
+        <div className="project-dossier-actions">
           {project.links.map((link) => (
             <a key={link.url} href={link.url} target="_blank" rel="noreferrer">
               <ExternalLabel>{link.label}</ExternalLabel>
@@ -202,10 +187,7 @@ export function ProjectDetailPage({
         </div>
       </header>
 
-      <dl
-        className="project-dossier-facts enter"
-        style={{ '--enter-delay': '170ms' } as React.CSSProperties}
-      >
+      <dl className="project-dossier-facts">
         <div>
           <dt>Role</dt>
           <dd>{project.role}</dd>
@@ -226,11 +208,7 @@ export function ProjectDetailPage({
 
       {project.caseStudy ? <CaseStudySection caseStudy={project.caseStudy} /> : null}
 
-      <section
-        className="project-system-plate enter"
-        aria-labelledby="project-system-title"
-        style={{ '--enter-delay': '210ms' } as React.CSSProperties}
-      >
+      <section className="project-system-plate" aria-labelledby="project-system-title">
         <div className="project-system-plate-header">
           <h2 id="project-system-title">System trace</h2>
           <span>{project.flow.length ? `${project.flow.length} stages` : 'record only'}</span>

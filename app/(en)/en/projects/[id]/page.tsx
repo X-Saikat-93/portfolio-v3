@@ -6,7 +6,8 @@ import { JsonLd } from '~/components/json-ld'
 import { localeMetadata } from '~/lib/locale-metadata'
 import { safeGetPublishedProjectCaseStudy } from '~/lib/project-case-studies/repository'
 import { getProjectById, projectPath, projects } from '~/lib/projects'
-import { seo } from '~/lib/seo'
+import { publicPageMetadata } from '~/lib/public-page-metadata'
+import { breadcrumbJsonLd, personId, seo } from '~/lib/seo'
 
 type ProjectPageProps = {
   params: Promise<{ id: string }>
@@ -62,26 +63,12 @@ export default async function EnglishProjectPage({ params }: ProjectPageProps) {
             genre: project.category,
             keywords: project.stack,
             inLanguage: 'en',
-            creator: { '@id': new URL('/en#person', seo.url).href },
+            creator: { '@id': personId },
           },
-          {
-            '@context': 'https://schema.org',
-            '@type': 'BreadcrumbList',
-            itemListElement: [
-              {
-                '@type': 'ListItem',
-                position: 1,
-                name: 'Projects',
-                item: new URL('/en/projects', seo.url).href,
-              },
-              {
-                '@type': 'ListItem',
-                position: 2,
-                name: project.nameEn,
-                item: canonical,
-              },
-            ],
-          },
+          breadcrumbJsonLd([
+            { name: publicPageMetadata.projects.en.heading, path: '/en/projects' },
+            { name: project.nameEn, path: projectPath(project.id) },
+          ]),
         ]}
       />
       <ProjectDetailPage

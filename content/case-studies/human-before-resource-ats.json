@@ -1,22 +1,34 @@
 {
   "projectId": "human-before-resource-ats",
-  "framing": "When candidate data passes 100K records, search and reporting become product problems—not just database queries.",
-  "challenge": "The platform had to support candidate intake, pipeline search, assignment, interviews, AI-assisted evaluation, and regional reporting across more than 100,000 Postgres records, while keeping different role views safe and usable.",
+  "framing": "When candidate data grows large, search and reporting become product problems, not just database queries.",
+  "challenge": "The platform had to support candidate intake, pipeline search, assignment, interviews, AI-assisted evaluation, and regional reporting over a large Postgres candidate store, while keeping different role views safe and usable.",
   "ownership": [
-    "Product engineer for the candidate data and hiring-operations surface.",
+    "Full-stack software engineer for the candidate data and hiring-operations surface.",
     "Built intake, pipeline, search, reporting, interview, and evaluation flows across Next.js, Node.js, PostgreSQL, Drizzle ORM, and Redis.",
     "Owned the operational path: migrations, scheduled follow-ups, inactive-assignment checks, Docker Compose, NGINX, PM2, backups, and recovery steps."
   ],
   "proof": [
-    { "label": "Data scale", "value": "100K+ Postgres records" },
-    { "label": "Query path", "value": "Indexes + cursor pagination" },
-    { "label": "Read path", "value": "Views + cache + virtualization" },
-    { "label": "Access model", "value": "Five role tiers" }
+    {
+      "label": "Data store",
+      "value": "PostgreSQL + Redis"
+    },
+    {
+      "label": "Query path",
+      "value": "Indexes + cursor pagination"
+    },
+    {
+      "label": "Read path",
+      "value": "Views + cache + virtualization"
+    },
+    {
+      "label": "Access model",
+      "value": "Role-based views"
+    }
   ],
   "decisions": [
     {
       "title": "Replace offset pagination at the point of failure",
-      "body": "Swapped offset pagination for cursor pagination once the table passed 100K rows and offset queries started slowing down."
+      "body": "Swapped offset pagination for cursor pagination once the table grew large enough for offset queries to slow down."
     },
     {
       "title": "Precompute dashboard reads",
@@ -24,7 +36,7 @@
     },
     {
       "title": "Protect access at the server boundary",
-      "body": "Authentication and role checks protect CEO, manager, recruiter, national, and regional views before operational data reaches the interface."
+      "body": "Authentication and role checks protect each role’s views before operational data reaches the interface."
     },
     {
       "title": "Make AI a structured starting point",

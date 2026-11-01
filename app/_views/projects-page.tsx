@@ -1,83 +1,43 @@
-import Link from 'next/link'
-
-import { GhostSchematic } from '~/components/ghost-schematic'
 import { ProjectsBlueprintStage } from '~/components/hidden-list-stage'
-import { PixelCluster } from '~/components/pixel-cluster'
-import { T } from '~/lib/i18n'
+import { WorkPrint } from '~/components/work-print'
+import { projects } from '~/lib/projects'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
-import { projectPath, projects, projectStatusTone } from '~/lib/projects'
 
+const copy = publicPageMetadata.projects.en
+
+// Every project as a print on the drafting table: the blueprint grid shows
+// through around the print under the pointer, with a registration mark at
+// its corner.
 export function ProjectsPageView({ caseStudyProjectIds = [] }: { caseStudyProjectIds?: readonly string[] }) {
-  const center = (projects.length - 1) / 2
   const caseStudies = new Set(caseStudyProjectIds)
 
   return (
-    <div className="relative mx-auto w-full max-w-[37.5rem] px-6">
-      <GhostSchematic className="top-4 right-6 hidden w-56 sm:block" />
-      <div className="flex items-start justify-between gap-4">
-        <header className="max-w-[34rem]">
-          <h1 className="page-eyebrow enter">
-            <T zh="项目" en="Projects" />
-          </h1>
-          <p
-            className="page-introduction enter mt-4 text-balance"
-            style={{ '--enter-delay': '70ms' } as React.CSSProperties}
-          >
-            <T
-              zh={publicPageMetadata.projects.zh.description}
-              en={publicPageMetadata.projects.en.description}
-            />
-          </p>
-        </header>
-        <PixelCluster variant={3} className="enter shrink-0" />
-      </div>
+    <div className="page">
+      <header className="page-head">
+        <h1 className="page-title">{copy.heading}</h1>
+        <p className="page-lede">{copy.lede}</p>
+        <p className="page-meta">
+          <span>
+            {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+          </span>
+          {caseStudies.size > 0 ? (
+            <span>
+              {caseStudies.size} {caseStudies.size === 1 ? 'case study' : 'case studies'}
+            </span>
+          ) : null}
+        </p>
+      </header>
 
-      <ProjectsBlueprintStage className="mt-10">
-        <ul className="focus-list flex flex-col">
+      <ProjectsBlueprintStage className="page-body projects-table">
+        <ul className="prints-grid">
           {projects.map((project, index) => (
-            <li
+            <WorkPrint
               key={project.id}
-              className="enter-swing"
-              style={
-                {
-                  '--enter-delay': `${120 + Math.abs(index - center) * 50}ms`,
-                } as React.CSSProperties
-              }
-            >
-              <Link
-                href={projectPath(project.id)}
-                className="project-row hairline-top group"
-                data-list-stage-row
-                data-list-stage-id={project.id}
-              >
-                <span className="project-icon-frame" aria-hidden="true" data-list-stage-anchor>
-                  {/* the monogram hands off to an arrow on hover */}
-                  <span className="project-glyph">
-                    <span className="project-glyph-mark">{project.nameEn.charAt(0).toUpperCase()}</span>
-                    <span className="project-glyph-arrow">→</span>
-                  </span>
-                </span>
-                <span className="project-identity">
-                  <span className="project-name font-medium">
-                    <T zh={project.name} en={project.nameEn} />
-                  </span>
-                  <span className="project-domain text-muted-foreground">{project.category}</span>
-                  <span className="project-meta">
-                    <span className="project-status" data-tone={projectStatusTone(project.status)}>
-                      {project.status}
-                    </span>
-                    {caseStudies.has(project.id) ? (
-                      <span className="project-case-tag">Case study</span>
-                    ) : null}
-                  </span>
-                </span>
-                {project.description ? (
-                  <span className="project-description text-muted-foreground">
-                    <T zh={project.description} en={project.descriptionEn ?? project.description} />
-                  </span>
-                ) : null}
-              </Link>
-            </li>
+              project={project}
+              index={index}
+              caseStudy={caseStudies.has(project.id)}
+              stageRow
+            />
           ))}
         </ul>
       </ProjectsBlueprintStage>
