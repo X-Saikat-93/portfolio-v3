@@ -15,8 +15,8 @@ const englishFormatter = new Intl.DateTimeFormat('en-US', {
 })
 
 const monthDayFormatter = new Intl.DateTimeFormat('en-US', {
-  month: '2-digit',
-  day: '2-digit',
+  month: 'short',
+  day: 'numeric',
   timeZone: SITE_TIME_ZONE,
 })
 

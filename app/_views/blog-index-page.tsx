@@ -2,12 +2,14 @@ import Link from 'next/link'
 
 import { CloudinaryImage } from '~/components/cloudinary-image'
 import { WritingInkStage } from '~/components/hidden-list-stage'
-import { PixelCluster } from '~/components/pixel-cluster'
 import { PostTitleTransition } from '~/components/post-title-transition'
-import { T } from '~/lib/i18n'
-import { formatMonthDay } from '~/lib/date'
+import { RevealScope } from '~/components/reveal-scope'
+import { formatDateEn, formatMonthDay } from '~/lib/date'
 import { localePath, type Locale } from '~/lib/locale-route'
+import { publicPageMetadata } from '~/lib/public-page-metadata'
 import type { BlogPost } from '~/lib/blog/repository'
+
+const copy = publicPageMetadata.blog.en
 
 function groupPostsByYear(posts: BlogPost[]) {
   const groups = new Map<number, BlogPost[]>()
@@ -18,70 +20,129 @@ function groupPostsByYear(posts: BlogPost[]) {
   return [...groups.entries()].sort(([a], [b]) => b - a)
 }
 
+// Writing as a print run: the newest post pulled as a large proof, the rest
+// entered on one archive sheet by year. Each title is the only link in its
+// entry; a stretched hit area makes the whole entry clickable.
 export function BlogIndexPageView({ locale, posts }: { locale: Locale; posts: BlogPost[] }) {
-  const firstPostSlug = posts[0]?.slug
+  const [latest, ...archive] = posts
+  const postHref = (post: BlogPost) => localePath(locale, `/blog/${post.slug}`)
+
   return (
-    <div className="mx-auto w-full max-w-[37.5rem] px-6">
-      <header className="enter flex items-center justify-between">
-        <h1 className="page-eyebrow">
-          <T zh="写作" en="Writing" />
-        </h1>
-        <PixelCluster variant={1} />
-      </header>
-      <WritingInkStage className="mt-6" contentClassName="flex flex-col gap-8">
-        {posts.length === 0 ? (
-          <p className="empty-state text-sm" role="status">
-            <T zh="Writing will appear here when it is ready." en="Writing will appear here when it is ready." />
+    <div className="page writing">
+      <header className="page-head">
+        <h1 className="page-title">{copy.heading}</h1>
+        <p className="page-lede">{copy.lede}</p>
+        {posts.length > 0 ? (
+          <p className="page-meta">
+            <span>
+              {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+            </span>
+            <a href="/en/feed.xml" className="ink-link">
+              RSS feed
+            </a>
           </p>
-        ) : (
-          groupPostsByYear(posts).map(([year, yearPosts]) => (
-            <section key={year} className="blog-year">
-              <h2 className="blog-year-label page-eyebrow">{year}</h2>
-              <ul className="motion-list mt-3 flex flex-col">
+        ) : null}
+      </header>
+
+      {latest ? (
+        <article className="writing-lead paper paper-grain paper-edge">
+          <div className="writing-lead-print">
+            {latest.coverImagePublicId ? (
+              <CloudinaryImage
+                publicId={latest.coverImagePublicId}
+                alt=""
+                width={1280}
+                height={720}
+                preserveAspectRatio
+                sizes="(min-width: 56rem) 34rem, calc(100vw - 2rem)"
+                loading="eager"
+                fetchPriority="high"
+                className="writing-lead-image"
+              />
+            ) : null}
+          </div>
+          <div className="writing-lead-text">
+            <p className="writing-kicker page-label">
+              <span className="writing-kicker-mark">Latest</span>
+              {latest.category}
+            </p>
+            <h2 className="writing-lead-title">
+              <Link href={postHref(latest)} className="writing-hit">
+                <PostTitleTransition slug={latest.slug}>
+                  <span>{latest.title}</span>
+                </PostTitleTransition>
+              </Link>
+            </h2>
+            <p className="writing-lead-summary">{latest.description}</p>
+            <p className="writing-lead-foot">
+              <time dateTime={latest.publishedAt.toISOString()}>{formatDateEn(latest.publishedAt)}</time>
+              <span>{latest.readingMinutes} min read</span>
+              <span className="writing-lead-cta" aria-hidden="true">
+                Read <span className="writing-lead-arrow">→</span>
+              </span>
+            </p>
+          </div>
+        </article>
+      ) : (
+        <p className="empty-state writing-empty" role="status">
+          Writing will appear here when it is ready.
+        </p>
+      )}
+
+      {archive.length > 0 ? (
+        <WritingInkStage className="writing-archive paper paper-grain">
+          {groupPostsByYear(archive).map(([year, yearPosts]) => (
+            <section key={year} className="archive-year" aria-labelledby={`archive-${year}`}>
+              <h2 id={`archive-${year}`} className="archive-year-label page-label">
+                {year}
+              </h2>
+              {/* rows below the fold develop in as they are reached */}
+              <RevealScope as="ol" className="archive-list">
                 {yearPosts.map((post) => (
                   <li
                     key={post.slug}
+                    className="archive-entry"
                     data-list-stage-row
                     data-list-stage-id={post.slug}
-                    className="hairline-top"
                   >
-                    <Link href={localePath(locale, `/blog/${post.slug}`)} className="blog-row">
-                      <span className="print-pile" aria-hidden="true">
-                        <span className="print-pile-sheet" />
-                        <span className="print-pile-sheet" />
-                        {post.coverImagePublicId ? (
-                          <CloudinaryImage
-                            publicId={post.coverImagePublicId}
-                            alt=""
-                            width={240}
-                            height={144}
-                            sizes="64px"
-                            loading={post.slug === firstPostSlug ? 'eager' : 'lazy'}
-                            className="print-thumb print-thumb-img"
-                          />
-                        ) : (
-                          <span className="print-thumb print-thumb-empty" />
-                        )}
-                      </span>
-                      <span data-list-stage-target className="min-w-0 flex-1">
-                        <PostTitleTransition slug={post.slug}>
-                          <span className="blog-row-title block">{post.title}</span>
-                        </PostTitleTransition>
-                        <span className="blog-row-meta">{post.category} · {post.readingMinutes} min read</span>
-                        <span className="blog-row-summary">{post.description}</span>
-                      </span>
-                      <span className="blog-row-leader" aria-hidden="true" />
-                      <time dateTime={post.publishedAt.toISOString()} className="blog-row-date text-muted-foreground">
-                        {formatMonthDay(post.publishedAt)}
-                      </time>
-                    </Link>
+                    <time dateTime={post.publishedAt.toISOString()} className="archive-date">
+                      {formatMonthDay(post.publishedAt)}
+                    </time>
+                    <div data-list-stage-target className="archive-main">
+                      <h3 className="archive-title">
+                        <Link href={postHref(post)} className="writing-hit">
+                          <PostTitleTransition slug={post.slug}>
+                            <span>{post.title}</span>
+                          </PostTitleTransition>
+                        </Link>
+                      </h3>
+                      <p className="archive-summary">{post.description}</p>
+                    </div>
+                    <p className="archive-meta">
+                      <span>{post.category}</span>
+                      <span>{post.readingMinutes} min</span>
+                    </p>
+                    <span className="archive-print" aria-hidden="true">
+                      {post.coverImagePublicId ? (
+                        <CloudinaryImage
+                          publicId={post.coverImagePublicId}
+                          alt=""
+                          width={256}
+                          height={144}
+                          preserveAspectRatio
+                          sizes="(min-width: 64rem) 7rem, 6.5rem"
+                          loading="lazy"
+                          className="archive-print-image"
+                        />
+                      ) : null}
+                    </span>
                   </li>
                 ))}
-              </ul>
+              </RevealScope>
             </section>
-          ))
-        )}
-      </WritingInkStage>
+          ))}
+        </WritingInkStage>
+      ) : null}
     </div>
   )
 }

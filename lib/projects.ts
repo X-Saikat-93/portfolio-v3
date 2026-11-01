@@ -113,12 +113,12 @@ export const projects: Project[] = [
     name: 'Human Before Resource ATS',
     nameEn: 'Human Before Resource ATS',
     description:
-      'A recruitment operations platform for candidate intake, pipeline search, interview scheduling, AI-assisted evaluation, and reporting across 100K+ records.',
+      'A recruitment operations platform for candidate intake, pipeline search, interview scheduling, AI-assisted evaluation, and reporting for a large candidate database.',
     url: 'https://hire.humanbeforeresource.com',
     domain: 'hire.humanbeforeresource.com',
     category: 'Recruitment operations',
     status: 'Live',
-    role: 'Product engineer',
+    role: 'Full-stack software engineer',
     scope: 'Candidate data and hiring operations',
     stack: [
       'Next.js',
@@ -137,7 +137,7 @@ export const projects: Project[] = [
       'Operational dashboards and regional reporting',
     ],
     overview: [
-      'Human Before Resource ATS centralizes candidate intake, search, assignment, interviews, evaluation, and operational reporting across more than 100,000 candidate records.',
+      'Human Before Resource ATS centralizes candidate intake, search, assignment, interviews, evaluation, and operational reporting for a large candidate database.',
       'The application combines Next.js API routes with PostgreSQL, Drizzle ORM, Redis caching, server-side role controls, indexed search, virtualized tables, and background operational jobs.',
     ],
     notes: [
@@ -147,7 +147,7 @@ export const projects: Project[] = [
       },
       {
         title: 'Access at the server boundary',
-        body: 'Authentication and role checks protect CEO, manager, recruiter, national, and regional views before operational data reaches the interface.',
+        body: 'Authentication and role checks protect each role’s views before operational data reaches the interface.',
       },
       {
         title: 'Repeatable operations',
@@ -623,49 +623,6 @@ export const projects: Project[] = [
       {
         label: 'View source',
         url: 'https://github.com/X-Saikat-93/railway-curve',
-        kind: 'source',
-      },
-    ],
-  },
-  {
-    id: 'linkedin-image-saver-bot',
-    name: 'LinkedIn Image Saver Bot',
-    nameEn: 'LinkedIn Image Saver Bot',
-    description:
-      'A Telegram bot that retrieves images from public LinkedIn posts, tracks usage, enforces daily limits, and stores user records with Supabase RLS.',
-    url: 'https://github.com/X-Saikat-93/LinkedIn-Image-Saver-Bot',
-    domain: 'github.com',
-    category: 'Telegram utility',
-    status: 'Public repository',
-    role: 'Creator',
-    scope: 'Public-post image delivery',
-    stack: ['Python', 'Telegram Bot API', 'Supabase', 'PostgreSQL', 'Docker'],
-    capabilities: [
-      'Public LinkedIn post URL intake',
-      'Multi-image retrieval and Telegram delivery',
-      'Per-user daily usage tracking',
-      'Five-download free-tier limit',
-      'Supabase Row Level Security policies',
-    ],
-    overview: [
-      'LinkedIn Image Saver Bot accepts a public LinkedIn post URL in Telegram, retrieves the post’s images, and returns them in the chat.',
-      'Supabase stores users and usage logs, with Row Level Security policies around each user’s records. The bot tracks a five-download daily free tier and is packaged for Docker-based deployment.',
-    ],
-    notes: [
-      {
-        title: 'User-scoped records',
-        body: 'Supabase policies scope user and usage-log reads and writes to the current Telegram identity.',
-      },
-      {
-        title: 'Quota in the product path',
-        body: 'Each successful request updates usage history so the daily free-tier limit can be enforced before more work is accepted.',
-      },
-    ],
-    flow: ['Post URL', 'Retrieve', 'Extract', 'Track', 'Deliver'],
-    links: [
-      {
-        label: 'View source',
-        url: 'https://github.com/X-Saikat-93/LinkedIn-Image-Saver-Bot',
         kind: 'source',
       },
     ],

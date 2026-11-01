@@ -6,7 +6,7 @@ import { cloudinaryImageUrl } from '~/lib/cloudinary/image-url'
 import { localeMetadata } from '~/lib/locale-metadata'
 import { safeListPublishedCollectionItems } from '~/lib/collections/repository'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
-import { seo } from '~/lib/seo'
+import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/seo'
 
 export const instant = true
 
@@ -23,40 +23,38 @@ export default async function EnglishBooksPage() {
   return (
     <>
       <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'CollectionPage',
-          name: copy.title,
-          description: copy.description,
-          url: new URL('/en/books', seo.url).href,
-          inLanguage: 'en',
-          mainEntity: {
-            '@type': 'ItemList',
-            numberOfItems: items.length,
-            itemListElement: items.map((item, index) => ({
-              '@type': 'ListItem',
-              position: index + 1,
-              item: {
-                '@type': 'Book',
-                name: item.title,
-                author: item.creator
-                  ? { '@type': 'Person', name: item.creator }
-                  : undefined,
-                datePublished: item.year ? String(item.year) : undefined,
-                description: item.description || undefined,
-                url: item.url || undefined,
-                image: item.imagePublicId
-                  ? cloudinaryImageUrl(item.imagePublicId, {
-                      width: 480,
-                      height: 720,
-                      crop: 'fill',
-                      gravity: 'center',
-                    })
-                  : undefined,
-              },
-            })),
+        data={[
+          {
+            ...webPageJsonLd('/en/books', copy, 'CollectionPage'),
+            mainEntity: {
+              '@type': 'ItemList',
+              numberOfItems: items.length,
+              itemListElement: items.map((item, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                item: {
+                  '@type': 'Book',
+                  name: item.title,
+                  author: item.creator
+                    ? { '@type': 'Person', name: item.creator }
+                    : undefined,
+                  datePublished: item.year ? String(item.year) : undefined,
+                  description: item.description || undefined,
+                  url: item.url || undefined,
+                  image: item.imagePublicId
+                    ? cloudinaryImageUrl(item.imagePublicId, {
+                        width: 480,
+                        height: 720,
+                        crop: 'fill',
+                        gravity: 'center',
+                      })
+                    : undefined,
+                },
+              })),
+            },
           },
-        }}
+          breadcrumbJsonLd([{ name: copy.heading, path: '/en/books' }]),
+        ]}
       />
       <CollectionPageView kind="book" items={items} />
     </>

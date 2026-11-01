@@ -1,245 +1,42 @@
-/* ── Project index: compact artifacts with drafting crop marks ───── */
+/* ── Project index (app/_views/projects-page.tsx) ──────────────────
+   The homepage prints, set square on a grid. The blueprint stage
+   sketches graph paper in the gutters around the print under the
+   pointer and frames it in pencil (list-stages.css). */
 
-.project-row {
+.projects-table {
+  margin-inline: calc(-1 * var(--space-3));
+  padding: var(--space-3);
+}
+
+.prints-grid {
   display: grid;
-  grid-template-columns: 2.75rem minmax(0, 10rem) minmax(0, 1fr);
-  align-items: start;
-  gap: 0.25rem 1rem;
-  min-height: 4.75rem;
-  padding-block: 0.875rem;
-  font-size: 0.875rem;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.page-introduction {
-  color: var(--gray-10, var(--foreground));
-  font-size: 0.875rem;
-  line-height: 1.7;
-}
-
-.project-row:focus-visible {
-  border-radius: 2px;
-  outline: 1px solid var(--focus-ring);
-  outline-offset: 3px;
-}
-
-.project-icon-frame {
+.prints-grid > .work-print {
   position: relative;
-  display: grid;
-  width: 2.75rem;
-  height: 2.75rem;
-  place-items: center;
-  isolation: isolate;
 }
 
-.project-icon-frame::before {
+/* covers the print, so the stage measures the whole sheet */
+.work-print-anchor {
   position: absolute;
   inset: 0;
-  color: var(--foreground);
-  background:
-    linear-gradient(currentColor, currentColor) left top / 7px var(--border-hairline) no-repeat,
-    linear-gradient(currentColor, currentColor) left top / var(--border-hairline) 7px no-repeat,
-    linear-gradient(currentColor, currentColor) right top / 7px var(--border-hairline) no-repeat,
-    linear-gradient(currentColor, currentColor) right top / var(--border-hairline) 7px no-repeat,
-    linear-gradient(currentColor, currentColor) left bottom / 7px var(--border-hairline) no-repeat,
-    linear-gradient(currentColor, currentColor) left bottom / var(--border-hairline) 7px no-repeat,
-    linear-gradient(currentColor, currentColor) right bottom / 7px var(--border-hairline) no-repeat,
-    linear-gradient(currentColor, currentColor) right bottom / var(--border-hairline) 7px no-repeat;
-  content: '';
-  opacity: 0;
-  transform: scale(0.82);
-  transition:
-    opacity 150ms ease,
-    transform 300ms var(--ease-spring);
+  pointer-events: none;
 }
 
-.project-glyph {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
-  place-items: center;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  color: var(--muted-foreground);
-  box-shadow: 0 0 0 var(--border-hairline) color-mix(in oklab, var(--foreground) 10%, transparent);
-  transition:
-    transform 300ms var(--ease-spring),
-    color 180ms var(--ease-swift),
-    box-shadow 180ms var(--ease-swift);
-}
-
-/* monogram and arrow share one cell; hover rolls one out, the other in */
-.project-glyph-mark,
-.project-glyph-arrow {
-  grid-area: 1 / 1;
-  transition:
-    transform 340ms var(--ease-enter),
-    opacity 200ms var(--ease-swift);
-}
-
-.project-glyph-mark {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0;
-}
-
-.project-glyph-arrow {
-  font-size: 1.05rem;
-  opacity: 0;
-  transform: translate3d(-0.9rem, 0, 0);
-}
-
-.project-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.6rem;
-  margin-top: 0.2rem;
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  line-height: 1.3;
-  text-transform: uppercase;
-}
-
-.project-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.project-status::before {
-  width: 5px;
-  height: 5px;
-  border: 1px solid color-mix(in oklab, var(--muted-foreground) 70%, transparent);
-  border-radius: 999px;
-  content: '';
-}
-
-.project-status[data-tone='live']::before {
-  border-color: var(--signal);
-  background: var(--signal);
-}
-
-.project-status[data-tone='draft']::before {
-  border-style: dashed;
-}
-
-.project-case-tag {
-  padding: 0.1rem 0.3rem;
-  border: var(--border-hairline) solid color-mix(in oklab, var(--foreground) 22%, transparent);
-  border-radius: 2px;
-  color: var(--foreground);
-}
-
-.project-identity {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.125rem;
-  line-height: 1.4;
-}
-
-.project-name {
-  max-width: 100%;
-  color: var(--gray-11, var(--foreground));
-  text-wrap: balance;
-}
-
-.project-domain {
-  display: block;
-  max-width: 100%;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  transition: color 150ms ease;
-}
-
-.project-description {
-  min-width: 0;
-  color: var(--gray-8, var(--muted-foreground));
-  line-height: 1.55;
-  text-wrap: balance;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .project-row:hover .project-icon-frame::before {
-    opacity: 0.34;
-    transform: scale(1);
-  }
-
-  .project-row:hover .project-glyph {
-    color: var(--foreground);
-    box-shadow: 0 0 0 var(--border-hairline) color-mix(in oklab, var(--foreground) 22%, transparent);
-    transform: translateY(-1px);
-  }
-
-  .project-row:hover .project-glyph-mark {
-    opacity: 0;
-    transform: translate3d(0.9rem, 0, 0);
-  }
-
-  .project-row:hover .project-glyph-arrow {
-    opacity: 1;
-    transform: none;
-  }
-
-  .project-row:hover .project-domain {
-    color: var(--foreground);
+@media (min-width: 40rem) {
+  .prints-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.project-row:focus-visible .project-glyph-mark {
-  opacity: 0;
-}
-
-.project-row:focus-visible .project-glyph-arrow {
-  opacity: 1;
-  transform: none;
-}
-
-.project-row:focus-visible .external-label .external-mark {
-  opacity: 0.6;
-  transition: none;
-}
-
-@media (max-width: 39.99rem) {
-  .project-row {
-    grid-template-columns: 2.75rem minmax(0, 1fr);
-    align-items: start;
-    row-gap: 0.375rem;
-    min-height: 0;
-    padding-block: 1rem;
-  }
-
-  .project-icon-frame {
-    grid-row: 1 / span 2;
-  }
-
-  .project-identity,
-  .project-description {
-    grid-column: 2;
-  }
-
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .project-icon-frame::before,
-  .project-glyph,
-  .project-glyph-mark,
-  .project-glyph-arrow,
-  .project-domain {
-    transition: none;
-  }
-
-  .project-row:hover .project-glyph {
-    transform: none;
-  }
-
-  .project-row:hover .project-icon-frame::before {
-    transform: none;
+@media (min-width: 64rem) {
+  .prints-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
   }
 }
 
@@ -247,143 +44,150 @@
 
 .project-dossier {
   isolation: isolate;
-  padding-bottom: 3rem;
-}
-
-.project-dossier-ghost {
-  top: -2rem;
-  right: -5.75rem;
-  width: 18rem;
 }
 
 .project-dossier-register {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  color: var(--muted-foreground);
+  gap: var(--space-2) var(--space-4);
+  color: var(--ink-faint);
   font-family: var(--font-mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.075em;
-  line-height: 1.4;
-  text-transform: uppercase;
+  font-size: var(--text-meta);
 }
 
 .project-dossier-back {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  transition:
-    color 160ms ease,
-    transform 180ms var(--ease-swift);
+  min-height: 2.75rem;
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-ink);
+}
+
+.project-dossier-back:is(:hover, :focus-visible) {
+  color: var(--ink);
 }
 
 .project-dossier-back:focus-visible,
 .project-dossier-actions a:focus-visible,
 .project-dossier-pager a:focus-visible {
   border-radius: 2px;
-  outline: 1px solid var(--focus-ring);
-  outline-offset: 4px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .project-dossier-case {
-  text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
 .project-dossier-header {
-  position: relative;
-  margin-top: 2.5rem;
-}
-
-.project-dossier-mast {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
-.project-dossier-kicker {
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.project-dossier-header h1 {
-  max-width: 32rem;
-  margin-top: 0.55rem;
-  color: var(--foreground);
-  font-size: clamp(2.35rem, 8vw, 4.15rem);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: -0.06em;
-  line-height: 0.96;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
 }
 
 .project-dossier-lede {
-  max-width: 34rem;
-  margin-top: 1.4rem;
-  color: var(--gray-10, var(--foreground));
-  font-size: 0.98rem;
-  line-height: 1.75;
-  text-wrap: pretty;
+  max-width: 40rem;
+}
+
+.project-dossier-hero {
+  justify-self: stretch;
+  margin: var(--space-6) 0 0;
+  padding: var(--space-2);
+}
+
+.project-dossier-hero-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1px;
 }
 
 .project-dossier-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem 1.35rem;
-  margin-top: 1.2rem;
-  color: var(--muted-foreground);
-  font-size: 0.73rem;
+  gap: var(--space-2) var(--space-6);
+  margin-top: var(--space-2);
+  font-size: var(--text-small);
 }
 
 .project-dossier-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--ink);
   text-decoration: underline;
-  text-decoration-style: dotted;
-  text-underline-offset: 0.28em;
-  transition: color 160ms ease;
+  text-decoration-color: var(--hairline);
+  text-decoration-thickness: var(--border-hairline);
+  text-underline-offset: 0.25em;
 }
 
+/* the case facts: a ruled block of terms, a rail beside the record from
+   64rem */
 .project-dossier-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 2.35rem;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  gap: 0 var(--space-5);
+  margin: var(--space-8) 0 0;
+  border-top: var(--border-hairline) solid var(--hairline);
 }
 
 .project-dossier-facts > div {
   min-width: 0;
-  padding: 0.85rem 1rem 0.9rem 0;
-}
-
-.project-dossier-facts > div:nth-child(even) {
-  border-left: 1px solid var(--border);
-  padding-left: 1rem;
-}
-
-.project-dossier-facts > div:nth-child(n + 3) {
-  border-top: 1px solid var(--border);
+  padding-block: var(--space-3);
+  border-bottom: var(--border-hairline) solid var(--hairline);
 }
 
 .project-dossier-facts dt {
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.085em;
-  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-size: var(--text-meta);
 }
 
 .project-dossier-facts dd {
-  margin-top: 0.38rem;
-  color: var(--foreground);
-  font-size: 0.77rem;
+  margin: 2px 0 0;
+  color: var(--ink);
+  font-size: var(--text-small);
   line-height: 1.45;
-  text-wrap: balance;
+  text-shadow: var(--press-shadow);
+}
+
+@media (min-width: 64rem) {
+  .project-dossier {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 46rem);
+    column-gap: var(--space-12);
+    align-items: start;
+  }
+
+  .project-dossier > * {
+    grid-column: 2;
+  }
+
+  .project-dossier > .project-dossier-register {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .project-dossier > .project-dossier-header {
+    margin-top: 0;
+  }
+
+  .project-dossier > .project-dossier-facts {
+    position: sticky;
+    top: var(--space-8);
+    grid-column: 1;
+    grid-row: 2 / span 12;
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: var(--space-8);
+  }
 }
 
 .project-case-study {
@@ -979,6 +783,8 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
   margin-top: 4.5rem;
+  /* sits on the section text column, past the roman numerals */
+  margin-left: 3.15rem;
   padding-block: 1.05rem 1.5rem;
 }
 
@@ -1044,36 +850,6 @@
 }
 
 @media (max-width: 39.99rem) {
-  .project-dossier-register {
-    align-items: flex-start;
-  }
-
-  .project-dossier-header {
-    margin-top: 2.15rem;
-  }
-
-  .project-dossier-header h1 {
-    font-size: clamp(2.25rem, 13vw, 3.5rem);
-  }
-
-  .project-dossier-lede {
-    font-size: 0.9rem;
-  }
-
-  .project-dossier-facts {
-    grid-template-columns: 1fr;
-  }
-
-  .project-dossier-facts > div,
-  .project-dossier-facts > div:nth-child(even) {
-    border-left: 0;
-    padding-inline: 0;
-  }
-
-  .project-dossier-facts > div + div {
-    border-top: 1px solid var(--border);
-  }
-
   .project-system-flow {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1161,6 +937,7 @@
   .project-dossier-pager {
     grid-template-columns: 1fr;
     gap: 1rem;
+    margin-left: 0;
   }
 
   .project-dossier-pager > span:empty {

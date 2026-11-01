@@ -1,0 +1,897 @@
+/* ── Writing (app/_views/blog-index-page.tsx, blog-post-page.tsx) ────
+   The index is a print run: the newest post pulled as a large proof on
+   letterpress stock, the rest entered by year on one archive sheet. A post
+   is a set page: the head and a mounted cover over the text column, the
+   contents on a rail beside it from 64rem, a seal to sign off. Titles are
+   the only links in an entry; .writing-hit stretches each over its card. */
+
+/* spacing: --block-gap separates the head and the sheets, --card-pad
+   insets every card, so the lead's print, the archive rows and the
+   related cards start on the same line at each width */
+.writing,
+.post-page {
+  --block-gap: var(--space-12);
+  --card-pad: var(--space-4);
+}
+
+@media (min-width: 40rem) {
+  .writing,
+  .post-page {
+    --card-pad: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  .writing,
+  .post-page {
+    --card-pad: var(--space-8);
+  }
+}
+
+/* a set-in print at the covers' own 16:9, hairline edge */
+.writing-lead-print,
+.archive-print,
+.post-related-print {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 1px;
+  background: var(--surface-deep);
+  box-shadow: 0 0 0 var(--border-hairline) var(--edge);
+}
+
+.writing-lead-image,
+.archive-print-image,
+.post-related-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* the title link covers its whole entry; the ink line draws under the
+   title when the entry is hovered or the link has focus */
+.writing-hit {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% var(--border-hairline);
+  transition: background-size var(--dur-base) var(--ease-settle);
+}
+
+.writing-hit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-2);
+}
+
+.writing-hit:focus-visible {
+  outline: none;
+}
+
+.writing-hit:focus-visible::after {
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+:is(.writing-lead, .archive-entry, .post-related-entry):is(:hover, :focus-within) .writing-hit {
+  background-size: 100% var(--border-hairline);
+}
+
+.writing-empty {
+  margin-top: var(--block-gap);
+}
+
+/* ── The lead proof: the newest post ─────────────────────────────── */
+
+.writing-lead {
+  display: grid;
+  gap: var(--card-pad);
+  margin-top: var(--block-gap);
+  padding: var(--card-pad);
+  transition:
+    transform var(--dur-gentle) var(--ease-settle),
+    box-shadow var(--dur-gentle) var(--ease-settle);
+}
+
+.writing-lead-image {
+  transition: transform var(--dur-slow) var(--ease-settle);
+}
+
+.writing-lead-text {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: var(--space-3);
+}
+
+.writing-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+}
+
+.writing-kicker-mark {
+  color: var(--sun);
+}
+
+.writing-lead-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: var(--text-display-s);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.writing-lead-summary {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.writing-lead-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-5);
+  width: 100%;
+  margin: var(--space-2) 0 0;
+  padding-top: var(--space-3);
+  border-top: var(--border-hairline) solid var(--hairline);
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+}
+
+.writing-lead-cta {
+  margin-inline-start: auto;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+}
+
+.writing-lead-arrow {
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease-settle);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .writing-lead:hover {
+    box-shadow:
+      0 0 0 var(--border-hairline) var(--edge),
+      var(--sheet-shadow-lift);
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .writing-lead:hover .writing-lead-image {
+    transform: scale(1.025);
+  }
+
+  .writing-lead:hover .writing-lead-arrow {
+    transform: translate3d(3px, 0, 0);
+  }
+}
+
+@media (min-width: 56rem) {
+  .writing-lead {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    column-gap: var(--space-10);
+  }
+
+  .writing-lead-print {
+    align-self: center;
+  }
+}
+
+/* ── The archive sheet ───────────────────────────────────────────── */
+
+.writing-archive {
+  margin-top: var(--block-gap);
+  padding: var(--space-2) var(--card-pad) var(--space-3);
+}
+
+.archive-year-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-4) var(--space-2);
+  font-family: var(--font-mono);
+}
+
+.archive-year-label::after {
+  content: '';
+  flex: 1;
+  height: var(--border-hairline);
+  background: var(--hairline);
+  transform-origin: left center;
+}
+
+.archive-year + .archive-year {
+  margin-top: var(--space-4);
+}
+
+.archive-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* phones: the print on the left, dateline, title and meta beside it */
+.archive-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.75rem minmax(0, 1fr);
+  grid-template-areas:
+    'print date'
+    'print main'
+    'print meta';
+  align-content: start;
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
+  padding-block: var(--space-5);
+  transition: opacity var(--dur-base) var(--ease-ink);
+}
+
+.archive-entry + .archive-entry {
+  border-top: var(--border-hairline) solid var(--hairline);
+}
+
+.archive-date {
+  grid-area: date;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.archive-main {
+  grid-area: main;
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.archive-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.archive-summary {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.archive-meta {
+  grid-area: meta;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
+  margin: var(--space-1) 0 0;
+  color: var(--ink-faint);
+  font-size: var(--text-meta);
+}
+
+.archive-meta span + span::before {
+  content: '·';
+  margin-inline-end: var(--space-3);
+}
+
+.archive-print {
+  --tilt: 0.75deg;
+
+  grid-area: print;
+  align-self: start;
+  margin-top: 0.25rem;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 var(--border-hairline) var(--edge),
+    var(--sheet-shadow);
+  transform: rotate(var(--tilt));
+  transition:
+    transform var(--dur-gentle) var(--ease-settle),
+    box-shadow var(--dur-gentle) var(--ease-settle);
+}
+
+.archive-entry:nth-child(even) .archive-print {
+  --tilt: -0.75deg;
+}
+
+/* reading focus: the hovered entry keeps full ink, the rest recede, and
+   its print straightens and lifts off the sheet */
+@media (hover: hover) and (pointer: fine) {
+  .archive-list:has(.archive-entry:hover) > .archive-entry:not(:hover) {
+    opacity: 0.55;
+  }
+
+  .archive-entry:hover .archive-print {
+    box-shadow:
+      0 0 0 var(--border-hairline) var(--edge),
+      var(--sheet-shadow-lift);
+    transform: rotate(0deg) translate3d(0, -2px, 0);
+  }
+}
+
+/* tablets: date in its own column, the print on the right */
+@media (min-width: 40rem) {
+  .archive-entry {
+    grid-template-columns: 5rem minmax(0, 1fr) 6.5rem;
+    grid-template-areas:
+      'date main print'
+      'date meta print';
+    column-gap: var(--space-5);
+  }
+
+  .archive-date {
+    padding-top: 0.3em;
+  }
+
+  .archive-print {
+    margin-top: 0;
+  }
+}
+
+/* desktop: one ledger line per post — date, title, filing, print */
+@media (min-width: 64rem) {
+  .archive-entry {
+    grid-template-columns: 5.5rem minmax(0, 1fr) 11rem 7rem;
+    grid-template-areas: 'date main meta print';
+    column-gap: var(--space-6);
+  }
+
+  .archive-meta {
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding-top: 0.3em;
+  }
+
+  .archive-meta span + span::before {
+    content: none;
+  }
+}
+
+/* ── Post: head ──────────────────────────────────────────────────── */
+
+.post {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.post-back {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  margin-bottom: var(--space-5);
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-ink);
+}
+
+.post-back-arrow {
+  transition: transform var(--dur-base) var(--ease-settle);
+}
+
+.post-back:is(:hover, :focus-visible) {
+  color: var(--ink);
+}
+
+.post-back:is(:hover, :focus-visible) .post-back-arrow {
+  transform: translate3d(-0.2rem, 0, 0);
+}
+
+.post-head {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+}
+
+/* the kicker opens on a short vermilion rule */
+.post-kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.post-kicker::before {
+  content: '';
+  width: 1rem;
+  height: 2px;
+  background: var(--sun);
+}
+
+.post-title {
+  margin: 0 0 0 -0.03em;
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: clamp(1.875rem, 1.35rem + 2vw, 2.75rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.post-lede {
+  max-width: var(--measure);
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-lead);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.post-terms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-10);
+  width: 100%;
+  margin: var(--space-2) 0 0;
+  padding-block: var(--space-4);
+  border-block: var(--border-hairline) solid var(--hairline);
+}
+
+.post-terms > div {
+  display: grid;
+  gap: 2px;
+}
+
+.post-terms dt {
+  color: var(--ink-faint);
+  font-size: var(--text-meta);
+}
+
+.post-terms dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-small);
+  text-shadow: var(--press-shadow);
+}
+
+.post-loading {
+  margin: var(--space-3) 0 0;
+  color: var(--ink-faint);
+  font-size: var(--text-small);
+}
+
+/* the cover, mounted on the same stock as the cards */
+.post-cover {
+  margin: var(--block-gap) 0 0;
+  padding: var(--space-3);
+}
+
+.post-cover-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1px;
+}
+
+/* ── Post: text and contents ─────────────────────────────────────── */
+
+.post-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.post-body {
+  min-width: 0;
+  margin-top: var(--block-gap);
+}
+
+.post-contents {
+  margin-top: var(--block-gap);
+}
+
+.post-contents-rail {
+  display: none;
+}
+
+.post-contents-fold {
+  border-block: var(--border-hairline) solid var(--hairline);
+}
+
+.post-contents-fold summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.post-contents-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.post-contents-fold summary::after {
+  content: '+';
+  color: var(--ink-faint);
+  font-size: var(--text-body);
+  line-height: 1;
+  transition: transform var(--dur-base) var(--ease-settle);
+}
+
+.post-contents-fold[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.post-contents-fold summary:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.post-contents-count {
+  margin-inline-start: auto;
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* numbered in the same roman register as the section heads */
+.post-contents-list {
+  display: grid;
+  margin: 0;
+  padding: 0 0 var(--space-4);
+  list-style: none;
+  counter-reset: post-contents;
+}
+
+.post-contents-list li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  counter-increment: post-contents;
+}
+
+.post-contents-list li::before {
+  content: counter(post-contents, upper-roman);
+  padding-top: 0.45rem;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.04em;
+}
+
+.post-contents-list a {
+  padding-block: 0.3rem;
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  line-height: 1.45;
+  text-decoration: none;
+  text-wrap: pretty;
+  transition: color var(--dur-quick) var(--ease-ink);
+}
+
+.post-contents-list a:is(:hover, :focus-visible) {
+  color: var(--ink);
+}
+
+/* ── Post: sign-off ──────────────────────────────────────────────── */
+
+.post-signoff {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-16);
+  padding-top: var(--space-5);
+  border-top: var(--border-hairline) solid var(--hairline);
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  line-height: 1.6;
+}
+
+.post-signoff-seal {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.post-signoff p {
+  margin: 0;
+}
+
+.post-signoff p a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--hairline);
+  text-decoration-thickness: var(--border-hairline);
+  text-underline-offset: 0.2em;
+}
+
+.post-signoff-top {
+  grid-column: 2;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.post-signoff-top:is(:hover, :focus-visible) {
+  color: var(--ink);
+}
+
+@media (min-width: 40rem) {
+  .post-signoff {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .post-signoff-top {
+    grid-column: auto;
+  }
+}
+
+/* ── Post: continue reading ──────────────────────────────────────── */
+
+.post-related {
+  margin-top: var(--space-section);
+}
+
+.post-related-heading {
+  margin-bottom: var(--space-5);
+}
+
+.post-related-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-related-entry {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  transition:
+    transform var(--dur-gentle) var(--ease-settle),
+    box-shadow var(--dur-gentle) var(--ease-settle);
+}
+
+.post-related-print {
+  pointer-events: none;
+}
+
+.post-related-text {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.post-related-category {
+  color: var(--ink-faint);
+  font-size: var(--text-meta);
+}
+
+.post-related-title {
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .post-related-entry:hover {
+    box-shadow:
+      0 0 0 var(--border-hairline) var(--edge),
+      var(--sheet-shadow-lift);
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@media (min-width: 48rem) {
+  .post-related-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .post-related-entry {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    align-items: start;
+  }
+
+  .post-related-text {
+    padding: 0 var(--space-1) var(--space-2);
+  }
+}
+
+/* ── Post, desktop: a rail for the way back and the contents ─────── */
+
+@media (min-width: 64rem) {
+  .post {
+    max-width: none;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    column-gap: var(--space-12);
+  }
+
+  .post-back {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    margin: 0;
+  }
+
+  .post-head,
+  .post-cover {
+    grid-column: 2;
+  }
+
+  .post-cover {
+    max-width: 48rem;
+  }
+
+  .post-layout {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .post-body,
+  .post-signoff {
+    grid-column: 2;
+    max-width: var(--measure);
+  }
+
+  .post-contents {
+    position: sticky;
+    top: var(--space-8);
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    max-height: calc(100dvh - var(--space-16));
+    margin-top: var(--block-gap);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .post-contents-fold {
+    display: none;
+  }
+
+  .post-contents-rail {
+    display: block;
+  }
+
+  .post-contents-label {
+    margin-bottom: var(--space-3);
+  }
+}
+
+/* ── Reading progress: a vermilion hairline along the top edge, driven
+   by the page scroll; browsers without scroll timelines don't show it */
+
+.post-progress {
+  display: none;
+}
+
+@keyframes post-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .post-progress {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: var(--z-nav);
+    display: block;
+    height: 2px;
+    background: var(--sun);
+    transform-origin: left;
+    pointer-events: none;
+    animation: post-progress-fill linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+/* ── Entrance: the sheets are pressed down after the page head. A post
+   title arriving from the index is carried by the shared title morph, so
+   it stays still and its supporting lines wait out the morph window. */
+
+.post-back,
+.post-head > :not(.post-title) {
+  animation: rise-in var(--dur-gentle) var(--ease-settle) backwards;
+}
+
+.post-head > .post-lede {
+  animation-delay: var(--duration-route-morph);
+}
+
+.post-head > .post-terms {
+  animation-delay: calc(var(--duration-route-morph) + 60ms);
+}
+
+.writing-lead {
+  animation: press-in var(--dur-gentle) var(--ease-settle) 200ms backwards;
+}
+
+.post-cover {
+  animation: press-in var(--dur-gentle) var(--ease-settle) calc(var(--duration-route-morph) + 120ms) backwards;
+}
+
+.post-layout {
+  animation: ink-in var(--dur-gentle) var(--ease-ink) var(--delay-post-body) backwards;
+}
+
+.writing-lead::after {
+  animation: draw-x var(--dur-slow) var(--ease-settle) 520ms backwards;
+}
+
+/* the long archive sheet only fades in (a scale on a sheet this tall
+   would sweep its far edge); its rows develop in on scroll */
+.writing-archive {
+  animation: ink-in var(--dur-gentle) var(--ease-ink) 320ms backwards;
+}
+
+.archive-year-label::after {
+  animation: draw-x var(--dur-slow) var(--ease-settle) 480ms backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-back,
+  .post-head > *,
+  .post-layout,
+  .writing-lead,
+  .writing-lead::after,
+  .post-cover,
+  .writing-archive,
+  .archive-year-label::after {
+    animation: none;
+  }
+
+  .writing-hit,
+  .writing-lead,
+  .writing-lead-image,
+  .writing-lead-arrow,
+  .archive-entry,
+  .archive-print,
+  .post-back,
+  .post-back-arrow,
+  .post-contents-fold summary::after,
+  .post-contents-list a,
+  .post-related-entry {
+    transition: none;
+  }
+}

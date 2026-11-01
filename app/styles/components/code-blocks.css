@@ -1,4 +1,37 @@
-/* ── Code blocks (rehype-pretty-code + shiki dual themes) ─────────── */
+/* ── Code blocks (rehype-pretty-code + lib/code-theme.ts) ──────────── */
+
+/* the washi code palettes: warm, low saturation, AA on --surface */
+:root {
+  --code-foreground: var(--ink);
+  --code-background: transparent;
+  --code-token-comment: #6b6457;
+  --code-token-keyword: #8f3527;
+  --code-token-string: #46602f;
+  --code-token-string-expression: #46602f;
+  --code-token-constant: #2f4f69;
+  --code-token-function: #6a4b22;
+  --code-token-parameter: #4a4e50;
+  --code-token-punctuation: #5a5449;
+  --code-token-link: #2f4f69;
+  --code-token-inserted: #46602f;
+  --code-token-deleted: #8f3527;
+  --code-token-changed: #6a4b22;
+}
+
+:root[data-theme='dark'] {
+  --code-token-comment: #8f897b;
+  --code-token-keyword: #e3907a;
+  --code-token-string: #a6bd8d;
+  --code-token-string-expression: #a6bd8d;
+  --code-token-constant: #a3b9cc;
+  --code-token-function: #cfb289;
+  --code-token-parameter: #c4bdae;
+  --code-token-punctuation: #9a9486;
+  --code-token-link: #a3b9cc;
+  --code-token-inserted: #a6bd8d;
+  --code-token-deleted: #e3907a;
+  --code-token-changed: #cfb289;
+}
 
 /* the code block is a nameplate: a hairline frame, a ruled filename row
    with a boxed language tag, and the sheet of code below */
@@ -6,15 +39,18 @@ figure[data-rehype-pretty-code-figure] {
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
-  border: var(--border-hairline) solid var(--border);
+  border-radius: var(--radius-2);
+  box-shadow:
+    0 0 0 var(--border-hairline) var(--edge),
+    var(--sheet-shadow);
 }
 
 /* the code sheet rests one step up the surface ladder; the fade strips
    tint with the same surface so continuation reads seamlessly */
 .code-frame {
   position: relative;
-  background: var(--surface-1);
-  --scroll-fade-surface: var(--surface-1);
+  background: var(--surface);
+  --scroll-fade-surface: var(--surface);
 }
 
 .code-frame pre {
@@ -33,8 +69,8 @@ figure[data-rehype-pretty-code-figure] {
 }
 
 .code-frame pre::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--foreground) 20%, transparent);
-  border-radius: 4px;
+  background: var(--hairline);
+  border-radius: var(--radius-1);
 }
 
 .mermaid-error {

@@ -5,21 +5,10 @@ import { ResumeActions } from '~/components/resume-actions'
 import { RevealScope } from '~/components/reveal-scope'
 import { resumeProfile } from '~/lib/personal'
 
-function ResumeSection({
-  index,
-  title,
-  children,
-}: {
-  index: string
-  title: string
-  children: React.ReactNode
-}) {
+function ResumeSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="resume-section">
-      <div className="resume-section-heading">
-        <span aria-hidden="true">{index}</span>
-        <h2>{title}</h2>
-      </div>
+      <h2 className="resume-section-heading">{title}</h2>
       {children}
     </section>
   )
@@ -28,8 +17,33 @@ function ResumeSection({
 type ResumeProject = {
   name: string
   url?: string
+  /** what the link opens; a live product by default */
+  linkLabel?: string
   stack: string
   bullets: readonly string[]
+}
+
+function ResumeProjectBlock({ project }: { project: ResumeProject }) {
+  return (
+    <div className="resume-project">
+      <div className="resume-project-heading">
+        <div>
+          <h4>{project.name}</h4>
+          {project.stack ? <p>{project.stack}</p> : null}
+        </div>
+        {project.url ? (
+          <a href={project.url} target="_blank" rel="noreferrer" className="resume-project-link">
+            {project.linkLabel ?? 'Live'}: {project.url.replace(/^https?:\/\//, '')}
+          </a>
+        ) : null}
+      </div>
+      <ul>
+        {project.bullets.map((bullet) => (
+          <li key={bullet}>{bullet}</li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 type ResumeRole = {
@@ -58,24 +72,7 @@ function ResumeExperienceList({ roles }: { roles: readonly ResumeRole[] }) {
           </header>
           <div className="resume-role-projects">
             {role.projects.map((project) => (
-              <div key={project.name} className="resume-project">
-                <div className="resume-project-heading">
-                  <div>
-                    <h4>{project.name}</h4>
-                    {project.stack ? <p>{project.stack}</p> : null}
-                  </div>
-                  {project.url ? (
-                    <a href={project.url} target="_blank" rel="noreferrer" className="resume-project-link">
-                      Live: {project.url.replace(/^https?:\/\//, '')}
-                    </a>
-                  ) : null}
-                </div>
-                <ul>
-                  {project.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
-                </ul>
-              </div>
+              <ResumeProjectBlock key={project.name} project={project} />
             ))}
           </div>
         </article>
@@ -86,30 +83,20 @@ function ResumeExperienceList({ roles }: { roles: readonly ResumeRole[] }) {
 
 export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
   return (
-    <article className="resume-page mx-auto w-full max-w-[64rem] px-6">
-      <div className="resume-utility enter">
+    <article className="page resume-page">
+      <div className="resume-utility">
         <Link href="/en" className="resume-back-link">
           <span aria-hidden="true">←</span> Back to portfolio
         </Link>
         <ResumeActions resumeUrl={resumeUrl} />
       </div>
 
-      <div className="resume-document enter-swing">
+      <div className="resume-document paper">
         <header className="resume-header">
           <div className="resume-nameplate">
-            <p className="resume-kicker">Curriculum vitae / HTML edition</p>
-            <h1>
-              <span className="resume-name-line">
-                <span>{resumeProfile.name}</span>
-              </span>
-            </h1>
-            <p>{resumeProfile.title}</p>
+            <h1>{resumeProfile.name}</h1>
+            <p className="resume-title">{resumeProfile.title}</p>
             <p className="resume-headline">{resumeProfile.headline}</p>
-          </div>
-          <div className="resume-header-mark" aria-hidden="true">
-            <span>TEXT</span>
-            <span>A4</span>
-            <span>2026</span>
           </div>
           <address className="resume-contact">
             <a href={`mailto:${resumeProfile.email}`}>{resumeProfile.email}</a>
@@ -129,17 +116,25 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
 
         <div className="resume-layout">
           <RevealScope className="resume-main-column">
-            <ResumeSection index="01" title="Professional experience">
+            <ResumeSection title="Professional experience">
               <ResumeExperienceList roles={resumeProfile.experience} />
             </ResumeSection>
 
-            <ResumeSection index="02" title="Additional experience">
+            <ResumeSection title="Open-source projects">
+              <div className="resume-role-projects">
+                {resumeProfile.openSource.map((project) => (
+                  <ResumeProjectBlock key={project.name} project={project} />
+                ))}
+              </div>
+            </ResumeSection>
+
+            <ResumeSection title="Additional experience">
               <ResumeExperienceList roles={resumeProfile.additionalExperience} />
             </ResumeSection>
           </RevealScope>
 
           <RevealScope as="aside" className="resume-side-column">
-            <ResumeSection index="03" title="Technical skills">
+            <ResumeSection title="Technical skills">
               <dl className="resume-skills">
                 {resumeProfile.skills.map((group) => (
                   <div key={group.label}>
@@ -150,7 +145,7 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
               </dl>
             </ResumeSection>
 
-            <ResumeSection index="04" title="Education">
+            <ResumeSection title="Education">
               <div className="resume-education-list">
                 {resumeProfile.education.map((item) => (
                   <div key={item.title} className="resume-education-item">
@@ -162,7 +157,7 @@ export function ResumePageView({ resumeUrl }: { resumeUrl: string | null }) {
               </div>
             </ResumeSection>
 
-            <ResumeSection index="05" title="Certifications">
+            <ResumeSection title="Certifications">
               <ul className="resume-certifications">
                 {resumeProfile.certifications.map((certification) => (
                   <li key={certification}>{certification}</li>

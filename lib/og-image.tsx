@@ -6,17 +6,9 @@ import { getProjectById } from './projects'
 import { publicPageMetadata, type PublicSection } from './public-page-metadata'
 import { seo } from './seo'
 
-const sectionCopy: Record<PublicSection, { title: string; description: string }> = {
-  blog: publicPageMetadata.blog.en,
-  photos: publicPageMetadata.photos.en,
-  books: publicPageMetadata.books.en,
-  music: publicPageMetadata.music.en,
-  projects: publicPageMetadata.projects.en,
-  now: publicPageMetadata.now.en,
-  resume: publicPageMetadata.resume.en,
-  contact: publicPageMetadata.contact.en,
-  uses: publicPageMetadata.uses.en,
-  privacy: publicPageMetadata.privacy.en,
+function sectionCopy(section: PublicSection) {
+  const { heading, description } = publicPageMetadata[section].en
+  return { title: heading, description }
 }
 
 const WIDTH = 1200
@@ -262,7 +254,7 @@ async function render({
 
 export function createHomeOgImage(_locale: Locale) {
   return render({
-    kicker: 'Full-Stack Product Engineer',
+    kicker: 'Full-Stack Software Engineer',
     title: 'I build software that stays calm on a bad network.',
     description: 'Web products, APIs, and data systems, from architecture to production.',
     path: '/en',
@@ -270,9 +262,9 @@ export function createHomeOgImage(_locale: Locale) {
 }
 
 export function createSectionOgImage(section: PublicSection, _locale: Locale) {
-  const copy = sectionCopy[section]
+  const copy = sectionCopy(section)
   return render({
-    kicker: 'Full-Stack Product Engineer',
+    kicker: 'Full-Stack Software Engineer',
     title: copy.title,
     description: copy.description,
     path: `/en/${section}`,

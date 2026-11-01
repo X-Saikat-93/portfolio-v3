@@ -1,22 +1,20 @@
-import { PixelCluster } from '~/components/pixel-cluster'
 import { CollectionShelf } from '~/components/collection-shelf'
 import { MusicExperience, type MusicExperienceItem } from '~/components/music-experience'
 import type { CollectionKind, PortfolioItem } from '~/lib/collections/repository'
+import { publicPageMetadata } from '~/lib/public-page-metadata'
 
-const copy: Record<CollectionKind, { title: string; description: string }> = {
-  book: { title: 'Books', description: 'Books Saikat Das is reading, keeping, or recommending.' },
-  music: { title: 'Music', description: 'Music Saikat Das is listening to and returning to.' },
-  photo: { title: 'Photos', description: 'Photographs by Saikat Das.' },
+const copy: Record<CollectionKind, { heading: string; lede: string }> = {
+  book: publicPageMetadata.books.en,
+  music: publicPageMetadata.music.en,
+  photo: publicPageMetadata.photos.en,
 }
 
 export function CollectionPageView({
   kind,
   items,
-  displayFontClassName,
 }: {
   kind: CollectionKind
   items: PortfolioItem[]
-  displayFontClassName?: string
 }) {
   const section = copy[kind]
 
@@ -32,26 +30,29 @@ export function CollectionPageView({
 
     return (
       <MusicExperience
-        title={section.title}
-        description={section.description}
+        title={section.heading}
+        description={section.lede}
         items={musicItems}
-        displayFontClassName={displayFontClassName}
       />
     )
   }
 
+  const noun = kind === 'book' ? ['book', 'books'] : ['photograph', 'photographs']
+
   return (
-    <div className="mx-auto w-full max-w-[37.5rem] px-6">
-      <div className="flex items-start justify-between gap-4">
-        <header>
-          <h1 className="page-eyebrow enter">{section.title}</h1>
-          <p className="page-introduction enter mt-4 max-w-[31rem] text-balance" style={{ '--enter-delay': '70ms' } as React.CSSProperties}>
-            {section.description}
+    <div className="page">
+      <header className="page-head">
+        <h1 className="page-title">{section.heading}</h1>
+        <p className="page-lede">{section.lede}</p>
+        {items.length > 0 ? (
+          <p className="page-meta">
+            {items.length} {items.length === 1 ? noun[0] : noun[1]}
           </p>
-        </header>
-        <PixelCluster variant={kind === 'book' ? 2 : 4} className="enter shrink-0" />
+        ) : null}
+      </header>
+      <div className="page-body">
+        <CollectionShelf kind={kind} items={items} />
       </div>
-      <CollectionShelf kind={kind} items={items} />
     </div>
   )
 }

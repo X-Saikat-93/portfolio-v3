@@ -1,7 +1,7 @@
 // The Now page is intentionally a small, reviewable source file. Update the
 // date when the snapshot changes; do not let a build timestamp pretend that
 // the content was reviewed.
-export const nowLastUpdated = '2026-08-08'
+export const nowLastUpdated = '2026-11-01'
 
 export interface NowEntry {
   title: string
@@ -12,11 +12,16 @@ export interface NowEntry {
 
 export const nowBuilding: readonly NowEntry[] = [
   {
-    title: 'WordFlow',
+    title: 'AI HRMS and payroll app',
     meta: 'Work in progress',
+    description: 'An HR management and payroll application with AI assistance, built in Go.',
+  },
+  {
+    title: 'Embermeter',
+    meta: 'Public release',
     description:
-      'A language-learning product built around courses, lessons, challenges, progress, quests, and a learner shop.',
-    href: '/en/projects/wordflow',
+      'A live instrument panel for Claude Code that forecasts context runway, cost, and rate limits, and holds heavy jobs while the machine runs hot.',
+    href: '/en/projects/embermeter',
   },
 ]
 
@@ -41,6 +46,6 @@ export const nowLearning: readonly NowEntry[] = [
 ]
 
 export const nowOpenTo: readonly string[] = [
-  'Remote product engineering work',
+  'Remote full-stack software engineering work',
   'End-to-end web products, APIs, and interfaces',
 ]

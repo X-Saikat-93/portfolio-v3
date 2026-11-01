@@ -17,9 +17,10 @@ import {
 } from '~/lib/blog/repository'
 import { localeMetadata, socialImageUrl } from '~/lib/locale-metadata'
 import { cloudinaryImageUrl } from '~/lib/cloudinary/image-url'
+import { washiCodeTheme } from '~/lib/code-theme'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
 import remarkMermaid from '~/lib/remark-mermaid'
-import { seo } from '~/lib/seo'
+import { blogId, breadcrumbJsonLd, personId, seo } from '~/lib/seo'
 
 export async function generateStaticParams() {
   const posts = await safeListPublishedBlogPosts()
@@ -33,7 +34,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const post = await safeGetPublishedBlogPost(slug)
-  if (!post) return localeMetadata({ locale: 'en', path: '/blog', ...publicPageMetadata.blog.en })
+  // unknown slugs stream a 200 shell, so the not-found page must not claim
+  // an indexable canonical of its own
+  if (!post) return { title: 'Post not found', robots: { index: false, follow: false } }
 
   const path = `/blog/${post.slug}`
   const canonical = new URL(`/en${path}`, seo.url)
@@ -64,10 +67,6 @@ export async function generateMetadata({
 
   return {
     ...base,
-    alternates: {
-      ...base.alternates,
-      types: { 'application/rss+xml': new URL('/en/feed.xml', seo.url).href },
-    },
     category: post.category,
     keywords: post.keywords.length ? post.keywords : undefined,
     authors: [{ name: 'Saikat Das', url: authorUrl }],
@@ -106,10 +105,10 @@ export async function generateMetadata({
 
 function BlogPostLoading() {
   return (
-    <main className="mx-auto w-full max-w-[37.5rem] px-6" aria-busy="true">
-      <p className="page-eyebrow">Writing</p>
-      <p className="mt-3 text-sm text-muted-foreground">Loading article…</p>
-    </main>
+    <div className="page" aria-busy="true">
+      <p className="page-label">Writing</p>
+      <p className="post-loading">Loading article…</p>
+    </div>
   )
 }
 
@@ -153,7 +152,7 @@ async function compileBlogBody(source: string) {
           rehypeCollectSections(sections),
           [rehypePrettyCode, {
             keepBackground: false,
-            theme: { light: 'github-light', dark: 'github-dark' },
+            theme: washiCodeTheme,
           }],
         ],
       },
@@ -193,58 +192,49 @@ async function EnglishBlogPostContent({
 
   const relatedPosts = posts.filter((candidate) => candidate.slug !== post.slug).slice(0, 3)
   const canonical = new URL(`/en/blog/${post.slug}`, seo.url).href
-  const coverUrl = post.coverImagePublicId
-    ? cloudinaryImageUrl(post.coverImagePublicId, {
-        width: 1200,
-        height: 800,
-        crop: 'fill',
-        gravity: 'center',
+  // Google picks from 16:9, 4:3 and 1:1 crops of the cover; without one, the
+  // generated social card stands in at its real size.
+  const coverId = post.coverImagePublicId
+  const coverImages = coverId
+    ? ([[1200, 675], [1200, 900], [1200, 1200]] as const).flatMap(([width, height]) => {
+        const url = cloudinaryImageUrl(coverId, { width, height, crop: 'fill' })
+        return url ? [{ url, width, height }] : []
       })
-    : null
-
-  const articleImageUrl =
-    coverUrl ?? socialImageUrl('en', '/blog/' + post.slug).href
+    : []
+  const articleImages = coverImages.length
+    ? coverImages
+    : [{ url: socialImageUrl('en', '/blog/' + post.slug).href, width: 1200, height: 630 }]
 
   const { content, sections } = await compileBlogBody(post.body)
-  const authorUrl = new URL('/en', seo.url).href
   const wordCount = post.body.split(/\s+/).filter(Boolean).length
+  const author = { '@type': 'Person', '@id': personId, name: 'Saikat Das', url: new URL('/en', seo.url).href }
 
   return (
-    <main className="mx-auto w-full max-w-[37.5rem] px-6">
+    <div className="page post-page">
       <JsonLd
         data={[
           {
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
+            '@id': `${canonical}#article`,
+            url: canonical,
             headline: post.title,
             description: post.description,
-            keywords: post.keywords.length ? post.keywords.join(', ') : undefined,
-            image: [
-              {
-                '@type': 'ImageObject',
-                url: articleImageUrl,
-                ...(coverUrl ? { width: 1200, height: 800 } : {}),
-                caption: post.coverImageAlt || undefined,
-              },
-            ],
+            keywords: post.keywords.length ? post.keywords : undefined,
+            image: articleImages.map((image) => ({
+              '@type': 'ImageObject',
+              ...image,
+              caption: post.coverImageAlt || undefined,
+            })),
             datePublished: post.publishedAt.toISOString(),
             dateModified: post.updatedAt.toISOString(),
-            author: {
-              '@type': 'Person',
-              '@id': new URL('/en#person', seo.url).href,
-              name: 'Saikat Das',
-              url: authorUrl,
-            },
-            publisher: {
-              '@type': 'Person',
-              '@id': new URL('/en#person', seo.url).href,
-              name: 'Saikat Das',
-              url: authorUrl,
-            },
+            author,
+            publisher: author,
             mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
             isPartOf: {
               '@type': 'Blog',
-              name: 'Writing · Saikat Das',
+              '@id': blogId,
+              name: `${publicPageMetadata.blog.en.heading} · Saikat Das`,
               url: new URL('/en/blog', seo.url).href,
             },
             articleSection: post.category,
@@ -252,33 +242,13 @@ async function EnglishBlogPostContent({
             timeRequired: `PT${post.readingMinutes}M`,
             inLanguage: 'en',
           },
-          {
-            '@context': 'https://schema.org',
-            '@type': 'BreadcrumbList',
-            itemListElement: [
-              {
-                '@type': 'ListItem',
-                position: 1,
-                name: 'Home',
-                item: new URL('/en', seo.url).href,
-              },
-              {
-                '@type': 'ListItem',
-                position: 2,
-                name: 'Writing',
-                item: new URL('/en/blog', seo.url).href,
-              },
-              {
-                '@type': 'ListItem',
-                position: 3,
-                name: post.title,
-                item: canonical,
-              },
-            ],
-          },
+          breadcrumbJsonLd([
+            { name: publicPageMetadata.blog.en.heading, path: '/en/blog' },
+            { name: post.title, path: `/en/blog/${post.slug}` },
+          ]),
         ]}
       />
       <BlogPostPageView post={post} relatedPosts={relatedPosts} content={content} sections={sections} />
-    </main>
+    </div>
   )
 }
