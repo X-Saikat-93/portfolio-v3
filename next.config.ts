@@ -35,13 +35,18 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
-      },
-    ],
+    // Optimizer output is billed per transformation: cache it for a month and
+    // only accept this site's own Cloudinary account, never arbitrary ones.
+    minimumCacheTTL: 2_678_400,
+    remotePatterns: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      ? [
+          {
+            protocol: 'https',
+            hostname: 'res.cloudinary.com',
+            pathname: `/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/**`,
+          },
+        ]
+      : [],
     localPatterns: [
       { pathname: '/content/**' },
       { pathname: '/images/**' },
