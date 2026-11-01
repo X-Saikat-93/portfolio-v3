@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { MAGNIFY_MAX, MAGNIFY_RADIUS, magnification } from './use-dock-magnify'
+import { MAGNIFY_MAX, MAGNIFY_RADIUS, magnification, settle } from './use-dock-magnify'
 
 describe('magnification', () => {
   it('peaks under the pointer and never exceeds the cap', () => {
@@ -13,5 +13,22 @@ describe('magnification', () => {
     expect(magnification(40)).toBeLessThan(magnification(20))
     expect(magnification(MAGNIFY_RADIUS)).toBe(1)
     expect(magnification(MAGNIFY_RADIUS * 2)).toBe(1)
+  })
+})
+
+describe('settle', () => {
+  it('approaches the target without overshooting', () => {
+    let x = 1
+    for (let i = 0; i < 60; i++) {
+      const next = settle(x, MAGNIFY_MAX, 16)
+      expect(next).toBeGreaterThanOrEqual(x)
+      expect(next).toBeLessThanOrEqual(MAGNIFY_MAX)
+      x = next
+    }
+    expect(x).toBeCloseTo(MAGNIFY_MAX, 3)
+  })
+
+  it('moves further in a longer frame', () => {
+    expect(settle(1, 2, 32)).toBeGreaterThan(settle(1, 2, 16))
   })
 })

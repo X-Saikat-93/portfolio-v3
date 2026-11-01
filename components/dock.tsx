@@ -15,7 +15,7 @@ import {
 import { Preferences } from '~/components/preferences'
 import { Seal } from '~/components/washi-art'
 import { useDockActiveIndicator } from '~/hooks/use-dock-active-indicator'
-import { dockGoKeyFor, useDockGoShortcuts } from '~/hooks/use-dock-go-shortcuts'
+import { dockKeyFor, useDockShortcuts } from '~/hooks/use-dock-shortcuts'
 import { useDockMagnify } from '~/hooks/use-dock-magnify'
 import { useDockVisibility } from '~/hooks/use-dock-visibility'
 import { T } from '~/lib/i18n'
@@ -52,12 +52,12 @@ export function DockGlass() {
 export function DockTip({
   zh,
   en,
-  goKey,
+  shortcutKey,
   shortcut,
 }: {
   zh: string
   en: string
-  goKey?: string
+  shortcutKey?: string
   shortcut?: string
 }) {
   return (
@@ -65,10 +65,9 @@ export function DockTip({
       <span className="dock-tip-label">
         <T zh={zh} en={en} />
       </span>
-      {goKey ? (
+      {shortcutKey ? (
         <span className="dock-tip-keys">
-          <kbd className="dock-tip-key">G</kbd>
-          <kbd className="dock-tip-key">{goKey}</kbd>
+          <kbd className="dock-tip-key">{shortcutKey}</kbd>
         </span>
       ) : shortcut ? (
         <span className="dock-tip-keys">
@@ -84,7 +83,7 @@ export function DockItem({
   locale,
   zh,
   en,
-  goKey,
+  shortcutKey,
   active = false,
   itemRef,
   onNavigate,
@@ -94,16 +93,13 @@ export function DockItem({
   locale: Locale
   zh: string
   en: string
-  goKey?: string
+  shortcutKey?: string
   active?: boolean
   itemRef?: (element: HTMLAnchorElement | null) => void
   onNavigate?: (href: string, keyboardInitiated: boolean) => void
   children: React.ReactNode
 }) {
   const label = localize(locale, zh, en)
-  const ariaLabel = goKey
-    ? localize(locale, `${zh}，G 然后 ${goKey}`, `${en}, G then ${goKey}`)
-    : label
 
   return (
     <Link
@@ -111,7 +107,7 @@ export function DockItem({
       href={href}
       className="dock-item"
       data-active={active || undefined}
-      aria-label={ariaLabel}
+      aria-keyshortcuts={shortcutKey}
       aria-current={active ? 'page' : undefined}
       onClick={
         onNavigate
@@ -125,7 +121,9 @@ export function DockItem({
       }
     >
       {children}
-      <DockTip zh={zh} en={en} goKey={goKey} />
+      {/* the name comes from text, not aria-label, so it matches what the tip shows (WCAG 2.5.3) */}
+      <span className="sr-only">{label}</span>
+      <DockTip zh={zh} en={en} shortcutKey={shortcutKey} />
     </Link>
   )
 }
@@ -160,7 +158,7 @@ export function DockFallback({ locale }: { locale: Locale }) {
         locale={locale}
         zh="首页"
         en="Home"
-        goKey={dockGoKeyFor('/')}
+        shortcutKey={dockKeyFor('/')}
       >
         <Seal className="dock-seal" />
       </DockItem>
@@ -172,7 +170,7 @@ export function DockFallback({ locale }: { locale: Locale }) {
           locale={locale}
           zh={zh}
           en={en}
-          goKey={dockGoKeyFor(href)}
+          shortcutKey={dockKeyFor(href)}
         >
           <Icon />
         </DockItem>
@@ -210,7 +208,7 @@ export function Dock() {
   const [tipsHidden, setTipsHidden] = useState(false)
   useDockMagnify(dockRef)
 
-  useDockGoShortcuts({
+  useDockShortcuts({
     locale,
     activeHref,
     onNavigate: handleNavigate,
@@ -247,7 +245,7 @@ export function Dock() {
         locale={locale}
         zh="首页"
         en="Home"
-        goKey={dockGoKeyFor('/')}
+        shortcutKey={dockKeyFor('/')}
         active={routePathname === '/'}
         itemRef={(element) => registerItem('/', element)}
         onNavigate={handleNavigate}
@@ -262,7 +260,7 @@ export function Dock() {
           locale={locale}
           zh={zh}
           en={en}
-          goKey={dockGoKeyFor(href)}
+          shortcutKey={dockKeyFor(href)}
           active={routePathname.startsWith(href)}
           itemRef={(element) => registerItem(href, element)}
           onNavigate={handleNavigate}

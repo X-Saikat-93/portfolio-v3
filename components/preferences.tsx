@@ -1,7 +1,7 @@
 'use client'
 
 import { Popover } from '@base-ui/react/popover'
-import { Volume2, VolumeX } from 'lucide-react'
+import { Keyboard, KeyboardOff, Volume2, VolumeX } from 'lucide-react'
 import Link from 'next/link'
 
 import {
@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from 'react'
 import { TabItem, Tabs, TabsList } from '~/components/ui/tabs'
 import { Elevated } from '~/lib/elevated'
 import { T } from '~/lib/i18n'
+import { setShortcutsEnabled, shortcutsEnabled } from '~/lib/shortcuts'
 import {
   playDockSound,
   playPreferenceSound,
@@ -51,6 +52,7 @@ export function Preferences({
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [sound, setSound] = useState(false)
+  const [shortcuts, setShortcuts] = useState(true)
   const probingRef = useRef(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
 
@@ -62,11 +64,12 @@ export function Preferences({
   useEffect(() => {
     setMounted(true)
     setSound(soundEnabled())
+    setShortcuts(shortcutsEnabled())
   }, [])
 
   // The owner probe runs on each panel open (never on page load, so public
   // pages stay static and ordinary visitors never trigger it in passing).
-  // A confirmed answer is remembered so the row and the G D chord are
+  // A confirmed answer is remembered so the row and the D shortcut are
   // armed instantly on later visits, and a stale hint self-corrects the
   // next time the panel opens.
   function probeOwner(open: boolean) {
@@ -155,6 +158,22 @@ export function Preferences({
                 </TabsList>
               </Tabs>
             </Row>
+            <Row zh="快捷键" en="Shortcuts">
+              <Tabs
+                value={shortcuts ? 'on' : 'off'}
+                onValueChange={(v) => {
+                  const on = v === 'on'
+                  setShortcutsEnabled(on)
+                  setShortcuts(on)
+                  playPreferenceSound()
+                }}
+              >
+                <TabsList aria-label="Keyboard shortcuts">
+                  <TabItem value="on" icon={Keyboard} label="" aria-label="On" />
+                  <TabItem value="off" icon={KeyboardOff} label="" aria-label="Off" />
+                </TabsList>
+              </Tabs>
+            </Row>
             {variant === 'public' && ownerAdmin ? (
               <Link
                 href="/admin"
@@ -165,7 +184,6 @@ export function Preferences({
                   <T zh="管理" en="Admin" />
                 </span>
                 <span className="dock-tip-keys" aria-hidden>
-                  <kbd className="dock-tip-key">G</kbd>
                   <kbd className="dock-tip-key">D</kbd>
                 </span>
               </Link>

@@ -74,18 +74,24 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: 2.75rem;
+  /* the item widens with the swell so its neighbours move aside; the
+     spring lives in hooks/use-dock-magnify.ts, so no width transition */
+  width: calc(2.75rem * var(--dock-mag));
   height: 2.75rem;
   border-radius: var(--radius-2);
   color: var(--ink-faint);
-  transform-origin: 50% 100%;
-  scale: var(--dock-mag);
   -webkit-tap-highlight-color: transparent;
   transition:
     color var(--dur-quick) var(--ease-ink),
     background-color var(--dur-quick) var(--ease-ink),
-    scale var(--dur-quick) var(--ease-settle),
     transform var(--dur-spring) var(--ease-spring-critical);
+}
+
+/* the glyph grows from the item's base and rises a little as it swells */
+.dock-item > svg,
+.dock-item > .seal {
+  transform: translate3d(0, calc((1 - var(--dock-mag)) * 0.55rem), 0) scale(var(--dock-mag));
+  transform-origin: 50% 100%;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -204,8 +210,6 @@
   opacity: 0;
   pointer-events: none;
   translate: -50% 2px;
-  scale: calc(1 / var(--dock-mag));
-  transform-origin: 50% 100%;
   transition:
     opacity var(--dur-exit-base) var(--ease-exit),
     translate var(--dur-exit-base) var(--ease-exit);
@@ -246,6 +250,11 @@
       opacity var(--dur-quick) var(--ease-settle) 300ms,
       translate var(--dur-quick) var(--ease-settle) 300ms;
   }
+
+  /* once one tooltip has shown, the next follows the pointer at once */
+  .dock[data-warm] .dock-item:hover .dock-tip {
+    transition-delay: 0ms;
+  }
 }
 
 .dock-item:focus-visible .dock-tip {
@@ -279,8 +288,9 @@ html[data-intro]:not([data-visited]) .dock {
     transition: none;
   }
 
-  .dock-item {
-    scale: 1;
+  .dock-item > svg,
+  .dock-item > .seal {
+    transform: none;
   }
 }
 
