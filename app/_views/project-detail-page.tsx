@@ -5,7 +5,7 @@ import { ExternalLabel } from '~/components/external-mark'
 import { GhostSchematic } from '~/components/ghost-schematic'
 import { PixelCluster } from '~/components/pixel-cluster'
 import { RevealScope } from '~/components/reveal-scope'
-import type { ProjectCaseStudy, ProjectWithCaseStudy } from '~/lib/projects'
+import type { ProjectCaseStudy, ProjectFigure, ProjectWithCaseStudy } from '~/lib/projects'
 import { projectPath } from '~/lib/projects'
 
 function SectionHeading({
@@ -93,6 +93,41 @@ function CaseStudySection({
   )
 }
 
+function PanelTour({ index, figures }: { index: string; figures: readonly ProjectFigure[] }) {
+  return (
+    <section className="project-dossier-section" aria-labelledby="project-tour-title">
+      <SectionHeading index={index} id="project-tour-title">
+        Interface tour
+      </SectionHeading>
+      <ol className="project-tour">
+        {figures.map((figure, i) => (
+          <li key={figure.publicId}>
+            <figure>
+              <div className="project-tour-frame">
+                <CloudinaryImage
+                  publicId={figure.publicId}
+                  alt={figure.alt}
+                  width={figure.width}
+                  height={figure.height}
+                  crop="fit"
+                  gravity="center"
+                  preserveAspectRatio
+                  sizes="(max-width: 640px) calc(100vw - 3rem), 600px"
+                  className="project-tour-image"
+                />
+              </div>
+              <figcaption>
+                <span aria-hidden="true">F{String(i + 1).padStart(2, '0')}</span>
+                {figure.caption}
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}
+
 export function ProjectDetailPage({
   project,
   position,
@@ -108,6 +143,9 @@ export function ProjectDetailPage({
 }) {
   const caseNumber = String(position).padStart(2, '0')
   const caseTotal = String(total).padStart(2, '0')
+  // Sections number themselves in render order; the case study claims 01.
+  let sectionCount = project.caseStudy ? 1 : 0
+  const nextSection = () => String(++sectionCount).padStart(2, '0')
 
   return (
     <RevealScope as="article" className="project-dossier relative mx-auto w-full max-w-[37.5rem] px-6">
@@ -145,6 +183,7 @@ export function ProjectDetailPage({
               alt={project.caseStudy.heroImageAlt || `${project.nameEn} project image`}
               width={1200}
               height={720}
+              preserveAspectRatio
               sizes="(max-width: 640px) calc(100vw - 3rem), 600px"
               className="project-dossier-hero-image"
             />
@@ -214,9 +253,11 @@ export function ProjectDetailPage({
         )}
       </section>
 
+      {project.gallery?.length ? <PanelTour index={nextSection()} figures={project.gallery} /> : null}
+
       {!project.caseStudy ? (
         <section className="project-dossier-section">
-          <SectionHeading index="01">Overview</SectionHeading>
+          <SectionHeading index={nextSection()}>Overview</SectionHeading>
           <div className="project-dossier-prose">
             {project.overview.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
@@ -226,7 +267,7 @@ export function ProjectDetailPage({
       ) : null}
 
       <section className="project-dossier-section">
-        <SectionHeading index="02">Product surface</SectionHeading>
+        <SectionHeading index={nextSection()}>Product surface</SectionHeading>
         <ol className="project-capability-list">
           {project.capabilities.map((capability, index) => (
             <li key={capability}>
@@ -239,7 +280,7 @@ export function ProjectDetailPage({
 
       {!project.caseStudy && project.notes.length ? (
         <section className="project-dossier-section">
-          <SectionHeading index="03">Engineering notes</SectionHeading>
+          <SectionHeading index={nextSection()}>Engineering notes</SectionHeading>
           <div className="project-note-register">
             {project.notes.map((note, index) => (
               <article key={note.title}>
@@ -255,9 +296,7 @@ export function ProjectDetailPage({
       ) : null}
 
       <section className="project-dossier-section">
-        <SectionHeading index={project.caseStudy ? '03' : project.notes.length ? '04' : '03'}>
-          Build register
-        </SectionHeading>
+        <SectionHeading index={nextSection()}>Build register</SectionHeading>
         <ul className="project-stack-register" aria-label="Technology stack">
           {project.stack.map((technology, index) => (
             <li key={technology}>

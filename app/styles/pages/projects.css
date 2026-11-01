@@ -830,6 +830,43 @@
   margin-top: 1rem;
 }
 
+.project-tour {
+  display: grid;
+  gap: 2.4rem;
+  margin-top: 1.35rem;
+}
+
+.project-tour-frame {
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--border);
+  background: var(--surface-1);
+}
+
+.project-tour-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.project-tour figcaption {
+  display: grid;
+  grid-template-columns: 2.35rem minmax(0, 1fr);
+  gap: 0.8rem;
+  margin-top: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.74rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.project-tour figcaption > span {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  line-height: 2.1;
+}
+
 .project-capability-list,
 .project-note-register,
 .project-stack-register,
