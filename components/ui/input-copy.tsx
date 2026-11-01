@@ -225,7 +225,7 @@ const InputCopy = forwardRef<HTMLDivElement, InputCopyProps>(
         aria-labelledby={label ? `${buttonId} ${labelId}` : undefined}
         className={cn(
           "group flex min-h-11 w-full items-center cursor-pointer outline-none transition-[background-color,color,border-color,box-shadow] duration-150",
-          "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring)]",
+          "focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[color:var(--sun)]",
           "rounded-[20px]"
         )}
       >

@@ -1,5 +1,37 @@
 /* ── List stages: one dormant shader instrument per index ────────── */
 
+/* Registered lengths, so the projects frame and its graph paper can glide
+   from one print to the next instead of jumping. */
+@property --list-stage-target-x {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --list-stage-target-y {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --list-stage-target-width {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --list-stage-target-height {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --sketch-reach {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
 .hidden-list-stage {
   position: relative;
   isolation: isolate;
@@ -22,10 +54,9 @@
 }
 
 .projects-hidden-stage .hidden-list-stage-field {
-  transform: scale(0.985);
-  transition:
-    opacity var(--list-stage-exit-ms) var(--ease-swift),
-    transform var(--list-stage-exit-ms) var(--ease-swift);
+  --sketch-reach: 4.5rem;
+
+  transition: opacity var(--list-stage-exit-ms) var(--ease-swift);
 }
 
 .writing-hidden-stage .hidden-list-stage-field {
@@ -36,14 +67,11 @@
   opacity: 1;
 }
 
-.projects-hidden-stage[data-active='true'] .hidden-list-stage-field {
-  transform: scale(1);
-}
-
+/* the graph paper spreads out from the print's edges as it fades in */
 @keyframes projects-blueprint-enter {
   from {
+    --sketch-reach: 0.75rem;
     opacity: 0;
-    transform: scale(0.985);
   }
 }
 
@@ -54,7 +82,7 @@
 }
 
 .projects-hidden-stage[data-active='true'][data-motion='true'] .hidden-list-stage-field {
-  animation: projects-blueprint-enter 260ms var(--ease-swift) backwards;
+  animation: projects-blueprint-enter var(--dur-gentle) var(--ease-settle) backwards;
 }
 
 .writing-hidden-stage[data-active='true'][data-motion='true'] .hidden-list-stage-field {
@@ -102,17 +130,48 @@
 }
 
 .projects-hidden-stage .hidden-list-stage-shader {
-  opacity: 0.14;
+  opacity: 0.2;
 }
 
-.projects-registration-mark {
+/* Graph paper only in a soft rectangle around the print, never a round
+   spot: two linear masks, one per axis, intersected. */
+.projects-hidden-stage :is(.projects-blueprint-static, .hidden-list-stage-shader) {
+  --sheet-left: calc(var(--list-stage-target-x) - var(--list-stage-target-width) / 2);
+  --sheet-right: calc(var(--list-stage-target-x) + var(--list-stage-target-width) / 2);
+  --sheet-top: calc(var(--list-stage-target-y) - var(--list-stage-target-height) / 2);
+  --sheet-bottom: calc(var(--list-stage-target-y) + var(--list-stage-target-height) / 2);
+
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent calc(var(--sheet-left) - var(--sketch-reach)),
+      #000 var(--sheet-left),
+      #000 var(--sheet-right),
+      transparent calc(var(--sheet-right) + var(--sketch-reach))
+    ),
+    linear-gradient(
+      to bottom,
+      transparent calc(var(--sheet-top) - var(--sketch-reach)),
+      #000 var(--sheet-top),
+      #000 var(--sheet-bottom),
+      transparent calc(var(--sheet-bottom) + var(--sketch-reach))
+    );
+  mask-composite: intersect;
+}
+
+/* A pencil frame just off the print's edges. The strokes run past each
+   other at the corners, taper at their ends and sit a hair off square,
+   as a drafting sketch does. */
+.projects-sketch-frame {
+  --sketch-gap: var(--space-2);
+  --sketch-run: var(--space-3);
+
   position: absolute;
   top: 0;
   left: 0;
-  width: 58px;
-  height: 58px;
-  overflow: visible;
-  opacity: 0.26;
+  width: var(--list-stage-target-width);
+  height: var(--list-stage-target-height);
+  opacity: 0.42;
   transform: translate3d(
       var(--list-stage-target-x),
       var(--list-stage-target-y),
@@ -121,11 +180,65 @@
     translate(-50%, -50%);
 }
 
-.projects-registration-mark circle,
-.projects-registration-mark path {
-  vector-effect: non-scaling-stroke;
-  stroke: currentColor;
-  stroke-width: var(--border-hairline);
+.projects-sketch-frame::before,
+.projects-sketch-frame::after {
+  position: absolute;
+  content: '';
+}
+
+.projects-sketch-frame::before {
+  inset: calc(-1 * var(--sketch-gap)) calc(-1 * (var(--sketch-gap) + var(--sketch-run)));
+  border-block: var(--border-hairline) solid currentColor;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--sketch-run),
+    #000 calc(100% - var(--sketch-run)),
+    transparent
+  );
+  transform: rotate(-0.12deg);
+}
+
+.projects-sketch-frame::after {
+  inset: calc(-1 * (var(--sketch-gap) + var(--sketch-run))) calc(-1 * var(--sketch-gap));
+  border-inline: var(--border-hairline) solid currentColor;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--sketch-run),
+    #000 calc(100% - var(--sketch-run)),
+    transparent
+  );
+  transform: rotate(0.18deg);
+}
+
+@keyframes sketch-draw-across {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+@keyframes sketch-draw-down {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* the strokes draw on once; after that the frame glides between prints */
+.projects-hidden-stage[data-active='true'][data-motion='true'] .projects-sketch-frame::before {
+  animation: sketch-draw-across var(--dur-slow) var(--ease-settle) backwards;
+}
+
+.projects-hidden-stage[data-active='true'][data-motion='true'] .projects-sketch-frame::after {
+  animation: sketch-draw-down var(--dur-slow) var(--ease-settle) 80ms backwards;
+}
+
+.projects-hidden-stage[data-active='true'][data-motion='true'] {
+  transition:
+    --list-stage-target-x var(--dur-gentle) var(--ease-settle),
+    --list-stage-target-y var(--dur-gentle) var(--ease-settle),
+    --list-stage-target-width var(--dur-gentle) var(--ease-settle),
+    --list-stage-target-height var(--dur-gentle) var(--ease-settle);
 }
 
 .writing-ink-current-target {
@@ -168,12 +281,12 @@
   opacity: 0.12;
 }
 
-[data-theme="dark"] .projects-registration-mark {
-  opacity: 0.3;
+[data-theme="dark"] .projects-sketch-frame {
+  opacity: 0.36;
 }
 
 [data-theme="dark"] .projects-hidden-stage .hidden-list-stage-shader {
-  opacity: 0.12;
+  opacity: 0.16;
 }
 
 [data-theme="dark"] .writing-ink-static {
@@ -185,8 +298,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hidden-list-stage,
   .hidden-list-stage-field,
-  .hidden-list-shader-shell {
+  .hidden-list-shader-shell,
+  .projects-sketch-frame::before,
+  .projects-sketch-frame::after {
     animation: none;
     transition: none;
   }

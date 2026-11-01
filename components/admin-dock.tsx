@@ -19,7 +19,7 @@ import {
 } from '~/components/dock'
 import { Preferences } from '~/components/preferences'
 import { useDockActiveIndicator } from '~/hooks/use-dock-active-indicator'
-import { adminGoKeyFor, useAdminGoShortcuts } from '~/hooks/use-dock-go-shortcuts'
+import { adminKeyFor, useAdminShortcuts } from '~/hooks/use-dock-shortcuts'
 import { useDockVisibility } from '~/hooks/use-dock-visibility'
 import { localePath } from '~/lib/locale-route'
 import { localize, useLocale } from '~/lib/locale-client'
@@ -49,7 +49,7 @@ export function AdminDockFallback() {
         locale="en"
         zh="总览"
         en="Overview"
-        goKey={adminGoKeyFor('/admin')}
+        shortcutKey={adminKeyFor('/admin')}
       >
         <span className="dock-avatar">
           <CloudinaryAvatar alt="" width={26} height={26} />
@@ -63,7 +63,7 @@ export function AdminDockFallback() {
           locale="en"
           zh={zh}
           en={en}
-          goKey={adminGoKeyFor(href)}
+          shortcutKey={adminKeyFor(href)}
         >
           <Icon />
         </DockItem>
@@ -74,7 +74,7 @@ export function AdminDockFallback() {
         locale="en"
         zh="返回站点"
         en="Back to site"
-        goKey={adminGoKeyFor('/')}
+        shortcutKey={adminKeyFor('/')}
       >
         <SiteReturnIcon />
       </DockItem>
@@ -105,7 +105,7 @@ export function AdminDock() {
   const { dockRef, indicatorRef, registerItem, handleNavigate } =
     useDockActiveIndicator(activeHref)
 
-  useAdminGoShortcuts({
+  useAdminShortcuts({
     locale,
     activeHref,
     onNavigate: handleNavigate,
@@ -128,7 +128,7 @@ export function AdminDock() {
         locale={locale}
         zh="总览"
         en="Overview"
-        goKey={adminGoKeyFor('/admin')}
+        shortcutKey={adminKeyFor('/admin')}
         active={pathname === '/admin'}
         itemRef={(element) => registerItem('/admin', element)}
         onNavigate={handleNavigate}
@@ -145,7 +145,7 @@ export function AdminDock() {
           locale={locale}
           zh={zh}
           en={en}
-          goKey={adminGoKeyFor(href)}
+          shortcutKey={adminKeyFor(href)}
           active={pathname.startsWith(href)}
           itemRef={(element) => registerItem(href, element)}
           onNavigate={handleNavigate}
@@ -159,7 +159,7 @@ export function AdminDock() {
         locale={locale}
         zh="返回站点"
         en="Back to site"
-        goKey={adminGoKeyFor('/')}
+        shortcutKey={adminKeyFor('/')}
         onNavigate={handleNavigate}
       >
         <SiteReturnIcon />

@@ -51,19 +51,16 @@ interface DialogContentProps
 const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   ({ size = "lg", className, children, ...props }, ref) => (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Backdrop className="fixed inset-0 z-[var(--z-card)] bg-background/70 backdrop-blur-[6px] transition-opacity duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 motion-reduce:transition-none" />
+      <DialogPrimitive.Backdrop className="fixed inset-0 z-[var(--z-palette)] bg-background/70 backdrop-blur-[6px] transition-opacity duration-[var(--dur-base)] ease-[var(--ease-ink)] data-[ending-style]:duration-[var(--dur-exit-base)] data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 motion-reduce:transition-none" />
       <DialogPrimitive.Popup
         ref={ref}
         render={<Elevated offset={4} shadowLevel={4} />}
         className={cn(
-          // The blueprint sheet: the register's 2px corner and hairline
-          // frame (the printed-label chrome hover cards use), with ruled
-          // head/foot rows from DialogHeader/DialogFooter. The panel is
-          // translucent over a blurred backdrop — the sheet sits *on* the
-          // page rather than replacing it (dialog-glass keeps the ladder's
-          // surface color but drops its alpha). Flex column so DialogBody
-          // scrolls between them; exit runs at ~2/3 of the enter duration.
-          "dialog-glass fixed left-1/2 top-1/2 z-[var(--z-card)] flex max-h-[85dvh] -translate-x-1/2 -translate-y-1/2 flex-col rounded-[2px] border border-border outline-none transition-[opacity,transform] duration-200 ease-[var(--ease-swift)] data-[ending-style]:duration-[133ms] data-[ending-style]:scale-[0.97] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.97] data-[starting-style]:opacity-0 motion-reduce:transition-none",
+          // A paper sheet: 2px print corners and a hairline frame, with
+          // ruled head/foot rows from DialogHeader/DialogFooter, over a
+          // frosted page. Flex column so DialogBody scrolls between them;
+          // the exit runs at ~70% of the entrance.
+          "fixed left-1/2 top-1/2 z-[var(--z-palette)] flex max-h-[85dvh] -translate-x-1/2 -translate-y-1/2 flex-col rounded-[2px] border border-border outline-none transition-[opacity,scale] duration-[var(--dur-base)] ease-[var(--ease-settle)] data-[ending-style]:duration-[var(--dur-exit-base)] data-[ending-style]:ease-[var(--ease-exit)] data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:transition-none",
           size === "sm"
             ? "w-[min(25rem,calc(100vw-2rem))]"
             : "w-[min(34rem,calc(100vw-2rem))]",
