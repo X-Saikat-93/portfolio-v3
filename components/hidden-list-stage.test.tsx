@@ -69,13 +69,8 @@ function setMediaPreferences({
   }
 }
 
-function enableWebGpu(adapter: unknown | null = {}) {
-  const requestAdapter = vi.fn().mockResolvedValue(adapter)
-  Object.defineProperty(navigator, 'gpu', {
-    configurable: true,
-    value: { requestAdapter },
-  })
-  return requestAdapter
+function enableWebGl(available = true) {
+  vi.stubGlobal('WebGL2RenderingContext', available ? class {} : undefined)
 }
 
 function ProjectRows({ onFirstClick }: { onFirstClick?: () => void } = {}) {
@@ -125,7 +120,6 @@ afterEach(() => {
   cleanup()
   vi.useRealTimers()
   vi.unstubAllGlobals()
-  Reflect.deleteProperty(navigator, 'gpu')
 })
 
 describe('hidden list shader stages', () => {
@@ -154,7 +148,7 @@ describe('hidden list shader stages', () => {
   it('waits for initial pointer intent and unmounts after the Projects exit', async () => {
     vi.useFakeTimers()
     setMediaPreferences()
-    enableWebGpu()
+    enableWebGl()
 
     render(
       <ProjectsBlueprintStage>
@@ -193,7 +187,7 @@ describe('hidden list shader stages', () => {
   it('retargets immediately without remounting the shared runtime', async () => {
     vi.useFakeTimers()
     setMediaPreferences()
-    const requestAdapter = enableWebGpu()
+    enableWebGl()
 
     render(
       <ProjectsBlueprintStage>
@@ -217,13 +211,12 @@ describe('hidden list shader stages', () => {
 
     expect(stage.dataset.activeId).toBe('two')
     expect(document.querySelector('[data-shader-boundary]')).toBe(runtime)
-    expect(requestAdapter).toHaveBeenCalledOnce()
   })
 
   it('keeps one Writing runtime across rows and uses its faster exit', async () => {
     vi.useFakeTimers()
     setMediaPreferences()
-    enableWebGpu()
+    enableWebGl()
 
     render(
       <WritingInkStage>
@@ -259,7 +252,7 @@ describe('hidden list shader stages', () => {
 
   it('uses an immediate static treatment for keyboard focus', () => {
     setMediaPreferences()
-    const requestAdapter = enableWebGpu()
+    enableWebGl()
 
     render(
       <ProjectsBlueprintStage>
@@ -276,12 +269,11 @@ describe('hidden list shader stages', () => {
     expect(stage.dataset.motion).toBe('false')
     expect(document.querySelector('.projects-blueprint-static')).not.toBeNull()
     expect(document.querySelector('[data-list-shader-stage]')).toBeNull()
-    expect(requestAdapter).not.toHaveBeenCalled()
   })
 
   it('does not intercept a touch link or reveal a preview', () => {
     setMediaPreferences({ finePointer: false })
-    const requestAdapter = enableWebGpu()
+    enableWebGl()
     const onFirstClick = vi.fn()
 
     render(
@@ -302,13 +294,12 @@ describe('hidden list shader stages', () => {
     expect(onFirstClick).toHaveBeenCalledOnce()
     expect(stage.dataset.active).toBe('false')
     expect(document.querySelector('.hidden-list-stage-field')).toBeNull()
-    expect(requestAdapter).not.toHaveBeenCalled()
   })
 
   it('keeps reduced-motion pointer attention static', async () => {
     vi.useFakeTimers()
     setMediaPreferences({ reducedMotion: true })
-    const requestAdapter = enableWebGpu()
+    enableWebGl()
 
     render(
       <ProjectsBlueprintStage>
@@ -327,13 +318,12 @@ describe('hidden list shader stages', () => {
     expect(stage.dataset.activeId).toBe('one')
     expect(stage.dataset.motion).toBe('false')
     expect(document.querySelector('[data-list-shader-stage]')).toBeNull()
-    expect(requestAdapter).not.toHaveBeenCalled()
   })
 
-  it('falls back to the static plate when WebGPU has no adapter', async () => {
+  it('falls back to the static plate without WebGL2', async () => {
     vi.useFakeTimers()
     setMediaPreferences()
-    const requestAdapter = enableWebGpu(null)
+    enableWebGl(false)
 
     render(
       <ProjectsBlueprintStage>
@@ -353,13 +343,12 @@ describe('hidden list shader stages', () => {
     expect(stage.dataset.motion).toBe('false')
     expect(document.querySelector('.projects-blueprint-static')).not.toBeNull()
     expect(document.querySelector('[data-list-shader-stage]')).toBeNull()
-    expect(requestAdapter).toHaveBeenCalledOnce()
   })
 
   it('keeps the active row static after shader initialization fails', async () => {
     vi.useFakeTimers()
     setMediaPreferences()
-    enableWebGpu()
+    enableWebGl()
 
     render(
       <ProjectsBlueprintStage>
@@ -384,7 +373,7 @@ describe('hidden list shader stages', () => {
 
   it('positions the Writing treatment on the active dotted-leader lane', () => {
     setMediaPreferences()
-    enableWebGpu()
+    enableWebGl()
 
     render(
       <WritingInkStage>

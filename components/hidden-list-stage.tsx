@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react'
 
-import { useWebGpuCapability } from '~/components/use-webgpu-capability'
+import { useShaderCapability } from '~/components/use-shader-capability'
 
 const ProjectsBlueprintField = dynamic(
   () =>
@@ -106,10 +106,10 @@ function HiddenListStage({
   const intentTimer = useRef<number | undefined>(undefined)
   const exitTimer = useRef<number | undefined>(undefined)
   const {
-    check: checkWebGpu,
-    markUnavailable: markWebGpuUnavailable,
-    supported: webGpuSupported,
-  } = useWebGpuCapability()
+    check: checkShader,
+    markUnavailable: markShaderUnsupported,
+    supported: shaderSupported,
+  } = useShaderCapability()
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [motionEnabled, setMotionEnabled] = useState(false)
@@ -212,7 +212,7 @@ function HiddenListStage({
     const wantsMotion =
       pointerRow !== null &&
       !reducedMotion.current &&
-      webGpuSupported.current !== false
+      shaderSupported.current !== false
 
     if (!wantsMotion) {
       motionActive.current = false
@@ -222,12 +222,12 @@ function HiddenListStage({
       return
     }
 
-    if (webGpuSupported.current === null) {
+    if (shaderSupported.current === null) {
       motionActive.current = false
       setShaderMounted(false)
       setShaderReady(false)
       setMotionEnabled(false)
-      void checkWebGpu().then(() => {
+      void checkShader().then(() => {
         if (mounted.current) syncStage()
       })
       return
@@ -236,15 +236,15 @@ function HiddenListStage({
     motionActive.current = true
     setMotionEnabled(true)
     setShaderMounted(true)
-  }, [checkWebGpu, clearExitTimer, config, setStageRow])
+  }, [checkShader, clearExitTimer, config, setStageRow])
 
   const markShaderUnavailable = useCallback(() => {
-    markWebGpuUnavailable()
+    markShaderUnsupported()
     motionActive.current = false
     setShaderMounted(false)
     setShaderReady(false)
     setMotionEnabled(false)
-  }, [markWebGpuUnavailable])
+  }, [markShaderUnsupported])
 
   const markShaderReady = useCallback(() => setShaderReady(true), [])
 
@@ -420,14 +420,7 @@ function HiddenListStage({
                   />
                 </span>
               )}
-              <svg
-                className="projects-registration-mark"
-                viewBox="0 0 20 20"
-                fill="none"
-              >
-                <circle cx="10" cy="10" r="7.4" />
-                <path d="M10 0v5M10 15v5M0 10h5M15 10h5" />
-              </svg>
+              <span className="projects-sketch-frame" />
             </>
           ) : (
             <span className="writing-ink-current-target">
