@@ -12,6 +12,7 @@
 @import "tw-animate-css";
 
 @import './styles/base/tokens.css';
+@import './styles/base/motion-tokens.css';
 @import './styles/components/loading-plate.css';
 @import './styles/pages/list-stages.css';
 @import './styles/pages/projects.css';
@@ -24,7 +25,6 @@
 @import './styles/components/code-blocks.css';
 @import './styles/components/scroll-area.css';
 @import './styles/components/mdx.css';
-@import './styles/components/theme-toggle.css';
 @import './styles/components/zoom-image.css';
 @import './styles/components/header-avatar.css';
 @import './styles/home/writing.css';
@@ -37,7 +37,6 @@
 @import './styles/home/hero.css';
 @import './styles/components/email-envelope.css';
 @import './styles/components/post-images.css';
-@import './styles/base/edge-fades.css';
 @import './styles/home/experience.css';
 @import './styles/home/selected-work.css';
 @import './styles/home/hire-me.css';

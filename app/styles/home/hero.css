@@ -334,7 +334,7 @@
   will-change: transform;
 }
 
-.dark .portrait-hidden-stage-contours {
+[data-theme="dark"] .portrait-hidden-stage-contours {
   opacity: 0.26;
 }
 

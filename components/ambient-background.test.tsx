@@ -8,10 +8,11 @@ import { AmbientBackground } from './ambient-background'
 afterEach(cleanup)
 
 describe('AmbientBackground', () => {
-  it('keeps edge fades outside Tailwind scroll utilities', () => {
+  it('renders a single inert fibre layer', () => {
     const { container } = render(<AmbientBackground />)
 
-    expect(container.querySelectorAll('.viewport-edge-fade')).toHaveLength(2)
-    expect(container.querySelector('[class*="scroll-fade"]')).toBeNull()
+    expect(container.children).toHaveLength(1)
+    expect(container.firstElementChild?.className).toBe('paper-fibre')
+    expect(container.firstElementChild?.getAttribute('aria-hidden')).toBe('true')
   })
 })

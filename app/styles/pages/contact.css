@@ -24,7 +24,7 @@
     0 2.5rem 4rem -2rem color-mix(in oklab, var(--foreground) 9%, transparent);
 }
 
-.dark .contact-form-shell {
+[data-theme="dark"] .contact-form-shell {
   --paper: var(--surface-2);
   --paper-ink: var(--foreground);
   background: var(--surface-2);

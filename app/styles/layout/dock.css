@@ -43,7 +43,7 @@
   }
 }
 
-.dark .dock {
+[data-theme="dark"] .dock {
   background: color-mix(in oklab, var(--background) 52%, transparent);
   box-shadow:
     0 0 0 0.5px rgb(255 255 255 / 0.12),
@@ -66,7 +66,7 @@
     inset 0 -0.5px 0 rgb(255 255 255 / 0.12);
 }
 
-.dark .dock-glass {
+[data-theme="dark"] .dock-glass {
   background: linear-gradient(rgb(255 255 255 / 0.06), rgb(255 255 255 / 0) 60%);
   box-shadow:
     inset 0 0.5px 0 rgb(255 255 255 / 0.16),

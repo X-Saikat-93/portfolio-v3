@@ -1,60 +1,34 @@
-@custom-variant dark (&:is(.dark *));
+/* ── Washi tokens (DESIGN.md) ─────────────────────────────────────────
+   One system. Light ("paper by daylight") is the bare :root; dark ("ink by
+   lamplight") is [data-theme="dark"], set pre-paint from the stored choice
+   or prefers-color-scheme. Components use the semantic names below; the
+   legacy names further down are aliases kept so existing routes inherit
+   the palette instead of running a second one. */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
-    --font-heading: var(--font-funnel-display), var(--font-sans);
-    /* Funnel Sans for Latin; Frex Sans GB catches CJK glyphs via stack order */
-    --font-sans: var(--font-funnel), var(--font-frex-gb, ui-sans-serif), system-ui, sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
-  @keyframes spinner-move {
-  to {
-    stroke-dashoffset: -100;
-        }
-    }
-  @keyframes spinner-dash {
-  0%, 100% {
-    stroke-dasharray: 15 85;
-        }
-  50% {
-    stroke-dasharray: 40 60;
-        }
-    }
+  --font-heading: var(--font-funnel-display), var(--font-sans);
+  /* Funnel Sans for Latin; Frex Sans GB catches CJK glyphs via stack order */
+  --font-sans: var(--font-funnel), var(--font-frex-gb, ui-sans-serif), system-ui, sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
   --color-hover: var(--hover);
   --color-active: var(--active);
   --color-surface-1: var(--surface-1);
@@ -73,195 +47,269 @@
   --shadow-surface-6: var(--shadow-6);
   --shadow-surface-7: var(--shadow-7);
   --shadow-surface-8: var(--shadow-8);
-  --color-dm-drop: var(--dm-drop);
-  --color-dm-ring-high: var(--dm-ring-high);
-  --color-dm-ring-mid: var(--dm-ring-mid);
-  --color-dm-ring-base: var(--dm-ring-base);
-  --color-dm-hi-peak: var(--dm-hi-peak);
-  --color-dm-hi-high: var(--dm-hi-high);
-  --color-dm-hi-mid: var(--dm-hi-mid);
-  --color-dm-hi-base: var(--dm-hi-base);
-  --shadow-8: var(--shadow-8);
-  --shadow-7: var(--shadow-7);
-  --shadow-6: var(--shadow-6);
-  --shadow-5: var(--shadow-5);
-  --shadow-4: var(--shadow-4);
-  --shadow-3: var(--shadow-3);
-  --shadow-2: var(--shadow-2);
-  --shadow-1: var(--shadow-1);
-  --color-shadow-color: var(--shadow-color)
-}
-:root {
-    --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-    --surface-1: oklch(0.975 0 0);
-    --surface-2: oklch(0.985 0 0);
-    --surface-3: var(--popover);
-    --surface-4: var(--popover);
-    --surface-5: var(--popover);
-    --surface-6: var(--popover);
-    --surface-7: var(--popover);
-    --surface-8: var(--popover);
-    --hover: color-mix(in oklab, var(--foreground) 6%, transparent);
-    --active: color-mix(in oklab, var(--foreground) 10%, transparent);
-    --focus-ring: var(--ring);
-    --shadow-color: rgb(0 0 0 / 0.05);
-    --shadow-1: 0 0 0 1px var(--shadow-color);
-    --shadow-2: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color);
-    --shadow-3: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color);
-    --shadow-4: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color);
-    --shadow-5: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color);
-    --shadow-6: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color);
-    --shadow-7: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color);
-    --shadow-8: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color), 0 96px 96px -48px var(--shadow-color);
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
+  --radius-3xl: 2px;
+  --radius-4xl: 2px;
+  @keyframes spinner-move {
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+  @keyframes spinner-dash {
+    0%,
+    100% {
+      stroke-dasharray: 15 85;
+    }
+    50% {
+      stroke-dasharray: 40 60;
+    }
+  }
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-    --surface-1: oklch(0.17 0 0);
-    --surface-2: oklch(0.19 0 0);
-    --surface-3: var(--popover);
-    --surface-4: oklch(0.23 0 0);
-    --surface-5: oklch(0.25 0 0);
-    --surface-6: oklch(0.27 0 0);
-    --surface-7: oklch(0.29 0 0);
-    --surface-8: oklch(0.31 0 0);
-    --hover: color-mix(in oklab, var(--foreground) 8%, transparent);
-    --active: color-mix(in oklab, var(--foreground) 13%, transparent);
-    --focus-ring: var(--ring);
-    --dm-hi-base: rgba(255,255,255,0.01);
-    --dm-hi-mid: rgba(255,255,255,0.02);
-    --dm-hi-high: rgba(255,255,255,0.04);
-    --dm-hi-peak: rgba(255,255,255,0.06);
-    --dm-ring-base: rgba(255,255,255,0.02);
-    --dm-ring-mid: rgba(255,255,255,0.04);
-    --dm-ring-high: rgba(255,255,255,0.06);
-    --dm-drop: rgba(0,0,0,0.18);
-    --shadow-1: inset 0 0 0 1px var(--dm-ring-base);
-    --shadow-2: inset 0 1px 0 0 var(--dm-hi-base), inset 0 0 0 1px var(--dm-ring-base), 0 1px 1px -0.5px var(--dm-drop);
-    --shadow-3: inset 0 1px 0 0 var(--dm-hi-mid), inset 0 0 0 1px var(--dm-ring-base), 0 0 0 1px rgba(0,0,0,0.12), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop);
-    --shadow-4: inset 0 1px 0 0 var(--dm-hi-mid), inset 0 0 0 1px var(--dm-ring-mid), 0 0 0 1px rgba(0,0,0,0.14), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop);
-    --shadow-5: inset 0 1px 0 0 var(--dm-hi-high), inset 0 0 0 1px var(--dm-ring-mid), 0 0 0 1px rgba(0,0,0,0.16), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop);
-    --shadow-6: inset 0 1px 0 0 var(--dm-hi-high), inset 0 0 0 1px var(--dm-ring-high), 0 0 0 1px rgba(0,0,0,0.18), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop), 0 24px 24px -12px var(--dm-drop);
-    --shadow-7: inset 0 1px 0 0 var(--dm-hi-peak), inset 0 0 0 1px var(--dm-ring-high), 0 0 0 1px rgba(0,0,0,0.20), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop), 0 24px 24px -12px var(--dm-drop), 0 48px 48px -24px var(--dm-drop);
-    --shadow-8: inset 0 1px 0 0 var(--dm-hi-peak), inset 0 0 0 1px var(--dm-ring-high), 0 0 0 1px rgba(0,0,0,0.22), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop), 0 24px 24px -12px var(--dm-drop), 0 48px 48px -24px var(--dm-drop), 0 96px 96px -48px var(--dm-drop);
+:root {
+  color-scheme: light;
+
+  /* colour — every text pair clears WCAG AA on ground, surface and
+     surface-deep; ink clears AAA. Vermilion is a mark, never body text. */
+  --ground: #ebe2cf;
+  --surface: #f3ecdd;
+  --surface-deep: #e2d7c1;
+  --ink: #1d2124;
+  --ink-soft: #4a4e50;
+  --ink-faint: #605a4d;
+  --hairline: #cdbfa3;
+  --sun: #c2382b;
+  --sun-glow: color-mix(in oklab, var(--sun) 14%, transparent);
+  --matcha: #4b6438;
+  --indigo: #34536b;
+  --kraft: #735a35;
+  --danger: #9b2c20;
+  --fibre-opacity: 0.05;
+  --fibre-size: 180px;
+  --shadow: 0 6px 18px -6px color-mix(in oklab, var(--ink) 8%, transparent),
+    0 1px 2px color-mix(in oklab, var(--ink) 6%, transparent);
+  --shadow-lift: 0 10px 24px -8px color-mix(in oklab, var(--ink) 12%, transparent),
+    0 1px 2px color-mix(in oklab, var(--ink) 8%, transparent);
+  --glass-tint: color-mix(in oklab, var(--surface) 72%, transparent);
+  --glass-blur: 18px;
+  --selection: color-mix(in oklab, var(--sun) 22%, transparent);
+  --sun-saturation: 1;
+  --sun-drop: 0%;
+  --image-frame: var(--surface);
+
+  /* space — 4px base */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --space-section: 5rem;
+  --gutter: max(1rem, env(safe-area-inset-left, 0px));
+
+  /* layout */
+  --measure: 38rem;
+  --stage: 72rem;
+
+  /* type — modular scale 1.25, fluid between 20rem and 90rem */
+  --text-label: 0.75rem;
+  --text-meta: 0.8125rem;
+  --text-small: 0.875rem;
+  --text-body: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --text-lead: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
+  --text-title: clamp(1.375rem, 1.2rem + 0.8vw, 1.5625rem);
+  --text-display-s: clamp(1.75rem, 1.4rem + 1.6vw, 2.441rem);
+  --text-display: clamp(2.441rem, 1.6rem + 4vw, 4.768rem);
+  --tracking-display: -0.035em;
+  --tracking-title: -0.015em;
+  --tracking-label: 0.12em;
+
+  /* shape */
+  --radius-0: 0;
+  --radius-1: 1px;
+  --radius-2: 2px;
+  --border-hairline: 1px;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 3px;
+
+  /* layers */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dock: 100;
+  --z-overlay: 200;
+  --z-palette: 300;
+  --z-toast: 400;
+
+  /* legacy aliases — one palette, older names */
+  --background: var(--ground);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--ground);
+  --secondary: var(--surface-deep);
+  --secondary-foreground: var(--ink-soft);
+  --muted: var(--surface-deep);
+  --muted-foreground: var(--ink-faint);
+  --accent: var(--surface-deep);
+  --accent-foreground: var(--ink);
+  --destructive: var(--danger);
+  --border: var(--hairline);
+  --input: var(--ink-faint);
+  --ring: var(--sun);
+  --focus-ring: var(--sun);
+  --signal: var(--sun);
+  --paper: var(--surface);
+  --paper-ink: var(--ink-faint);
+  --ghost-ink: color-mix(in oklab, var(--ink) 6%, transparent);
+  --selection-highlight: var(--selection);
+  --hover: color-mix(in oklab, var(--ink) 6%, transparent);
+  --active: color-mix(in oklab, var(--ink) 10%, transparent);
+  --gray-1: var(--ground);
+  --gray-2: var(--surface);
+  --gray-3: var(--surface-deep);
+  --gray-4: var(--hairline);
+  --gray-5: color-mix(in oklab, var(--ink) 20%, var(--ground));
+  --gray-6: color-mix(in oklab, var(--ink) 32%, var(--ground));
+  --gray-7: color-mix(in oklab, var(--ink-faint) 70%, var(--ground));
+  --gray-8: var(--ink-faint);
+  --gray-9: color-mix(in oklab, var(--ink-soft) 55%, var(--ink-faint));
+  --gray-10: var(--ink-soft);
+  --gray-11: color-mix(in oklab, var(--ink) 55%, var(--ink-soft));
+  --gray-12: var(--ink);
+  --surface-1: var(--surface);
+  --surface-2: var(--surface);
+  --surface-3: var(--surface);
+  --surface-4: var(--surface);
+  --surface-5: var(--surface);
+  --surface-6: var(--surface);
+  --surface-7: var(--surface);
+  --surface-8: var(--surface);
+  --shadow-color: color-mix(in oklab, var(--ink) 8%, transparent);
+  --shadow-1: 0 0 0 var(--border-hairline) var(--hairline);
+  --shadow-2: 0 0 0 var(--border-hairline) var(--hairline);
+  --shadow-3: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow);
+  --shadow-4: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow);
+  --shadow-5: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow-lift);
+  --shadow-6: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow-lift);
+  --shadow-7: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow-lift);
+  --shadow-8: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow-lift);
+  --shadow-small: var(--shadow);
+  --shadow-medium: var(--shadow);
+  --shadow-large: var(--shadow-lift);
+  --shadow-tooltip: var(--shadow);
+  --z-nav: var(--z-dock);
+  --z-card: var(--z-overlay);
+  --radius: 2px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ground: #141619;
+  --surface: #1b1e21;
+  --surface-deep: #101214;
+  --ink: #e9e1d0;
+  --ink-soft: #b9b2a4;
+  --ink-faint: #928c7e;
+  --hairline: #2e3236;
+  --sun: #d9573f;
+  --sun-glow: color-mix(in oklab, var(--sun) 22%, transparent);
+  --matcha: #86a36d;
+  --indigo: #7d9bb3;
+  --kraft: #a88c62;
+  --danger: #e8806b;
+  --fibre-opacity: 0.035;
+  --fibre-size: 140px;
+  --shadow: 0 4px 12px -4px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lift: 0 8px 20px -6px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.35);
+  --glass-tint: color-mix(in oklab, var(--surface) 68%, transparent);
+  --selection: color-mix(in oklab, var(--sun) 30%, transparent);
+  --sun-saturation: 0.9;
+  --sun-drop: 4%;
+  --image-frame: var(--hairline);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --space-section: 7rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --space-section: 9rem;
+  }
+}
+
+/* one device pixel on dense screens */
+@media (min-resolution: 2dppx) {
+  :root {
+    --border-hairline: 0.5px;
+  }
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
+    border-color: var(--border);
+  }
+
   html {
-    @apply font-sans;
-    }
+    font-family: var(--font-sans);
+    background: var(--ground);
+    scrollbar-color: var(--hairline) transparent;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-size: var(--text-body);
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--selection);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--sun);
+    outline-offset: var(--focus-ring-offset);
+  }
 }
 
 /* Funnel Display carries the large voice; small headings stay in Sans */
 h1,
-.home-intro-statement,
-.footer-wordmark {
+.font-display {
   font-family: var(--font-heading);
-}
-
-.home-hero-role {
-  font-family: var(--font-sans);
-}
-/* ── Design-language tokens (docs/design-language.md) ─────────────── */
-
-:root {
-  --ease-swift: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --duration-route-exit: 140ms;
-  --duration-route-enter: 240ms;
-  --delay-route-enter: 70ms;
-  --duration-route-morph: 320ms;
-  --duration-post-meta: 250ms;
-  --delay-post-body: 520ms;
-
-  --shadow-small: 0 5px 10px rgb(0 0 0 / 0.12);
-  --shadow-medium: 0 8px 30px rgb(0 0 0 / 0.12);
-  --shadow-large: 0 30px 60px rgb(0 0 0 / 0.12);
-  --shadow-tooltip: 0 4px 8px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
-
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-
-  --border-hairline: 1px;
-  --z-nav: 100;
-  --z-card: 200;
-  --z-toast: 300;
-
-  --grain-opacity: 0.3;
-  --guide-opacity: 0.5;
-
-  /* instant-print paper stays paper in any theme */
-    --paper: oklch(0.98 0.004 95);
-    --paper-ink: oklch(0.52 0.012 95);
 }

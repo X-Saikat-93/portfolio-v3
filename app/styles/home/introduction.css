@@ -287,27 +287,27 @@
 /* External image tone treatment keeps light and dark marks legible. */
 .external-link img[data-tone='light-mono'],
 .link-card-site img[data-tone='light-mono'],
-.dark .external-link img[data-tone='dark-mono'],
-.dark .link-card-site img[data-tone='dark-mono'] {
+[data-theme="dark"] .external-link img[data-tone='dark-mono'],
+[data-theme="dark"] .link-card-site img[data-tone='dark-mono'] {
   filter: invert(1);
 }
 
-.dark .external-link img[data-tone='light-mono'],
-.dark .link-card-site img[data-tone='light-mono'] {
+[data-theme="dark"] .external-link img[data-tone='light-mono'],
+[data-theme="dark"] .link-card-site img[data-tone='light-mono'] {
   filter: none;
 }
 
 .external-link img[data-tone='light'],
 .link-card-site img[data-tone='light'],
-.dark .external-link img[data-tone='dark'],
-.dark .link-card-site img[data-tone='dark'] {
+[data-theme="dark"] .external-link img[data-tone='dark'],
+[data-theme="dark"] .link-card-site img[data-tone='dark'] {
   box-sizing: border-box;
   padding: 2px;
   background: color-mix(in oklab, var(--primary) 88%, var(--background));
 }
 
-.dark .external-link img[data-tone='light'],
-.dark .link-card-site img[data-tone='light'] {
+[data-theme="dark"] .external-link img[data-tone='light'],
+[data-theme="dark"] .link-card-site img[data-tone='light'] {
   padding: 0;
   background: none;
 }
@@ -317,8 +317,8 @@
   box-shadow: inset 0 0 0 1px var(--border);
 }
 
-.dark .external-link img[data-tone='flat'],
-.dark .link-card-site img[data-tone='flat'] {
+[data-theme="dark"] .external-link img[data-tone='flat'],
+[data-theme="dark"] .link-card-site img[data-tone='flat'] {
   box-shadow: none;
 }
 

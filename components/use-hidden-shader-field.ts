@@ -22,7 +22,7 @@ export function useHiddenShaderField(
   useEffect(() => {
     const root = document.documentElement
     const observer = new MutationObserver(() => setInk(readForegroundInk()))
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] })
     return () => observer.disconnect()
   }, [])
 

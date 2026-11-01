@@ -1,62 +1,17 @@
-/* ── Ambient background: paper grain + drafting guides ────────────── */
+/* ── Washi fibre ──────────────────────────────────────────────────
+   A tiling turbulence mask, stretched along x so it reads as long paper
+   fibres, filled with the theme's ink. Finer and lighter in dark. */
 
-.paper-grain {
+.paper-fibre {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   user-select: none;
-  opacity: var(--grain-opacity);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 128px 128px;
-}
-
-.column-guides {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  user-select: none;
-  opacity: var(--guide-opacity);
-}
-
-/* full-height dashed verticals boxing the column, drafting-sheet style */
-.column-guide-v {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: repeating-linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--muted-foreground) 45%, transparent) 0,
-    color-mix(in oklab, var(--muted-foreground) 45%, transparent) 2px,
-    transparent 2px,
-    transparent 4px
-  );
-}
-
-.column-guide-v:first-of-type {
-  left: max(16px, calc((100% - 37.5rem) / 2));
-}
-
-.column-guide-v:last-of-type {
-  right: max(16px, calc((100% - 37.5rem) / 2));
-}
-
-/* registration cross where the (intentionally absent) top rule would
-   meet each guide — same missability contract as the guides */
-.column-guide-v::after {
-  content: '';
-  position: absolute;
-  top: 14px;
-  left: -4px;
-  width: 9px;
-  height: 9px;
-  color: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
-  background:
-    linear-gradient(currentColor, currentColor) center / 9px var(--border-hairline) no-repeat,
-    linear-gradient(currentColor, currentColor) center / var(--border-hairline) 9px no-repeat;
+  opacity: var(--fibre-opacity);
+  background-color: var(--ink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .16' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -.3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E") 0 0 / var(--fibre-size) repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .16' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -.3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E") 0 0 / var(--fibre-size) repeat;
 }
 
 /* ── Calibration marks: viewfinder corner brackets ────────────────── */

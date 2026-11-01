@@ -223,7 +223,7 @@
   --active: color-mix(in oklab, var(--foreground) 7%, transparent);
 }
 
-.dark .quiet-selection {
+[data-theme="dark"] .quiet-selection {
   --hover: color-mix(in oklab, var(--foreground) 5%, transparent);
   --active: color-mix(in oklab, var(--foreground) 9%, transparent);
 }

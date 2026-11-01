@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 
+import { AdminMotion } from '~/components/admin-motion'
 import { AmbientBackground } from '~/components/ambient-background'
 import { CommandPalette, type CommandPaletteItem } from '~/components/command-palette'
 import { Dock, DockFallback } from '~/components/dock'
@@ -15,6 +16,7 @@ import { projects } from '~/lib/projects'
 import { getGitHub } from '~/lib/social-live'
 import { PREPAINT_SCRIPT } from '~/lib/security/inline-scripts'
 import { seo } from '~/lib/seo'
+import { THEME_GROUND } from '~/lib/theme'
 import type { Locale } from '~/lib/locale-route'
 import { cn } from '~/lib/utils'
 
@@ -22,11 +24,12 @@ import { fontVariablesForLocale } from '../fonts'
 
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim()
 
-// Browser chrome follows the page ground in each scheme.
+// Browser chrome follows the page ground in each scheme; ThemeProvider
+// re-points both tags at the active ground when a theme is chosen.
 export const rootViewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fcfcfb' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f0d0a' },
+    { media: '(prefers-color-scheme: light)', color: THEME_GROUND.light },
+    { media: '(prefers-color-scheme: dark)', color: THEME_GROUND.dark },
   ],
 }
 
@@ -198,15 +201,17 @@ export async function SiteDocument({
         </head>
         <body className="antialiased">
           <ThemeProvider>
-            <AmbientBackground />
-            <div className="flex min-h-screen flex-col pb-20">
-              <a className="skip-link" href="#main-content">
-                Skip to content
-              </a>
-              <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
-                <RouteViewTransition>{children}</RouteViewTransition>
-              </main>
-            </div>
+            <AdminMotion>
+              <AmbientBackground />
+              <div className="flex min-h-screen flex-col pb-20">
+                <a className="skip-link" href="#main-content">
+                  Skip to content
+                </a>
+                <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
+                  <RouteViewTransition>{children}</RouteViewTransition>
+                </main>
+              </div>
+            </AdminMotion>
           </ThemeProvider>
         </body>
       </html>

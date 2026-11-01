@@ -164,23 +164,23 @@
   opacity: 0.2;
 }
 
-.dark .projects-blueprint-static {
+[data-theme="dark"] .projects-blueprint-static {
   opacity: 0.12;
 }
 
-.dark .projects-registration-mark {
+[data-theme="dark"] .projects-registration-mark {
   opacity: 0.3;
 }
 
-.dark .projects-hidden-stage .hidden-list-stage-shader {
+[data-theme="dark"] .projects-hidden-stage .hidden-list-stage-shader {
   opacity: 0.12;
 }
 
-.dark .writing-ink-static {
+[data-theme="dark"] .writing-ink-static {
   opacity: 0.1;
 }
 
-.dark .writing-hidden-stage .hidden-list-stage-shader {
+[data-theme="dark"] .writing-hidden-stage .hidden-list-stage-shader {
   opacity: 0.17;
 }
 
