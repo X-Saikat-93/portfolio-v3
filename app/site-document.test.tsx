@@ -29,11 +29,6 @@ vi.mock('~/components/dock', () => ({
 vi.mock('~/components/locale-restorer', () => ({
   LocaleRestorer: () => null,
 }))
-vi.mock('~/components/preview-card-timing', () => ({
-  PreviewCardTimingProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-public-preview-cards="">{children}</div>
-  ),
-}))
 vi.mock('~/components/site-footer', () => ({
   SiteFooter: () => <span data-public-footer="" />,
 }))
@@ -87,7 +82,6 @@ describe('SiteDocument analytics', () => {
       expect(html).toContain('data-public-dock')
       expect(html).toContain('data-public-footer')
       expect(html).toContain('data-route-transition')
-      expect(html).toContain('data-public-preview-cards')
       expect(html).toContain('data-command-palette')
     }
   })

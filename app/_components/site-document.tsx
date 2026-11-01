@@ -7,16 +7,15 @@ import { CommandPalette, type CommandPaletteItem } from '~/components/command-pa
 import { Dock, DockFallback } from '~/components/dock'
 import { JsonLd } from '~/components/json-ld'
 import { SiteIntro } from '~/components/site-intro'
-import { PreviewCardTimingProvider } from '~/components/preview-card-timing'
 import { RouteViewTransition } from '~/components/route-motion-controller'
 import { SiteFooter } from '~/components/site-footer'
 import { ThemeProvider } from '~/components/theme-provider'
 import { WashiArtDefs } from '~/components/washi-art'
 import { safeListPublishedBlogPosts, type BlogPost } from '~/lib/blog/repository'
 import { projects } from '~/lib/projects'
-import { getGitHub } from '~/lib/social-live'
 import { PREPAINT_SCRIPT } from '~/lib/security/inline-scripts'
 import { seo } from '~/lib/seo'
+import { sameAs } from '~/lib/site-links'
 import { THEME_GROUND } from '~/lib/theme'
 import type { Locale } from '~/lib/locale-route'
 import { cn } from '~/lib/utils'
@@ -220,9 +219,9 @@ export async function SiteDocument({
     )
   }
 
-  // The profile card is cached, while the rest of the public chrome stays
-  // request-independent.
-  const [github, posts] = await Promise.all([getGitHub(), safeListPublishedBlogPosts()])
+  // The palette indexes published writing; the rest of the public chrome
+  // stays request-independent.
+  const posts = await safeListPublishedBlogPosts()
   const commandItems = commandItemsFor(posts)
 
   return (
@@ -261,11 +260,7 @@ export async function SiteDocument({
                 'PostgreSQL',
                 'Redis',
               ],
-              sameAs: [
-                'https://github.com/X-Saikat-93',
-                'https://www.linkedin.com/in/saikat933/',
-                'https://x.com/Actually_Das',
-              ],
+              sameAs: sameAs(),
             },
             {
               '@context': 'https://schema.org',
@@ -283,26 +278,24 @@ export async function SiteDocument({
       </head>
       <body className="antialiased">
         <ThemeProvider>
-          <PreviewCardTimingProvider>
-            <AmbientBackground />
-            <WashiArtDefs />
-            <SiteIntro />
-            <div className="flex min-h-screen flex-col">
-              <a className="skip-link" href="#main-content">
-                Skip to content
-              </a>
-              <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
-                {/* Route content transitions independently of the persistent
-                    footer and dock. */}
-                <RouteViewTransition>{children}</RouteViewTransition>
-              </main>
-              <SiteFooter github={github} locale="en" />
-            </div>
-            <Suspense fallback={<DockFallback locale={locale} />}>
-              <Dock />
-            </Suspense>
-            <CommandPalette items={commandItems} />
-          </PreviewCardTimingProvider>
+          <AmbientBackground />
+          <WashiArtDefs />
+          <SiteIntro />
+          <div className="site-frame flex min-h-screen flex-col">
+            <a className="skip-link" href="#main-content">
+              Skip to content
+            </a>
+            <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
+              {/* Route content transitions independently of the persistent
+                  footer and dock. */}
+              <RouteViewTransition>{children}</RouteViewTransition>
+            </main>
+            <SiteFooter />
+          </div>
+          <Suspense fallback={<DockFallback locale={locale} />}>
+            <Dock />
+          </Suspense>
+          <CommandPalette items={commandItems} />
         </ThemeProvider>
       </body>
     </html>
