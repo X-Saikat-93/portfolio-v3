@@ -45,3 +45,14 @@ describe('featured project selection', () => {
     expect(featured.map(({ id }) => id)).not.toContain('weathersheet')
   })
 })
+
+describe('project galleries', () => {
+  it('gives every figure a published asset, alt text, and its natural size', () => {
+    for (const figure of projects.flatMap(({ gallery }) => gallery ?? [])) {
+      expect(figure.publicId).toMatch(/^saikat-das\//)
+      expect(figure.alt.trim().length).toBeGreaterThan(20)
+      expect(figure.width).toBeGreaterThan(0)
+      expect(figure.height).toBeGreaterThan(0)
+    }
+  })
+})

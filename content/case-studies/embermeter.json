@@ -1,0 +1,47 @@
+{
+  "projectId": "embermeter",
+  "heroImagePublicId": "saikat-das/projects/embermeter/hero",
+  "heroImageAlt": "Embermeter, model EM-1: a live instrument panel for Claude Code, with runway, cache-hit and spend readings beside a vermilion sun dial",
+  "framing": "A coding agent spends context, money, and machine heat at once. Most dashboards report what already happened; Embermeter forecasts the next turn and explains why it costs what it does.",
+  "challenge": "Inside a long Claude Code session the expensive moments arrive without warning: the window compacts mid-task, a turn quietly costs more than the last ten, a rate limit fills, or a laptop throttles under a build the agent started. The panel had to surface all of that live across VS Code, the desktop app, and a plain terminal, without a server, network calls, runtime dependencies, or any measurable drag on the agent it watches.",
+  "ownership": [
+    "Sole author: product definition, design system, engine wiring, analytics, rendering, tests, and release.",
+    "Designed the layered architecture: a pure state-and-analytics core, pure SVG builders, a terminal rasterizer, and a thin hooks module that wires engine events and sensors to them.",
+    "Owned the release path: strict TypeScript, CI on every push, CodeQL and OpenSSF Scorecard, a tagged release workflow, a changelog, and a security policy."
+  ],
+  "proof": [
+    { "label": "Instruments", "value": "21 readings across 8 tabs" },
+    { "label": "Surfaces", "value": "VS Code · desktop · terminal" },
+    { "label": "Footprint", "value": "0 dependencies · no network" },
+    { "label": "Release", "value": "v1.3.0 · MIT" }
+  ],
+  "decisions": [
+    {
+      "title": "Forecast, then explain",
+      "body": "Runway to auto-compact comes from the average growth of the last six turns that grew; rate-limit windows get a time-to-full only when the readings span five minutes and fill before reset. Every grade and alert carries its reasons, so a reading is something to act on rather than a number to decode."
+    },
+    {
+      "title": "Keep the logic pure",
+      "body": "Every engine event becomes one transition on an immutable board in core.ts, which does no I/O. Forecasts, health scoring, alerts, and the heat-guard decision are unit-tested without the engine, and a normalize step lets a board stored by an older version load after an upgrade."
+    },
+    {
+      "title": "One board, three renderers",
+      "body": "SVG pages for VS Code and the desktop app, and coloured cell rasters for the terminal, read the same board. The pane chooses its drawing by surface rather than by element presence, because the terminal still returns an SVG element that renders nothing."
+    },
+    {
+      "title": "Guard by command word, never by argument",
+      "body": "The heat guard holds builds, tests, and installs while the CPU stays over its limit or the battery runs low. It judges each command by its own words after wrappers such as rtk, nice, timeout, or bash -c, so grep test or a commit message about a build stays light, and it uses the lower of the last two temperature readings so one spike never holds a job."
+    },
+    {
+      "title": "Stay invisible on the hot path",
+      "body": "Each hook makes one in-memory update and passes the event on. Sensors are sampled every five seconds, the clock ticks only while work runs, every list is capped, and terminal motion repaints only the blocks that move, so memory stays flat across long sessions and nothing is sent while idle."
+    }
+  ],
+  "evidence": [
+    "Unit and UI tests mount the real module on the VS Code, desktop, and terminal surfaces against a stub engine and drive the guards and export commands through the real hooks.",
+    "Every path, command, and agent name passes through one escaping function before it reaches SVG, and SVG renders in image mode where scripts cannot run.",
+    "The plugin reads only /sys, /proc, and the project's .git/HEAD, writes no files, starts no processes, and keeps four lifetime totals in Claude Code's own plugin store.",
+    "Machine vitals and the heat guard work on Linux; on macOS and Windows they read as unavailable while every other instrument works. Install counts and user metrics are not published here."
+  ],
+  "boundary": "Evidence is limited to the public repository, its README, architecture notes, changelog, and test suite at v1.3.0. Panel screenshots are rendered from the repository's fixed sample session, not from a real user's data."
+}

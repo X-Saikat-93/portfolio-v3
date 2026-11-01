@@ -9,6 +9,16 @@ export interface ProjectNote {
   body: string
 }
 
+// A published screenshot. Width and height are the asset's natural size so
+// the figure reserves its exact shape before the image loads.
+export interface ProjectFigure {
+  publicId: string
+  alt: string
+  caption: string
+  width: number
+  height: number
+}
+
 export interface ProjectCaseStudy {
   heroImagePublicId?: string | null
   heroImageAlt?: string
@@ -39,6 +49,7 @@ export interface Project {
   notes: ProjectNote[]
   flow: string[]
   links: ProjectLink[]
+  gallery?: ProjectFigure[]
 }
 
 export type ProjectWithCaseStudy = Project & { caseStudy?: ProjectCaseStudy }
@@ -149,6 +160,111 @@ export const projects: Project[] = [
         label: 'Open the ATS',
         url: 'https://hire.humanbeforeresource.com',
         kind: 'live',
+      },
+    ],
+  },
+  {
+    id: 'embermeter',
+    name: 'Embermeter',
+    nameEn: 'Embermeter',
+    description:
+      'A live instrument panel for Claude Code that forecasts context runway, cost, and rate limits, explains what fills the window, and holds heavy jobs while the machine runs hot.',
+    url: 'https://github.com/X-Saikat-93/embermeter',
+    domain: 'github.com',
+    category: 'Developer tooling',
+    status: 'Public release',
+    role: 'Creator',
+    scope: 'Claude Code session observability',
+    stack: [
+      'TypeScript',
+      'Claude Code hooks',
+      'SVG + SMIL',
+      'Terminal rasters',
+      'Linux /sys + /proc',
+      'GitHub Actions',
+    ],
+    capabilities: [
+      'Turns left before auto-compact, learned from per-turn context growth',
+      'Context composition, cache analytics, and an A–F health grade with its reasons',
+      'Session and daily budgets, cost waterfall, and rate-limit time-to-full forecasts',
+      'Tool leaderboard with p95 latency, file heatmap, and subagent swimlanes',
+      'Heat guard that holds builds, tests, and installs while the CPU runs hot or the battery runs low',
+      'Opt-in turn-cost stop and loop breaker that make Claude stop and ask',
+      'Session reports, shareable SVG cards, and JSON or CSV export',
+    ],
+    overview: [
+      'Embermeter is a Claude Code plugin that sits beside the chat as one quiet panel. A coding agent spends context, money, and machine heat at the same time; the panel shows all three, forecasts what the next turns will cost, and explains each reading instead of only reporting it.',
+      'It ships as a single hooks module with no server, no network calls, and no runtime dependencies. The same numbers draw as animated SVG in VS Code and the desktop app, and as coloured cell graphics in the terminal.',
+    ],
+    notes: [
+      {
+        title: 'Pure core, thin wiring',
+        body: 'Engine events map to transitions on one immutable board in a pure core module, so forecasts, health scoring, alerts, and guard decisions are unit-tested without the engine.',
+      },
+      {
+        title: 'One board, three surfaces',
+        body: 'SVG builders and a terminal rasterizer read the same board, so VS Code, the desktop app, and the CLI show identical readings.',
+      },
+      {
+        title: 'Fail-open by design',
+        body: 'A faulting hook passes its event through unchanged. The heat guard is the only part that can refuse anything, and it tells Claude why.',
+      },
+    ],
+    flow: ['Events', 'Hooks', 'Core', 'Draw', 'Panel'],
+    links: [
+      {
+        label: 'View source',
+        url: 'https://github.com/X-Saikat-93/embermeter',
+        kind: 'source',
+      },
+      {
+        label: 'Read the architecture',
+        url: 'https://github.com/X-Saikat-93/embermeter/blob/main/docs/ARCHITECTURE.md',
+        kind: 'source',
+      },
+    ],
+    gallery: [
+      {
+        publicId: 'saikat-das/projects/embermeter/overview',
+        alt: 'Embermeter overview tab: arc gauges for context, cost, cache hit and temperature, rate-limit bars, the live flow from prompt to tools, context and activity trends, and a turn timeline',
+        caption: 'Overview. Four gauges, rate-limit windows with a time-to-full forecast, the live flow from prompt to tools, and every turn coloured by cost.',
+        width: 1280,
+        height: 1308,
+      },
+      {
+        publicId: 'saikat-das/projects/embermeter/context',
+        alt: 'Embermeter context tab: a composition bar with the auto-compact marker, token and cache counts, context fed back by each tool, and always-loaded files',
+        caption: 'Context. What fills the window, where auto-compact will fire, and which tools and files fed the most tokens back.',
+        width: 1280,
+        height: 1736,
+      },
+      {
+        publicId: 'saikat-das/projects/embermeter/spend',
+        alt: 'Embermeter spend tab: a cost waterfall against a five-dollar budget, cost split by model, and a thirty-day spend calendar',
+        caption: 'Spend. Each turn stacked on the running total against the budget, split by model, with thirty days of history.',
+        width: 1280,
+        height: 760,
+      },
+      {
+        publicId: 'saikat-das/projects/embermeter/tools',
+        alt: 'Embermeter tools tab: a leaderboard of tool calls with context fed, success share, average and p95 duration',
+        caption: 'Tools. Calls, context fed back, success share, and average and p95 duration for every tool.',
+        width: 1280,
+        height: 452,
+      },
+      {
+        publicId: 'saikat-das/projects/embermeter/agents',
+        alt: 'Embermeter agents tab: subagent swimlanes on a shared time grid',
+        caption: 'Agents. Each subagent on a shared time grid with its model, duration, and outcome.',
+        width: 1280,
+        height: 356,
+      },
+      {
+        publicId: 'saikat-das/projects/embermeter/system',
+        alt: 'Embermeter system tab: gauges for CPU temperature, battery, memory and load, a thermal trend against the limit, and heat-guard status',
+        caption: 'System. Machine vitals, the thermal trend against its limit, and what the heat guard has held.',
+        width: 1280,
+        height: 732,
       },
     ],
   },
