@@ -1,33 +1,39 @@
-/* Above-the-fold entrance choreography: rows/blocks rise in with a per-item
-   delay (set --enter-delay inline; keep ordinary entrances under ~500ms).
-   The staged post route is the documented exception after the shared morph. */
-.enter {
-  animation: enter-develop 360ms var(--ease-enter) backwards;
-  animation-delay: calc(var(--enter-delay, 0ms) + var(--mount, 0ms));
-}
+/* ── Motion rules (DESIGN.md · Motion) ─────────────────────────────────
+   Ink settle: opacity, a small rise and a blur resolving. Above-the-fold
+   blocks take an inline --enter-delay; lists stagger their first six rows
+   and land the rest together. Tokens live in motion-tokens.css. */
 
-@keyframes list-item-enter {
+@keyframes ink-settle {
   from {
     opacity: 0;
-    transform: translate3d(0, 0.4rem, 0);
+    transform: translate3d(0, var(--rise), 0);
+    filter: blur(var(--settle-blur));
   }
 }
 
-/* Reusable, bounded list choreography. The first eight rows stagger; long
-   datasets settle together instead of making visitors wait for content. */
+@keyframes hairline-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.enter,
+.enter-swing {
+  animation: ink-settle var(--dur-gentle) var(--ease-settle) backwards;
+  animation-delay: calc(var(--enter-delay, 0ms) + var(--mount, 0ms));
+}
+
 .motion-list > * {
   --motion-index: 0;
-  animation: list-item-enter 320ms var(--ease-enter) backwards;
-  animation-delay: calc(var(--mount, 0ms) + var(--motion-list-delay, 70ms) + var(--motion-index) * 38ms);
+  animation: ink-settle var(--dur-gentle) var(--ease-settle) backwards;
+  animation-delay: calc(var(--mount, 0ms) + var(--motion-list-delay, 60ms) + var(--motion-index) * var(--stagger));
 }
 
 .motion-list > :nth-child(2) { --motion-index: 1; }
 .motion-list > :nth-child(3) { --motion-index: 2; }
 .motion-list > :nth-child(4) { --motion-index: 3; }
 .motion-list > :nth-child(5) { --motion-index: 4; }
-.motion-list > :nth-child(6) { --motion-index: 5; }
-.motion-list > :nth-child(7) { --motion-index: 6; }
-.motion-list > :nth-child(n + 8) { --motion-index: 7; }
+.motion-list > :nth-child(n + 6) { --motion-index: 5; }
 
 /* Listing polaroids pop like prints dropped on the sheet; skipped after
    the first visit this session (html[data-visited] set pre-paint) */
@@ -44,18 +50,10 @@ html[data-visited] .enter-polaroid .polaroid {
    below-fold elements, so content without JS is simply there */
 .reveal-pending {
   opacity: 0;
-  transform: translate3d(0, 5px, 0);
-}
-
-@keyframes reveal-develop {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 5px, 0);
-  }
 }
 
 .reveal-in {
-  animation: reveal-develop 300ms var(--ease-swift) backwards;
+  animation: ink-settle var(--dur-gentle) var(--ease-settle) backwards;
   animation-delay: var(--reveal-delay, 0ms);
 }
 
@@ -84,17 +82,18 @@ html[data-visited] .enter-polaroid .polaroid {
   view-transition-name: var(--post-title-transition-name, none);
 }
 
+/* pages dissolve like ink in water: a short cross-fade through a 2px blur */
 @keyframes route-content-exit {
   to {
     opacity: 0;
-    transform: translate3d(0, -0.2rem, 0);
+    filter: blur(2px);
   }
 }
 
 @keyframes route-content-enter {
   from {
     opacity: 0;
-    transform: translate3d(0, 0.5rem, 0);
+    filter: blur(2px);
   }
 }
 
@@ -128,17 +127,33 @@ html[data-visited] .enter-polaroid .polaroid {
 }
 
 ::view-transition-old(.route-content) {
-  animation: route-content-exit var(--duration-route-exit) var(--ease-exit) both;
+  animation: route-content-exit var(--dur-exit-base) var(--ease-exit) both;
 }
 
 ::view-transition-new(.route-content) {
-  animation: route-content-enter var(--duration-route-enter) var(--ease-enter)
-    var(--delay-route-enter) both;
+  animation: route-content-enter var(--dur-base) var(--ease-ink) both;
 }
 
 ::view-transition-group(*) {
-  animation-duration: var(--duration-route-morph);
-  animation-timing-function: var(--ease-swift);
+  animation-duration: var(--dur-gentle);
+  animation-timing-function: var(--ease-settle);
+}
+
+/* The eclipse (theme change): the old page stays put underneath while the
+   new palette is revealed by a growing circle (components/theme-provider).
+   The dock joins the root snapshot so it changes with the page. */
+html[data-eclipse]::view-transition-old(root) {
+  display: block;
+  animation: none;
+}
+
+html[data-eclipse]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-eclipse] .dock {
+  view-transition-name: none !important;
 }
 
 ::view-transition-group(.post-title-morph) {
@@ -149,7 +164,7 @@ html[data-visited] .enter-polaroid .polaroid {
 /* The shared title owns the morph. Its supporting metadata develops once the
    320ms morph window closes, then the post body follows as the next register. */
 .post-title-meta {
-  animation: enter-develop var(--duration-post-meta) var(--ease-swift) backwards;
+  animation: ink-settle var(--duration-post-meta) var(--ease-settle) backwards;
   animation-delay: var(--duration-route-morph);
 }
 
@@ -165,7 +180,7 @@ html[data-visited] .enter-polaroid .polaroid {
 
 .prose ul.reveal-in > li,
 .prose ol.reveal-in > li {
-  animation: reveal-develop 300ms var(--ease-swift) backwards;
+  animation: ink-settle var(--dur-gentle) var(--ease-settle) backwards;
   animation-delay: calc(var(--reveal-delay, 0ms) + var(--li, 0) * 45ms);
 }
 
@@ -216,6 +231,7 @@ html[data-visited] .enter-polaroid .polaroid {
 
 @media (prefers-reduced-motion: reduce) {
   .enter,
+  .enter-swing,
   .motion-list > *,
   .enter-polaroid .polaroid,
   .post-title-meta,

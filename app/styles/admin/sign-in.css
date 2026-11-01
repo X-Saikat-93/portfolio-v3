@@ -13,55 +13,55 @@
     var(--shadow-medium);
 }
 
-.dark .sign-in-sheet {
+[data-theme="dark"] .sign-in-sheet {
   border-color: color-mix(in oklab, var(--foreground) 18%, transparent);
   background: var(--surface-2);
   box-shadow: var(--shadow-medium);
 }
 
-.dark .sign-in-topline,
-.dark .sign-in-bottomline {
+[data-theme="dark"] .sign-in-topline,
+[data-theme="dark"] .sign-in-bottomline {
   color: color-mix(in oklab, var(--foreground) 66%, transparent);
   border-color: color-mix(in oklab, var(--foreground) 14%, transparent);
 }
 
-.dark .sign-in-field-label {
+[data-theme="dark"] .sign-in-field-label {
   color: color-mix(in oklab, var(--foreground) 68%, transparent);
 }
 
-.dark .sign-in-input {
+[data-theme="dark"] .sign-in-input {
   color: var(--foreground);
   border-bottom-color: color-mix(in oklab, var(--foreground) 26%, transparent);
 }
 
-.dark .sign-in-input::placeholder {
+[data-theme="dark"] .sign-in-input::placeholder {
   color: color-mix(in oklab, var(--foreground) 40%, transparent);
 }
 
-.dark .sign-in-input:focus {
+[data-theme="dark"] .sign-in-input:focus {
   border-color: var(--foreground);
 }
 
-.dark .sign-in-note {
+[data-theme="dark"] .sign-in-note {
   color: color-mix(in oklab, var(--foreground) 56%, transparent);
 }
 
-.dark .sign-in-submit {
+[data-theme="dark"] .sign-in-submit {
   border-color: var(--foreground);
   background: var(--foreground);
   color: var(--background);
 }
 
-.dark .sign-in-submit:hover {
+[data-theme="dark"] .sign-in-submit:hover {
   background: transparent;
   color: var(--foreground);
 }
 
-.dark .sign-in-submit:focus-visible {
+[data-theme="dark"] .sign-in-submit:focus-visible {
   outline-color: var(--foreground);
 }
 
-.dark .sign-in-status {
+[data-theme="dark"] .sign-in-status {
   border-top-color: color-mix(in oklab, var(--foreground) 22%, transparent);
 }
 

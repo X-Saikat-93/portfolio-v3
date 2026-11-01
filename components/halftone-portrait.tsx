@@ -39,9 +39,8 @@ const MORPH_SPREAD = 380 // ...as a diagonal wave
 const MAX_DEVICE_PIXEL_RATIO = 2
 const TAU = Math.PI * 2
 
-// per-theme print inks, matching the foreground tokens
-const INK_LIGHT = 'oklch(0.145 0 0)'
-const INK_DARK = 'oklch(0.985 0 0)'
+// the print ink is the theme's --ink token, read when the theme changes
+const readInk = () => getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()
 
 type Kind = 'light' | 'dark'
 
@@ -140,7 +139,8 @@ export function HalftonePortrait({
     const interactive =
       window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduced
     const activeKind = (): Kind =>
-      document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+      document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
+    let ink = readInk()
 
     function loadImage(kinds: Kind[], src: string, fallback?: string) {
       if (!src) return
@@ -369,7 +369,7 @@ export function HalftonePortrait({
       let busy = false
       let painted = false
 
-      ctx.fillStyle = kind === 'dark' ? INK_DARK : INK_LIGHT
+      ctx.fillStyle = ink
       ctx.beginPath()
       for (let i = 0; i < count; i++) {
         let r = to[i]
@@ -505,6 +505,7 @@ export function HalftonePortrait({
     const mo = new MutationObserver(() => {
       const nowKind = activeKind()
       if (nowKind === lastKind) return
+      ink = readInk()
       const from = lastKind
       lastKind = nowKind
       if (reduced || !radii[from]) {
@@ -514,7 +515,7 @@ export function HalftonePortrait({
       morph = { from, start: performance.now() }
       wake()
     })
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
 
     return () => {
       canvas.removeEventListener('pointermove', onMove)

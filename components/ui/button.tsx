@@ -10,7 +10,13 @@ import {
   type ReactNode,
 } from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
-import { cva, type VariantProps } from "class-variance-authority";
+import {
+  activeButtonClasses,
+  buttonVariants,
+  destructiveButtonClasses,
+  expandHitAreaClasses,
+  type ButtonVariantProps,
+} from "~/components/ui/button-classes";
 import { cn } from "~/lib/utils";
 
 type ButtonIcon = ComponentType<{
@@ -19,43 +25,9 @@ type ButtonIcon = ComponentType<{
   className?: string;
 }>;
 
-const buttonVariants = cva(
-  [
-    "group relative isolate inline-flex items-center justify-center rounded-full text-[12px] outline-none cursor-pointer",
-    "transition-colors duration-150",
-    "disabled:opacity-50 disabled:pointer-events-none",
-    "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)]",
-  ],
-  {
-    variants: {
-      variant: {
-        primary: "text-background",
-        secondary: "text-foreground",
-        tertiary: "border border-border text-foreground",
-        ghost: "text-muted-foreground hover:text-foreground",
-      },
-      size: {
-        sm: "h-6 px-2 gap-1",
-        md: "h-7 px-2 gap-1.5",
-        // The public CTA register (.btn-cta): 36px pill, 14px medium label,
-        // 18px inline padding. lg is the prominent-action tier everywhere,
-        // so it carries the same metrics.
-        lg: "h-9 px-[1.125rem] gap-2 text-sm font-medium",
-        "icon-sm": "h-6 w-6 [&_svg]:h-3.5 [&_svg]:w-3.5",
-        icon: "h-7 w-7 [&_svg]:h-4 [&_svg]:w-4",
-        "icon-lg": "h-8 w-8 [&_svg]:h-5 [&_svg]:w-5",
-      },
-    },
-    defaultVariants: {
-      variant: "primary",
-      size: "md",
-    },
-  }
-);
-
 interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+    ButtonVariantProps {
   /** When true, the given single React-element child becomes the rendered element (slot-style). */
   asChild?: boolean;
   loading?: boolean;
@@ -75,52 +47,7 @@ interface ButtonProps
   expandHitArea?: boolean;
 }
 
-const bgVariants: Record<string, string> = {
-  primary: "bg-foreground group-hover:bg-foreground/90 group-active:bg-foreground/80",
-  secondary: "bg-accent group-hover:bg-accent/80 group-active:bg-accent",
-  tertiary: "bg-transparent group-hover:bg-hover group-active:bg-active",
-  ghost: "bg-transparent group-hover:bg-hover group-active:bg-active",
-};
 
-const activeBgVariants: Record<string, string> = {
-  primary: "bg-foreground/80",
-  secondary: "bg-accent",
-  tertiary: "bg-active",
-  ghost: "bg-active",
-};
-
-// Destructive tone. Filled primary mirrors the foreground recipe on
-// bg-destructive (label matches the existing bg-destructive/text-white
-// admin confirms); the quieter variants keep destructive ink over a
-// /10-alpha tinted hover.
-const destructiveRootVariants: Record<string, string> = {
-  primary: "text-white",
-  secondary: "text-destructive",
-  tertiary: "text-destructive",
-  ghost: "text-destructive hover:text-destructive",
-};
-
-const destructiveBgVariants: Record<string, string> = {
-  primary:
-    "bg-destructive group-hover:bg-destructive/90 group-active:bg-destructive/80",
-  secondary:
-    "bg-destructive/10 group-hover:bg-destructive/15 group-active:bg-destructive/20",
-  tertiary:
-    "bg-transparent group-hover:bg-destructive/10 group-active:bg-destructive/15",
-  ghost:
-    "bg-transparent group-hover:bg-destructive/10 group-active:bg-destructive/15",
-};
-
-const destructiveActiveBgVariants: Record<string, string> = {
-  primary: "bg-destructive/80",
-  secondary: "bg-destructive/20",
-  tertiary: "bg-destructive/15",
-  ghost: "bg-destructive/15",
-};
-
-// Vertical-only hit-target extension to 44px (mirrors .btn-cta::before).
-const expandHitAreaClasses =
-  "before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-['']";
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -168,23 +95,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         : size === "lg" || size === "icon-lg"
           ? "h-4 w-4"
           : "h-3.5 w-3.5";
-    const bgClass = active
-      ? (destructive ? destructiveActiveBgVariants : activeBgVariants)[
-          variant ?? "primary"
-        ]
-      : (destructive ? destructiveBgVariants : bgVariants)[
-          variant ?? "primary"
-        ];
-
     const internals = (
       <>
-        <span
-          aria-hidden
-          className={cn(
-            "absolute inset-0 rounded-[inherit] transition-[background-color,transform] duration-150 group-active:scale-[0.98]",
-            bgClass
-          )}
-        />
         <span className="relative inline-flex items-center justify-center gap-[inherit]">
           {loading ? (
             <>
@@ -218,7 +130,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               </span>
             </>
           ) : isIconOnly ? (
-            <span className="[&_svg]:stroke-[1.5] [&_svg]:transition-[stroke-width] [&_svg]:duration-150 group-hover:[&_svg]:stroke-[2]">
+            <span className="[&_svg]:stroke-[1.5]">
               {label}
             </span>
           ) : (
@@ -227,7 +139,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 <LeadingIcon
                   size={iconSize}
                   strokeWidth={1.5}
-                  className="transition-[stroke-width] duration-150 group-hover:stroke-[2]"
                 />
               )}
               {/* text-box only applies to block containers, so the trim lives
@@ -239,7 +150,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 <TrailingIcon
                   size={iconSize}
                   strokeWidth={1.5}
-                  className="transition-[stroke-width] duration-150 group-hover:stroke-[2]"
                 />
               )}
             </>
@@ -253,7 +163,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         variant,
         size,
       }),
-      destructive && destructiveRootVariants[variant ?? "primary"],
+      active && activeButtonClasses[variant ?? "primary"],
+      destructive && destructiveButtonClasses[variant ?? "primary"],
       expandHitArea && expandHitAreaClasses,
       className
     );

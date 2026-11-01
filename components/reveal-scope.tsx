@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 
+import { staggerDelay } from '~/lib/motion'
+
 const ARM_DELAY = 750 // ms before observers attach — page entrance owns the fold
-const BASE_DELAY = 80 // ms before the first block of a batch reveals
-const STEP = 45 // ms between blocks revealing in the same frame
+const BASE_DELAY = 60 // ms before the first block of a batch reveals
 const THRESHOLD = 0.05
 
 // Scroll reveal for long-form content. Below-fold blocks develop in as
@@ -56,7 +57,7 @@ export function RevealScope({
       const batch = queue
       queue = []
       batch.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
-      batch.forEach((el, i) => reveal(el, BASE_DELAY + i * STEP))
+      batch.forEach((el, i) => reveal(el, BASE_DELAY + staggerDelay(i)))
     }
 
     let io: IntersectionObserver | undefined

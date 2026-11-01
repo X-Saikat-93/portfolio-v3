@@ -1,10 +1,15 @@
 'use client'
 
 import { Popover } from '@base-ui/react/popover'
-import { Monitor, Moon, Sun, Volume2, VolumeX } from 'lucide-react'
+import { Volume2, VolumeX } from 'lucide-react'
 import Link from 'next/link'
 
-import { PreferencesIcon } from '~/components/dock-icons'
+import {
+  EclipseIcon,
+  ThemeDarkIcon,
+  ThemeLightIcon,
+  ThemeSystemIcon,
+} from '~/components/dock-icons'
 import { useTheme } from '~/components/theme-provider'
 import { useEffect, useRef, useState } from 'react'
 
@@ -29,8 +34,9 @@ function Row({ zh, en, children }: { zh: string; en: string; children: React.Rea
   )
 }
 
-// The dock's preferences panel: theme and UI sound, each as full-width fluid
-// tabs. On the public dock the site owner gets
+// The dock's preferences panel behind the eclipse glyph: theme (System,
+// Light, Dark — the eclipse grows from the glyph) and UI sound. On the
+// public dock the site owner gets
 // one more row (the way into the admin); the owner dock's variant swaps
 // it for sign-out and never probes.
 export function Preferences({
@@ -46,6 +52,12 @@ export function Preferences({
   const [mounted, setMounted] = useState(false)
   const [sound, setSound] = useState(false)
   const probingRef = useRef(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+
+  function eclipseOrigin() {
+    const box = triggerRef.current?.getBoundingClientRect()
+    return box ? { x: box.left + box.width / 2, y: box.top + box.height / 2 } : undefined
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -85,13 +97,14 @@ export function Preferences({
       <Popover.Trigger
         render={
           <button
+            ref={triggerRef}
             type="button"
             className="dock-item"
-            aria-label="Preferences"
+            aria-label="Theme and sound"
           >
-            <PreferencesIcon />
+            <EclipseIcon />
             <span className="dock-tip" aria-hidden>
-              <T zh="偏好" en="Preferences" />
+              <T zh="外观" en="Theme" />
             </span>
           </button>
         }
@@ -104,24 +117,24 @@ export function Preferences({
           className="z-[var(--z-card)] outline-none"
         >
           <Popover.Popup
-            aria-label="Preferences"
+            aria-label="Theme and sound"
             initialFocus
             finalFocus
             render={<Elevated offset={2} shadowLevel={3} />}
-            className="prefs-panel w-max rounded-xl outline-none"
+            className="prefs-panel w-max outline-none"
           >
             <Row zh="外观" en="Theme">
               <Tabs
                 value={mounted && theme ? theme : 'system'}
                 onValueChange={(v) => {
-                  setTheme(v)
+                  setTheme(v, eclipseOrigin())
                   playPreferenceSound()
                 }}
               >
                 <TabsList aria-label="Theme">
-                  <TabItem value="light" icon={Sun} label="" aria-label="Light" />
-                  <TabItem value="system" icon={Monitor} label="" aria-label="System" />
-                  <TabItem value="dark" icon={Moon} label="" aria-label="Dark" />
+                  <TabItem value="light" icon={ThemeLightIcon} label="" aria-label="Light" />
+                  <TabItem value="system" icon={ThemeSystemIcon} label="" aria-label="System" />
+                  <TabItem value="dark" icon={ThemeDarkIcon} label="" aria-label="Dark" />
                 </TabsList>
               </Tabs>
             </Row>

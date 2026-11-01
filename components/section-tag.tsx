@@ -1,9 +1,8 @@
+import { toRoman } from '~/lib/roman'
 import { cn } from '~/lib/utils'
 
-// The section-tag register from the public homepage h2s — index cell,
-// hazard-hatch chip, and uppercase mono label — as a shared component.
-// Rendered statically: no entrance class here; public callers that want
-// `.enter` keep their own inline markup.
+// A section heading in the manual register: a roman numeral, then the
+// title. Shared by the homepage and the other public routes.
 export function SectionTag({
   index,
   id,
@@ -18,9 +17,8 @@ export function SectionTag({
   return (
     <h2 id={id} className={cn('section-tag', className)}>
       <span className="section-tag-index" aria-hidden>
-        {String(index).padStart(2, '0')}
+        {toRoman(index)}
       </span>
-      <span className="section-tag-hatch" aria-hidden />
       <span className="section-tag-label">{children}</span>
     </h2>
   )

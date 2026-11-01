@@ -1,7 +1,18 @@
 import { cacheLife, cacheTag } from 'next/cache'
 
-import type { GitHubSnapshot } from '~/components/social-cards'
 import bakedGithub from '~/content/github.json'
+
+export interface GitHubSnapshot {
+  user: string
+  followers?: number
+  publicRepos?: number
+  total?: number
+  to?: string
+  levels?: string
+  weeks?: number[]
+  dates?: string[]
+  counts?: number[]
+}
 
 const GITHUB_USER = 'X-Saikat-93'
 

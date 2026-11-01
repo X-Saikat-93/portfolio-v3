@@ -1,0 +1,53 @@
+/* ── Motion tokens (DESIGN.md · Motion) ───────────────────────────────
+   The only place CSS timing is defined; lib/motion.ts mirrors these for
+   script-driven animation. Ink settling on paper: brief, soft, weighted. */
+
+:root {
+  --dur-instant: 90ms;
+  --dur-quick: 160ms;
+  --dur-base: 240ms;
+  --dur-gentle: 420ms;
+  --dur-slow: 720ms;
+  --dur-exit-base: 168ms;
+  --dur-exit-gentle: 294ms;
+
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-ink: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* lib/springs.ts `moderate`: a critically damped spring (no overshoot),
+     sampled as x(t) = 1 - (1 + wt)e^-wt for CSS-driven indicators */
+  --ease-spring-critical: linear(0, 0.063, 0.196, 0.344, 0.483, 0.602, 0.7, 0.776, 0.835, 0.88, 0.913, 0.937, 0.955, 0.968, 0.977, 0.984, 1);
+  --dur-spring: 280ms;
+
+  --rise: 3px;
+  --rise-max: 8px;
+  --settle-blur: 4px;
+  --stagger: 48ms;
+  --press-scale: 0.97;
+
+  /* legacy aliases */
+  --ease-swift: var(--ease-settle);
+  --ease-enter: var(--ease-settle);
+  --ease-spring: var(--ease-settle);
+  --duration-route-exit: var(--dur-exit-base);
+  --duration-route-enter: var(--dur-base);
+  --delay-route-enter: 0ms;
+  --duration-route-morph: var(--dur-gentle);
+  --duration-post-meta: var(--dur-base);
+  --delay-post-body: var(--dur-gentle);
+}
+
+/* Under reduced motion only short opacity fades remain. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-quick: 120ms;
+    --dur-base: 120ms;
+    --dur-gentle: 120ms;
+    --dur-slow: 0ms;
+    --rise: 0px;
+    --rise-max: 0px;
+    --settle-blur: 0px;
+    --stagger: 0ms;
+    --press-scale: 1;
+  }
+}

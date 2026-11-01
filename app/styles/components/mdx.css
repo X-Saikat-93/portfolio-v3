@@ -170,14 +170,14 @@ code[data-theme] span {
   color: var(--shiki-light);
 }
 
-.dark code[data-theme] span {
+[data-theme="dark"] code[data-theme] span {
   color: var(--shiki-dark);
 }
 
 /* the sheet's background comes from the surface ladder, not the theme —
    shiki keeps the token colors, the paper keeps the elevation */
 pre[data-theme],
-.dark pre[data-theme] {
+[data-theme="dark"] pre[data-theme] {
   background: transparent;
 }
 

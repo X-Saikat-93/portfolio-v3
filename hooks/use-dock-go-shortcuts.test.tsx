@@ -62,7 +62,7 @@ describe('useDockGoShortcuts', () => {
 
     expect(onNavigate).toHaveBeenCalledWith('/', true)
     expect(playDockSound).toHaveBeenCalledOnce()
-    expect(push).toHaveBeenCalledWith('/')
+    expect(push).toHaveBeenCalledWith('/en')
   })
 
   it.each([
@@ -116,7 +116,7 @@ describe('useDockGoShortcuts', () => {
     keydown('g')
     keydown('j')
 
-    expect(push).toHaveBeenCalledWith('/projects')
+    expect(push).toHaveBeenCalledWith('/en/projects')
     expect(playDockSound).not.toHaveBeenCalled()
   })
 

@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 
+import { AdminMotion } from '~/components/admin-motion'
 import { AmbientBackground } from '~/components/ambient-background'
 import { CommandPalette, type CommandPaletteItem } from '~/components/command-palette'
 import { Dock, DockFallback } from '~/components/dock'
 import { JsonLd } from '~/components/json-ld'
 import { SiteIntro } from '~/components/site-intro'
-import { PreviewCardTimingProvider } from '~/components/preview-card-timing'
 import { RouteViewTransition } from '~/components/route-motion-controller'
 import { SiteFooter } from '~/components/site-footer'
 import { ThemeProvider } from '~/components/theme-provider'
+import { WashiArtDefs } from '~/components/washi-art'
 import { safeListPublishedBlogPosts, type BlogPost } from '~/lib/blog/repository'
 import { projects } from '~/lib/projects'
-import { getGitHub } from '~/lib/social-live'
 import { PREPAINT_SCRIPT } from '~/lib/security/inline-scripts'
 import { seo } from '~/lib/seo'
+import { sameAs } from '~/lib/site-links'
+import { THEME_GROUND } from '~/lib/theme'
 import type { Locale } from '~/lib/locale-route'
 import { cn } from '~/lib/utils'
 
@@ -22,11 +24,12 @@ import { fontVariablesForLocale } from '../fonts'
 
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim()
 
-// Browser chrome follows the page ground in each scheme.
+// Browser chrome follows the page ground in each scheme; ThemeProvider
+// re-points both tags at the active ground when a theme is chosen.
 export const rootViewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fcfcfb' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f0d0a' },
+    { media: '(prefers-color-scheme: light)', color: THEME_GROUND.light },
+    { media: '(prefers-color-scheme: dark)', color: THEME_GROUND.dark },
   ],
 }
 
@@ -198,24 +201,27 @@ export async function SiteDocument({
         </head>
         <body className="antialiased">
           <ThemeProvider>
-            <AmbientBackground />
-            <div className="flex min-h-screen flex-col pb-20">
-              <a className="skip-link" href="#main-content">
-                Skip to content
-              </a>
-              <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
-                <RouteViewTransition>{children}</RouteViewTransition>
-              </main>
-            </div>
+            <AdminMotion>
+              <AmbientBackground />
+              <WashiArtDefs />
+              <div className="flex min-h-screen flex-col pb-20">
+                <a className="skip-link" href="#main-content">
+                  Skip to content
+                </a>
+                <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
+                  <RouteViewTransition>{children}</RouteViewTransition>
+                </main>
+              </div>
+            </AdminMotion>
           </ThemeProvider>
         </body>
       </html>
     )
   }
 
-  // The profile card is cached, while the rest of the public chrome stays
-  // request-independent.
-  const [github, posts] = await Promise.all([getGitHub(), safeListPublishedBlogPosts()])
+  // The palette indexes published writing; the rest of the public chrome
+  // stays request-independent.
+  const posts = await safeListPublishedBlogPosts()
   const commandItems = commandItemsFor(posts)
 
   return (
@@ -254,11 +260,7 @@ export async function SiteDocument({
                 'PostgreSQL',
                 'Redis',
               ],
-              sameAs: [
-                'https://github.com/X-Saikat-93',
-                'https://www.linkedin.com/in/saikat933/',
-                'https://x.com/Actually_Das',
-              ],
+              sameAs: sameAs(),
             },
             {
               '@context': 'https://schema.org',
@@ -276,25 +278,24 @@ export async function SiteDocument({
       </head>
       <body className="antialiased">
         <ThemeProvider>
-          <PreviewCardTimingProvider>
-            <AmbientBackground />
-            <SiteIntro />
-            <div className="flex min-h-screen flex-col">
-              <a className="skip-link" href="#main-content">
-                Skip to content
-              </a>
-              <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
-                {/* Route content transitions independently of the persistent
-                    footer and dock. */}
-                <RouteViewTransition>{children}</RouteViewTransition>
-              </main>
-              <SiteFooter github={github} locale="en" />
-            </div>
-            <Suspense fallback={<DockFallback locale={locale} />}>
-              <Dock />
-            </Suspense>
-            <CommandPalette items={commandItems} />
-          </PreviewCardTimingProvider>
+          <AmbientBackground />
+          <WashiArtDefs />
+          <SiteIntro />
+          <div className="site-frame flex min-h-screen flex-col">
+            <a className="skip-link" href="#main-content">
+              Skip to content
+            </a>
+            <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
+              {/* Route content transitions independently of the persistent
+                  footer and dock. */}
+              <RouteViewTransition>{children}</RouteViewTransition>
+            </main>
+            <SiteFooter />
+          </div>
+          <Suspense fallback={<DockFallback locale={locale} />}>
+            <Dock />
+          </Suspense>
+          <CommandPalette items={commandItems} />
         </ThemeProvider>
       </body>
     </html>

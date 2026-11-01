@@ -12,11 +12,13 @@
 @import "tw-animate-css";
 
 @import './styles/base/tokens.css';
+@import './styles/base/motion-tokens.css';
 @import './styles/components/loading-plate.css';
 @import './styles/pages/list-stages.css';
 @import './styles/pages/projects.css';
 @import './styles/pages/error.css';
 @import './styles/base/ambient.css';
+@import './styles/components/washi-art.css';
 @import './styles/components/instant-photo.css';
 @import './styles/pages/post-prose.css';
 @import './styles/components/print-register.css';
@@ -24,24 +26,14 @@
 @import './styles/components/code-blocks.css';
 @import './styles/components/scroll-area.css';
 @import './styles/components/mdx.css';
-@import './styles/components/theme-toggle.css';
 @import './styles/components/zoom-image.css';
 @import './styles/components/header-avatar.css';
-@import './styles/home/writing.css';
-@import './styles/home/bookshelf.css';
 @import './styles/pages/writing-index.css';
 @import './styles/base/motion.css';
-@import './styles/base/site-intro.css';
 @import './styles/components/external-links.css';
-@import './styles/home/introduction.css';
-@import './styles/home/hero.css';
-@import './styles/components/email-envelope.css';
+@import './styles/home/portrait.css';
+@import './styles/home/sections.css';
 @import './styles/components/post-images.css';
-@import './styles/base/edge-fades.css';
-@import './styles/home/experience.css';
-@import './styles/home/selected-work.css';
-@import './styles/home/hire-me.css';
-@import './styles/components/social-cards.css';
 @import './styles/pages/books.css';
 @import './styles/pages/blog-rows.css';
 @import './styles/components/cta.css';
@@ -51,7 +43,6 @@
 @import './styles/layout/footer.css';
 @import './styles/layout/dock.css';
 @import './styles/components/preferences.css';
-@import './styles/home/nav-cards.css';
 @import './styles/pages/contact.css';
 @import './styles/admin/editors.css';
 @import './styles/pages/privacy.css';
@@ -59,8 +50,5 @@
 @import './styles/pages/uses.css';
 @import './styles/pages/resume.css';
 @import './styles/admin/sign-in.css';
-@import './styles/home/github-commits.css';
-@import './styles/home/tech-stack.css';
 @import './styles/components/command-palette.css';
 @import './styles/pages/music.css';
-@import './styles/home/scroll-choreography.css';

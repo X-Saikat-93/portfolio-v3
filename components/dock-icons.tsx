@@ -1,9 +1,9 @@
-// Duotone dock icons (18×18, currentColor with 30% fills).
+// Dock icons (18×18): ink line drawings with a light tonal fill.
 
 function Base({ children }: { children: React.ReactNode }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-      <g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" stroke="currentColor">
+      <g fill="none" strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.25" stroke="currentColor">
         {children}
       </g>
     </svg>
@@ -168,3 +168,35 @@ export function SearchIcon() {
     </Base>
   )
 }
+
+// The eclipse: an ink disc over the sun. In the dock it follows the active
+// theme through CSS (the disc crosses the sun on the way to dark); in the
+// theme picker each variant shows its own phase.
+export function EclipseIcon({ phase = 'auto', size = 18 }: { phase?: 'auto' | 'light' | 'system' | 'dark'; size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      aria-hidden="true"
+      className="eclipse-icon"
+      data-phase={phase}
+    >
+      <defs>
+        <clipPath id={`eclipse-sun-${phase}`}>
+          <circle cx="9" cy="9" r="6.25" />
+        </clipPath>
+      </defs>
+      <circle className="eclipse-sun" cx="9" cy="9" r="6.25" />
+      <g clipPath={`url(#eclipse-sun-${phase})`}>
+        <circle className="eclipse-disc" cx="9" cy="9" r="6.75" />
+      </g>
+      <circle className="eclipse-rim" cx="9" cy="9" r="6.25" />
+    </svg>
+  )
+}
+
+export const ThemeLightIcon = () => <EclipseIcon phase="light" size={16} />
+export const ThemeSystemIcon = () => <EclipseIcon phase="system" size={16} />
+export const ThemeDarkIcon = () => <EclipseIcon phase="dark" size={16} />

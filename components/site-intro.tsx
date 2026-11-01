@@ -2,39 +2,43 @@
 
 import { useEffect } from 'react'
 
-const NAME = 'Saikat Das'
-// Matches the end of the plate's lift in site-intro.css. After it, the
-// html[data-intro] flag comes off so entrances on later client-side
-// navigations run at their normal timing.
-const INTRO_MS = 1700
+// Ends the first-load choreography (motion.css, home.css, dock.css), which
+// plays once per session on a full load while html[data-intro] is set and
+// html[data-visited] is not. After the last entrance the flag comes off, so
+// client navigations simply arrive. Any key, tap or scroll finishes the
+// sequence at once.
+const FIRST_LOAD_MS = 1000
 
-// The opening plate on every full page load: the name prints in, a signal
-// rule draws under it, then the plate lifts and the page develops behind
-// it. Server-rendered and driven entirely by CSS, so it never flashes the
-// page first and needs no JavaScript to finish; this component only clears
-// the flag afterwards. Client-side navigations keep the layout, so the
-// plate never replays mid-visit.
 export function SiteIntro() {
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      delete document.documentElement.dataset.intro
-    }, INTRO_MS)
-    return () => window.clearTimeout(id)
+    const root = document.documentElement
+    const end = () => {
+      delete root.dataset.intro
+      window.removeEventListener('keydown', skip)
+      window.removeEventListener('pointerdown', skip)
+      window.removeEventListener('wheel', skip)
+      window.removeEventListener('touchmove', skip)
+    }
+    const skip = () => {
+      if (!('visited' in root.dataset)) {
+        for (const animation of document.getAnimations()) {
+          if (animation instanceof CSSAnimation && animation.animationName.startsWith('first-')) {
+            animation.finish()
+          }
+        }
+      }
+      end()
+    }
+    const id = window.setTimeout(end, FIRST_LOAD_MS)
+    window.addEventListener('keydown', skip, { once: true })
+    window.addEventListener('pointerdown', skip, { once: true })
+    window.addEventListener('wheel', skip, { once: true, passive: true })
+    window.addEventListener('touchmove', skip, { once: true, passive: true })
+    return () => {
+      window.clearTimeout(id)
+      end()
+    }
   }, [])
 
-  return (
-    <div className="site-intro" aria-hidden="true">
-      <div className="site-intro-mark">
-        <span className="site-intro-name">
-          {[...NAME].map((char, i) => (
-            <span key={i} className="site-intro-char" style={{ '--c': i } as React.CSSProperties}>
-              {char === ' ' ? ' ' : char}
-            </span>
-          ))}
-        </span>
-        <span className="site-intro-rule" />
-        <span className="site-intro-role">Full-Stack Product Engineer</span>
-      </div>
-    </div>
-  )
+  return null
 }

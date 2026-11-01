@@ -1,63 +1,70 @@
 'use client'
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import { MotionConfig } from 'framer-motion'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-type Theme = 'light' | 'system' | 'dark'
+import { coverRadius, duration, easing, prefersReducedMotion } from '~/lib/motion'
+import { isTheme, resolveTheme, syncThemeColor, type Theme } from '~/lib/theme'
+
+type Origin = { x: number; y: number }
 
 type ThemeContextValue = {
   theme: Theme | undefined
-  setTheme(value: string): void
+  /** `origin` is the control's centre; the eclipse grows from there. */
+  setTheme(value: string, origin?: Origin): void
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
-function validTheme(value: string | null): value is Theme {
-  return value === 'light' || value === 'system' || value === 'dark'
-}
-
 function storedTheme(): Theme {
   try {
     const value = localStorage.getItem('theme')
-    return validTheme(value) ? value : 'system'
+    return isTheme(value) ? value : 'system'
   } catch {
     return 'system'
   }
 }
 
-function resolvedTheme(theme: Theme) {
-  if (theme !== 'system') return theme
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+const systemDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+
+function applyTheme(theme: Theme) {
+  const resolved = resolveTheme(theme, systemDark())
+  // colours change in one frame; the eclipse (or nothing) carries the change
+  const blocker = document.createElement('style')
+  blocker.textContent = '*,*::before,*::after{transition:none!important}'
+  document.head.appendChild(blocker)
+  document.documentElement.dataset.theme = resolved
+  syncThemeColor(resolved)
+  window.getComputedStyle(document.body).color
+  window.setTimeout(() => blocker.remove(), 1)
 }
 
-function applyTheme(theme: Theme, disableTransitions: boolean) {
+// The eclipse: the new palette is revealed inside a circle that grows from
+// the control, over the old one. Reduced motion and browsers without View
+// Transitions switch instantly.
+function eclipse(theme: Theme, origin: Origin | undefined) {
   const root = document.documentElement
-  const resolved = resolvedTheme(theme)
-  let transitionBlocker: HTMLStyleElement | undefined
-
-  if (disableTransitions) {
-    transitionBlocker = document.createElement('style')
-    transitionBlocker.textContent =
-      '*,*::before,*::after{transition:none!important}'
-    document.head.appendChild(transitionBlocker)
+  const unchanged = resolveTheme(theme, systemDark()) === root.dataset.theme
+  if (!origin || unchanged || !document.startViewTransition || prefersReducedMotion()) {
+    applyTheme(theme)
+    return
   }
-
-  root.classList.remove('light', 'dark')
-  root.classList.add(resolved)
-  root.style.colorScheme = resolved
-
-  if (transitionBlocker) {
-    window.getComputedStyle(document.body)
-    window.setTimeout(() => transitionBlocker?.remove(), 1)
-  }
+  root.dataset.eclipse = ''
+  const transition = document.startViewTransition(() => applyTheme(theme))
+  const { x, y } = origin
+  transition.ready
+    .then(() => {
+      root.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${coverRadius(x, y, window.innerWidth, window.innerHeight)}px at ${x}px ${y}px)`,
+          ],
+        },
+        { duration: duration.base, easing: easing.ink, pseudoElement: '::view-transition-new(root)' },
+      )
+    })
+    .catch(() => {})
+  transition.finished.finally(() => delete root.dataset.eclipse)
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -66,35 +73,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initial = storedTheme()
     setCurrentTheme(initial)
-    applyTheme(initial, false)
+    syncThemeColor(resolveTheme(initial, systemDark()))
   }, [])
 
   useEffect(() => {
     if (theme !== 'system') return
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const update = () => applyTheme('system', false)
+    const update = () => applyTheme('system')
     media.addEventListener('change', update)
     return () => media.removeEventListener('change', update)
   }, [theme])
 
-  const setTheme = useCallback((value: string) => {
-    if (!validTheme(value)) return
+  const setTheme = useCallback((value: string, origin?: Origin) => {
+    if (!isTheme(value)) return
     try {
       localStorage.setItem('theme', value)
     } catch {
       // Private browsing may prevent persistence; the in-memory choice remains.
     }
     setCurrentTheme(value)
-    applyTheme(value, true)
+    eclipse(value, origin)
   }, [])
 
-  return (
-    <MotionConfig reducedMotion="user">
-      <ThemeContext.Provider value={{ theme, setTheme }}>
-        {children}
-      </ThemeContext.Provider>
-    </MotionConfig>
-  )
+  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>
 }
 
 export function useTheme() {
