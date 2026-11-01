@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { JsonLd } from '~/components/json-ld'
 import { HomePageView } from '../../_views/home-page'
 import { localeMetadata } from '~/lib/locale-metadata'
-import { seoEn } from '~/lib/seo'
+import { personId, seoEn, websiteId } from '~/lib/seo'
 
 // The active photo publication streams into a prefetched homepage shell.
 export const instant = true
@@ -31,10 +31,9 @@ export default function EnglishHomePage() {
           url: canonical,
           name: seoEn.title,
           description: seoEn.description,
-          inLanguage: 'en-US',
-          mainEntity: {
-            '@id': canonical + '#person',
-          },
+          inLanguage: 'en',
+          isPartOf: { '@id': websiteId },
+          mainEntity: { '@type': 'Person', '@id': personId, name: 'Saikat Das' },
         }}
       />
       <HomePageView locale="en" />

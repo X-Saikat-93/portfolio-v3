@@ -14,6 +14,8 @@ const sections = new Set<PublicSection>([
   'contact',
   'uses',
   'privacy',
+  'terms',
+  'credits',
 ])
 type PublicRouteSection = PublicSection
 
