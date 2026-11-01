@@ -1,15 +1,25 @@
-/* ── Photo sheet (/photos): prints on a paper mat, 2 cols, 3 from sm ── */
+/* ── Photo sheet (/photos): prints on a paper mat, 2 cols, 3 from 40rem,
+   4 from 64rem ── */
 
 .photo-sheet {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem 0.875rem;
-  margin-top: 2.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 @media (min-width: 40rem) {
   .photo-sheet {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .photo-sheet {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

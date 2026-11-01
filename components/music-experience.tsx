@@ -17,15 +17,13 @@ export function MusicExperience({
   title,
   description,
   items,
-  displayFontClassName,
 }: {
   title: string
   description: string
   items: MusicExperienceItem[]
-  displayFontClassName?: string
 }) {
   const [selectedId, setSelectedId] = useState(items[0]?.id ?? '')
-  const pageRef = useRef<HTMLElement>(null)
+  const pageRef = useRef<HTMLDivElement>(null)
   const featureRef = useRef<HTMLElement>(null)
   const artworkRef = useRef<HTMLDivElement>(null)
   const catalogueRef = useRef<HTMLDivElement>(null)
@@ -99,7 +97,7 @@ export function MusicExperience({
   }, [])
 
   return (
-    <main ref={pageRef} className={`music-experience ${displayFontClassName ?? ''}`}>
+    <div ref={pageRef} className="music-experience">
       <header className="music-page-heading">
         <div className="music-heading-copy">
           <h1 className="music-page-title">
@@ -202,6 +200,6 @@ export function MusicExperience({
           </div>
         </>
       )}
-    </main>
+    </div>
   )
 }
