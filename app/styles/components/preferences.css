@@ -3,25 +3,27 @@
 .prefs-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-2);
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: translate3d(0, 0, 0);
   transform-origin: 50% 100%;
   transition:
-    opacity 160ms ease,
-    transform 220ms var(--ease-enter);
+    opacity var(--dur-base) var(--ease-settle),
+    transform var(--dur-base) var(--ease-settle);
 }
 
 .prefs-panel[data-starting-style] {
   opacity: 0;
-  transform: translate3d(0, 0.4rem, 0) scale(0.98);
+  transform: translate3d(0, var(--rise), 0);
 }
 
 .prefs-panel[data-ending-style] {
   opacity: 0;
-  transform: translate3d(0, 0.25rem, 0) scale(0.985);
-  transition-duration: 110ms;
+  transform: translate3d(0, 2px, 0);
+  transition-duration: var(--dur-exit-base);
+  transition-timing-function: var(--ease-exit);
 }
 
 /* label pinned left, control pinned right — chrome-size type */
@@ -33,8 +35,11 @@
 }
 
 .prefs-row-label {
-  font-size: 0.875rem;
-  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-faint);
   user-select: none;
 }
 
@@ -54,14 +59,18 @@
   }
 }
 
+.prefs-panel [role='tab'] {
+  border-radius: var(--radius-2);
+}
+
 .prefs-panel [role='tab'][aria-selected='true'] {
-  border-radius: 999px;
-  background: var(--foreground);
+  background: var(--surface-deep);
+  box-shadow: inset 0 0 0 var(--border-hairline) var(--ink-faint);
 }
 
 .prefs-panel [role='tab'][aria-selected='true'] svg,
 .prefs-panel [role='tab'][aria-selected='true'] [data-tab-label] {
-  color: var(--background) !important;
+  color: var(--ink) !important;
 }
 
 /* The owner's way in: a quiet link row below a hairline, present only once
@@ -86,7 +95,7 @@
 }
 
 .prefs-admin .prefs-row-label {
-  transition: color 150ms ease;
+  transition: color var(--dur-quick) var(--ease-ink);
 }
 
 .prefs-admin:focus-visible .prefs-row-label {

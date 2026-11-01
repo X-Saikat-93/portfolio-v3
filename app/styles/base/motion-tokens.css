@@ -14,6 +14,10 @@
   --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-ink: cubic-bezier(0.45, 0, 0.55, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* lib/springs.ts `moderate`: a critically damped spring (no overshoot),
+     sampled as x(t) = 1 - (1 + wt)e^-wt for CSS-driven indicators */
+  --ease-spring-critical: linear(0, 0.063, 0.196, 0.344, 0.483, 0.602, 0.7, 0.776, 0.835, 0.88, 0.913, 0.937, 0.955, 0.968, 0.977, 0.984, 1);
+  --dur-spring: 280ms;
 
   --rise: 3px;
   --rise-max: 8px;

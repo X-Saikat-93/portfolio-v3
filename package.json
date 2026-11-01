@@ -28,7 +28,7 @@
     "resume:seed": "node --no-warnings --env-file-if-exists=.env --experimental-strip-types scripts/seed-resume.ts",
     "start": "next start",
     "test:security": "vitest run lib/security",
-    "test:unit": "vitest run app components db lib --exclude='**/*.live.test.ts'",
+    "test:unit": "vitest run app components db hooks lib --exclude='**/*.live.test.ts'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

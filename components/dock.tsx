@@ -6,16 +6,17 @@ import { useEffect, useState } from 'react'
 
 import { OPEN_COMMAND_PALETTE_EVENT } from '~/components/command-palette'
 import {
+  EclipseIcon,
   PhotosIcon,
-  PreferencesIcon,
   ProjectsIcon,
   SearchIcon,
   WritingIcon,
 } from '~/components/dock-icons'
-import { CloudinaryAvatar } from '~/components/cloudinary-image'
 import { Preferences } from '~/components/preferences'
+import { Seal } from '~/components/washi-art'
 import { useDockActiveIndicator } from '~/hooks/use-dock-active-indicator'
 import { dockGoKeyFor, useDockGoShortcuts } from '~/hooks/use-dock-go-shortcuts'
+import { useDockMagnify } from '~/hooks/use-dock-magnify'
 import { useDockVisibility } from '~/hooks/use-dock-visibility'
 import { T } from '~/lib/i18n'
 import { localize, useLocale } from '~/lib/locale-client'
@@ -32,18 +33,18 @@ const ITEMS = [
   { href: '/projects', zh: '项目', en: 'Projects', icon: ProjectsIcon },
 ] as const
 
-// The dock is frosted glass: iOS-style blur and vibrancy over the pill's
-// thin tint. The blur sits on the nav itself, because view-transition-name
-// makes the nav a backdrop root and a child's blur would only see the pill.
-// The backdrop-filter must stay inline — never in the stylesheet — because
-// LightningCSS strips raw backdrop-filter declarations.
+// The dock is frosted rice paper: paper held to the light, not glossy
+// glass. The blur sits on the nav itself, because view-transition-name
+// makes the nav a backdrop root and a child's blur would only see the
+// sheet. The backdrop-filter must stay inline — never in the stylesheet —
+// because LightningCSS strips raw backdrop-filter declarations.
 export const SITE_DOCK_VIEW_TRANSITION_STYLE = {
   viewTransitionName: 'site-dock',
-  backdropFilter: 'blur(20px) saturate(1.8)',
-  WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
+  backdropFilter: 'blur(18px) saturate(1.3)',
+  WebkitBackdropFilter: 'blur(18px) saturate(1.3)',
 } as React.CSSProperties
 
-// the sheen and specular rim over the glass
+// the paper fibre laid over the frosted pane
 export function DockGlass() {
   return <span className="dock-glass" aria-hidden />
 }
@@ -161,9 +162,7 @@ export function DockFallback({ locale }: { locale: Locale }) {
         en="Home"
         goKey={dockGoKeyFor('/')}
       >
-        <span className="dock-avatar">
-          <CloudinaryAvatar alt="" width={26} height={26} />
-        </span>
+        <Seal className="dock-seal" />
       </DockItem>
       <span className="dock-rule" aria-hidden />
       {ITEMS.map(({ href, zh, en, icon: Icon }) => (
@@ -186,16 +185,16 @@ export function DockFallback({ locale }: { locale: Locale }) {
         aria-label={localize(locale, '偏好设置加载中', 'Loading preferences')}
         disabled
       >
-        <PreferencesIcon />
-        <DockTip zh="偏好" en="Preferences" />
+        <EclipseIcon />
+        <DockTip zh="外观" en="Theme" />
       </button>
     </nav>
   )
 }
 
-// The global pill dock, bottom center — the avatar is home, everything
-// else an icon. Circles inside a pill keep the radii concentric by
-// construction.
+// The global dock, bottom centre — the seal is home, everything else an
+// ink icon; the active route carries the seal at dot scale. Escape hides
+// the tooltips until the pointer leaves.
 export function Dock() {
   const locale = useLocale()
   const pathname = usePathname()
@@ -208,6 +207,8 @@ export function Dock() {
   const [ownerAdmin, setOwnerAdmin] = useState(false)
   const { dockRef, indicatorRef, registerItem, handleNavigate } =
     useDockActiveIndicator(activeHref)
+  const [tipsHidden, setTipsHidden] = useState(false)
+  useDockMagnify(dockRef)
 
   useDockGoShortcuts({
     locale,
@@ -229,8 +230,13 @@ export function Dock() {
       ref={dockRef}
       className="dock"
       data-hidden={hidden || undefined}
+      data-tips-hidden={tipsHidden || undefined}
       onFocusCapture={show}
       onPointerEnter={show}
+      onPointerLeave={() => setTipsHidden(false)}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') setTipsHidden(true)
+      }}
       style={SITE_DOCK_VIEW_TRANSITION_STYLE}
       aria-label={localize(locale, '主导航', 'Main navigation')}
     >
@@ -246,9 +252,7 @@ export function Dock() {
         itemRef={(element) => registerItem('/', element)}
         onNavigate={handleNavigate}
       >
-        <span className="dock-avatar">
-          <CloudinaryAvatar alt="" width={26} height={26} />
-        </span>
+        <Seal className="dock-seal" />
       </DockItem>
       <span className="dock-rule" aria-hidden />
       {ITEMS.map(({ href, zh, en, icon: Icon }) => (
