@@ -83,7 +83,6 @@
   --ink-faint: #605a4d;
   --hairline: #cdbfa3;
   --sun: #c2382b;
-  --sun-glow: color-mix(in oklab, var(--sun) 14%, transparent);
   --matcha: #4b6438;
   --indigo: #34536b;
   --kraft: #735a35;
@@ -97,9 +96,28 @@
   --glass-tint: color-mix(in oklab, var(--surface) 72%, transparent);
   --glass-blur: 18px;
   --selection: color-mix(in oklab, var(--sun) 22%, transparent);
-  --sun-saturation: 1;
-  --sun-drop: 0%;
   --image-frame: var(--surface);
+  /* physical objects: the lit top edge and the shaded bottom edge */
+  --bevel-hi: rgb(255 255 255 / 0.55);
+  --bevel-lo: color-mix(in oklab, var(--ink) 16%, transparent);
+  /* paper objects resting on the ground, and lifted under the pointer.
+     Light casts soft ink shadows; dark keeps to a hairline edge, since an
+     ink-tinted shadow there would read as a pale glow */
+  --edge: color-mix(in oklab, var(--ink) 9%, transparent);
+  /* type pressed into thick stock: a lit lip below each letter */
+  --press-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
+  --proof-drop: color-mix(in oklab, var(--ink) 42%, transparent);
+  --proof-sheen: rgb(255 255 255 / 0.22);
+  --sheet-shadow:
+    0 0 0 var(--border-hairline) var(--edge),
+    0 1px 1px var(--bevel-lo),
+    0 14px 28px -18px color-mix(in oklab, var(--ink) 30%, transparent);
+  --sheet-shadow-lift:
+    0 0 0 var(--border-hairline) color-mix(in oklab, var(--ink) 12%, transparent),
+    0 2px 2px var(--bevel-lo),
+    0 26px 40px -24px color-mix(in oklab, var(--ink) 40%, transparent);
+  --wood: color-mix(in oklab, var(--kraft) 34%, var(--surface));
+  --wood-deep: color-mix(in oklab, var(--kraft) 55%, var(--surface-deep));
 
   /* space — 4px base */
   --space-1: 0.25rem;
@@ -122,16 +140,16 @@
   --measure: 38rem;
   --stage: 72rem;
 
-  /* type — modular scale 1.25, fluid between 20rem and 90rem */
-  --text-label: 0.75rem;
-  --text-meta: 0.8125rem;
-  --text-small: 0.875rem;
-  --text-body: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
-  --text-lead: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
-  --text-title: clamp(1.375rem, 1.2rem + 0.8vw, 1.5625rem);
-  --text-display-s: clamp(1.75rem, 1.4rem + 1.6vw, 2.441rem);
-  --text-display: clamp(2.441rem, 1.6rem + 4vw, 4.768rem);
-  --tracking-display: -0.035em;
+  /* type — a quiet scale: reading at 15–16px, the name at 34–52px */
+  --text-label: 0.6875rem;
+  --text-meta: 0.75rem;
+  --text-small: 0.8125rem;
+  --text-body: clamp(0.9375rem, 0.92rem + 0.1vw, 1rem);
+  --text-lead: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-title: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-display-s: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --text-display: clamp(2.125rem, 1.6rem + 2.4vw, 3.25rem);
+  --tracking-display: -0.03em;
   --tracking-title: -0.015em;
   --tracking-label: 0.12em;
 
@@ -231,7 +249,6 @@
   --ink-faint: #928c7e;
   --hairline: #2e3236;
   --sun: #d9573f;
-  --sun-glow: color-mix(in oklab, var(--sun) 22%, transparent);
   --matcha: #86a36d;
   --indigo: #7d9bb3;
   --kraft: #a88c62;
@@ -242,9 +259,19 @@
   --shadow-lift: 0 8px 20px -6px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.35);
   --glass-tint: color-mix(in oklab, var(--surface) 68%, transparent);
   --selection: color-mix(in oklab, var(--sun) 30%, transparent);
-  --sun-saturation: 0.9;
-  --sun-drop: 4%;
   --image-frame: var(--hairline);
+  --bevel-hi: rgb(255 255 255 / 0.06);
+  --bevel-lo: rgb(0 0 0 / 0.45);
+  --edge: color-mix(in oklab, var(--ink) 11%, transparent);
+  --press-shadow: 0 -1px 0 rgb(0 0 0 / 0.35);
+  --proof-drop: rgb(0 0 0 / 0.75);
+  --proof-sheen: rgb(255 255 255 / 0.05);
+  --sheet-shadow: 0 0 0 var(--border-hairline) var(--edge);
+  --sheet-shadow-lift:
+    0 0 0 var(--border-hairline) color-mix(in oklab, var(--ink) 20%, transparent),
+    0 18px 32px -20px rgb(0 0 0 / 0.7);
+  --wood: color-mix(in oklab, var(--kraft) 22%, var(--surface));
+  --wood-deep: color-mix(in oklab, var(--kraft) 30%, var(--surface-deep));
 }
 
 @media (min-width: 48rem) {

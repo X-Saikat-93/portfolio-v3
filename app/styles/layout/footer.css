@@ -1,282 +1,466 @@
-/* ── Colophon (components/site-footer.tsx) ────────────────────────────
-   The closing page of the printed object: device and signature, the
-   sitemap in quiet columns, what is live, and the imprint, on the same
-   stage as the homepage with crop marks at the plate's corners. */
+/* ── Footer: Swiss editorial grid ─────────────────────────────────── */
 
-.colophon {
-  width: 100%;
-  max-width: calc(var(--stage) + 2rem);
-  margin: var(--space-section) auto 0;
-  padding-inline: max(1rem, env(safe-area-inset-left, 0px)) max(1rem, env(safe-area-inset-right, 0px));
-  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+.footer-tree ul {
+  display: flex;
+  flex-direction: column;
 }
 
-.colophon-plate {
+.footer-label {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-meta);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  user-select: none;
+}
+
+/* directory-tree rails: a continuous vertical line with stubs, the
+   last branch closing the rail at its midpoint */
+.footer-tree li {
   position: relative;
-  display: grid;
-  gap: var(--space-10);
-  padding-top: var(--space-10);
-  border-top: var(--border-hairline) solid var(--hairline);
-}
-
-.colophon-ticks {
-  position: absolute;
-  inset: calc(-1 * var(--space-3)) calc(-1 * var(--space-2)) auto;
-  height: 0.75rem;
-  pointer-events: none;
-  background:
-    linear-gradient(var(--ink-faint), var(--ink-faint)) left top / var(--border-hairline) 0.75rem no-repeat,
-    linear-gradient(var(--ink-faint), var(--ink-faint)) right top / var(--border-hairline) 0.75rem no-repeat;
-  opacity: 0.6;
-}
-
-.colophon-signature {
   display: flex;
   align-items: center;
-  gap: var(--space-5);
+  min-height: 1.75rem;
+  padding-left: 1.125rem;
 }
 
-.colophon-device-mark {
-  flex: none;
-  width: 4.5rem;
-  height: 4.5rem;
+.footer-tree li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in oklab, var(--muted-foreground) 22%, transparent);
 }
 
-.colophon-signature-copy {
-  display: grid;
-  gap: var(--space-1);
+.footer-tree li:last-child::before {
+  bottom: auto;
+  height: 50%;
+}
+
+.footer-tree li::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.625rem;
+  height: 1px;
+  background: color-mix(in oklab, var(--muted-foreground) 22%, transparent);
+}
+
+.footer-tree li > * {
+  flex: 1;
   min-width: 0;
 }
 
-.colophon-name {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--font-heading);
-  font-size: var(--text-title);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--tracking-title);
-  line-height: 1.2;
+@media (max-width: 39.99rem) {
+  .footer-tree li > * {
+    flex: 0 1 auto;
+  }
 }
 
-.colophon-line {
-  max-width: 30rem;
-  color: var(--ink-soft);
-  font-size: var(--text-small);
-}
-
-.colophon-map {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 6.5rem), 1fr));
-  gap: var(--space-8) var(--space-6);
-}
-
-.colophon-heading {
-  margin: 0 0 var(--space-2);
-  color: var(--ink-faint);
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.colophon-column ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.colophon-column li {
-  display: flex;
-}
-
-.colophon-column a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  color: var(--ink-soft);
-  font-size: var(--text-small);
-  background-position: 100% 72%, 0 72%;
+.footer-tree-link {
+  transition: color 150ms ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .colophon-column a:hover {
-    color: var(--ink);
-    background-position: 0 72%, 0 72%;
-  }
-
-  .colophon-column a {
-    min-height: 2rem;
+  .footer-tree-link:hover {
+    color: var(--foreground);
   }
 }
 
-.colophon-column a:focus-visible {
-  color: var(--ink);
-  background-position: 0 72%, 0 72%;
+/* ── Footer bands: signature, directory, utilities, wordmark ──────── */
+
+@property --footer-spot {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 0%;
 }
 
-/* live: the clock, the Now line, the utilities */
-.colophon-live {
+.site-footer {
+  width: 100%;
+  max-width: calc(62rem + 2rem);
+  margin: var(--space-section) auto 0;
+  padding-inline: max(1rem, env(safe-area-inset-left, 0px)) max(1rem, env(safe-area-inset-right, 0px));
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  container-type: inline-size;
+  overflow: clip;
+}
+
+/* the colophon on the same letterpress stock as the Hire card: thick
+   paper with its own tooth, pressed type, a blind-embossed seal and the
+   painted vermilion edge */
+.footer-card {
+  position: relative;
+  border-radius: var(--radius-2);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 var(--border-hairline) var(--edge),
+    var(--sheet-shadow);
+}
+
+/* the painted vermilion edge, drawn on as the colophon arrives */
+.footer-card::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  border-radius: 0 0 var(--radius-2) var(--radius-2);
+  background: var(--sun);
+  transform-origin: left center;
+  transition: transform var(--dur-slow) var(--ease-settle) 360ms;
+}
+
+.footer-stage[data-armed]:not([data-in]) .footer-card::after {
+  transform: scaleX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-card::after {
+    transition: none;
+  }
+}
+
+.footer-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-color: var(--ink);
+  opacity: calc(var(--fibre-opacity) * 1.6);
+  -webkit-mask: var(--fibre-mask) 0 0 / calc(var(--fibre-size) * 0.8) repeat;
+  mask: var(--fibre-mask) 0 0 / calc(var(--fibre-size) * 0.8) repeat;
+}
+
+.footer-card :is(.footer-label, .footer-signature-name, .footer-copyright, .footer-tree-link, .footer-utility-link, .footer-time-readout, .footer-geo-lines, .footer-braille) {
+  text-shadow: var(--press-shadow);
+}
+
+.footer-band {
+  position: relative;
+  padding-inline: var(--space-6);
+}
+
+/* the blind-embossed seal */
+.footer-seal {
+  width: 1.875rem;
+  height: 1.875rem;
+  filter:
+    drop-shadow(0 1px 0 var(--bevel-hi))
+    drop-shadow(0 -1px 0 var(--bevel-lo));
+}
+
+.footer-seal .seal-ground {
+  fill: var(--surface);
+}
+
+.footer-seal .seal-border {
+  stroke: var(--edge);
+  opacity: 1;
+}
+
+.footer-seal .seal-mark {
+  fill: color-mix(in oklab, var(--ink) 22%, var(--surface));
+}
+
+@media (min-width: 64rem) {
+  .footer-band {
+    padding-inline: var(--space-12);
+  }
+}
+
+.footer-colophon {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3) var(--space-10);
-  padding-top: var(--space-5);
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+  padding-block: var(--space-8) var(--space-6);
+  font-size: 0.875rem;
+  letter-spacing: -0.011em;
+  color: color-mix(in oklab, var(--muted-foreground) 85%, transparent);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.footer-whereabouts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.footer-directory {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem 1.5rem;
+  padding-block: var(--space-6) var(--space-8);
   border-top: var(--border-hairline) solid var(--hairline);
 }
 
-.colophon-now {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1) var(--space-3);
-  min-height: 2.75rem;
-  color: var(--ink-soft);
-  font-size: var(--text-small);
-  text-decoration: none;
+@media (min-width: 40rem) {
+  .footer-directory {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+
+  .footer-tree-index ul {
+    display: grid;
+    grid-template-rows: repeat(5, auto);
+    grid-auto-flow: column;
+    column-gap: 1.5rem;
+  }
+
+  /* each index column closes its own rail */
+  .footer-tree-index li:nth-child(5)::before {
+    bottom: auto;
+    height: 50%;
+  }
 }
 
-.colophon-now-title {
-  color: var(--ink);
-  font-weight: var(--font-weight-medium);
+.footer-band .footer-utility {
+  margin-top: 0;
 }
 
-.colophon-now-date {
-  color: var(--ink-faint);
-  font-family: var(--font-mono);
-  font-size: var(--text-meta);
-  font-variant-numeric: tabular-nums;
+/* tree stubs light up and reach toward the hovered entry */
+.footer-tree li::after {
+  transition:
+    width 220ms var(--ease-swift),
+    background-color 220ms var(--ease-swift);
+}
+
+.footer-tree-link {
+  display: inline-block;
+  transition:
+    color 150ms ease,
+    transform 220ms var(--ease-swift);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .colophon-now:hover .colophon-now-title {
-    text-decoration: underline;
-    text-decoration-thickness: var(--border-hairline);
-    text-underline-offset: 0.2em;
+  .footer-tree li:hover::after {
+    width: 0.875rem;
+    background: var(--sun);
+  }
+
+  .footer-tree li:hover .footer-tree-link {
+    transform: translateX(0.15rem);
+  }
+}
+
+/* The closing wordmark: ink that dissolves downward into the page, with
+   a warm light that follows the pointer while it is over the footer. */
+.footer-wordmark {
+  --mx: 50%;
+  --my: 35%;
+
+  margin: 1.75rem 0 -0.06em;
+  color: transparent;
+  font-size: 29.5cqi;
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: -0.065em;
+  line-height: 0.8;
+  text-align: center;
+  white-space: nowrap;
+  background:
+    radial-gradient(
+      circle at var(--mx) var(--my),
+      color-mix(in oklab, var(--signal) var(--footer-spot), transparent) 0,
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--foreground) 30%, transparent) 0%,
+      color-mix(in oklab, var(--foreground) 12%, transparent) 48%,
+      color-mix(in oklab, var(--foreground) 2%, transparent) 88%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  mask-image: linear-gradient(180deg, #000 30%, transparent 96%);
+  user-select: none;
+  pointer-events: none;
+  transition: --footer-spot 480ms var(--ease-swift);
+}
+
+.footer-wordmark-letter {
+  display: inline-block;
+  padding-inline: 0.02em;
+  transition:
+    transform 900ms var(--ease-enter),
+    opacity 600ms var(--ease-enter);
+  transition-delay: calc(240ms + var(--i) * 60ms);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer-stage:hover .footer-wordmark {
+    --footer-spot: 75%;
+  }
+}
+
+/* entrance: armed by FooterStage only when the footer starts off-screen */
+.footer-band {
+  transition:
+    opacity 600ms var(--ease-enter),
+    transform 600ms var(--ease-enter);
+  transition-delay: calc(var(--band, 0) * 90ms);
+}
+
+.footer-stage[data-armed]:not([data-in]) .footer-band {
+  opacity: 0;
+  transform: translate3d(0, 0.75rem, 0);
+}
+
+.footer-stage[data-armed]:not([data-in]) .footer-wordmark-letter {
+  opacity: 0;
+  transform: translate3d(0, 55%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-band,
+  .footer-wordmark,
+  .footer-wordmark-letter,
+  .footer-tree-link,
+  .footer-tree li::after {
+    transition: none;
   }
 }
 
 .footer-utility {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1) var(--space-6);
-  margin-inline-start: auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-top: 1.75rem;
+  border-top: var(--border-hairline) solid var(--hairline);
+  padding-block: var(--space-4) var(--space-5);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.045em;
 }
 
 .footer-utility-link {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  min-height: 2.75rem;
-  color: var(--ink-faint);
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-  letter-spacing: var(--tracking-label);
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: color var(--dur-quick) var(--ease-ink);
+  gap: 0.4rem;
+  color: color-mix(in oklab, var(--muted-foreground) 82%, transparent);
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+.footer-back-to-top {
+  margin-left: auto;
+}
+
+.footer-back-to-top > span:last-child {
+  transform: translateY(0);
+  transition: transform 180ms var(--ease-swift);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .footer-utility-link:hover {
-    color: var(--ink);
+    color: var(--foreground);
+  }
+
+  .footer-back-to-top:hover > span:last-child {
+    transform: translateY(-0.16rem);
   }
 }
 
 .footer-utility-link:focus-visible {
-  color: var(--ink);
+  color: var(--foreground);
 }
 
-/* the India clock: a small ink dial and tabular figures */
+@media (prefers-reduced-motion: reduce) {
+  .footer-back-to-top > span:last-child {
+    transition: none;
+  }
+}
+
 .footer-local-time {
-  display: inline-flex;
+  display: flex;
+  min-height: 1.375rem;
   align-items: center;
-  gap: var(--space-3);
+  gap: 0.5rem;
+  color: color-mix(in oklab, var(--muted-foreground) 88%, transparent);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.011em;
+  line-height: 1;
+  text-align: left;
 }
 
 .footer-local-clock {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.375rem;
+  height: 1.375rem;
   flex: none;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
 }
 
 .footer-clock-ring,
 .footer-clock-ticks {
-  fill: none;
-  stroke: var(--ink-faint);
+  opacity: 0.28;
   stroke-width: 1;
 }
 
+.footer-clock-ticks {
+  stroke-linecap: round;
+}
+
 .footer-clock-hour,
-.footer-clock-minute {
-  stroke: var(--ink);
-  stroke-linecap: square;
+.footer-clock-minute,
+.footer-clock-second {
+  stroke-linecap: round;
 }
 
 .footer-clock-hour {
+  opacity: 0.78;
   stroke-width: 1.6;
 }
 
 .footer-clock-minute {
-  stroke-width: 1.1;
+  opacity: 0.72;
+  stroke-width: 1.2;
 }
 
 .footer-clock-second {
-  stroke: var(--sun);
-  stroke-width: 0.8;
+  opacity: 0.42;
+  stroke-width: 0.75;
 }
 
 .footer-clock-pin {
-  fill: var(--sun);
+  fill: currentColor;
+  stroke: none;
 }
 
 .footer-time-readout {
-  display: grid;
-  gap: 1px;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
+/* the readout is a small spec plate: stamped label above a mono value */
 .footer-time-readout > span {
-  color: var(--ink-faint);
-  font-size: var(--text-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  color: color-mix(in oklab, var(--muted-foreground) 72%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
 }
 
 .footer-time-readout time {
-  color: var(--ink);
-  font-size: var(--text-meta);
+  color: color-mix(in oklab, var(--muted-foreground) 90%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
 }
 
-.colophon-imprint {
-  padding-top: var(--space-5);
-  border-top: var(--border-hairline) solid var(--hairline);
-  color: var(--ink-faint);
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-  letter-spacing: 0.04em;
-}
-
-@media (min-width: 64rem) {
-  .colophon-plate {
-    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-    column-gap: var(--space-10);
-  }
-
-  .colophon-signature {
-    align-items: flex-start;
-  }
-
-  .colophon-live,
-  .colophon-imprint {
-    grid-column: 1 / -1;
-  }
-}
-
-@media print {
-  .colophon-live,
-  .colophon-ticks {
-    display: none;
-  }
+.footer-time-readout time {
+  display: block;
+  min-width: 8ch;
+  white-space: nowrap;
 }

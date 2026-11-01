@@ -31,3 +31,45 @@ export const seoEn = {
   description: publicPageMetadata.home.en.description,
   url: seo.url,
 } as const
+
+// JSON-LD node ids shared across pages, so every page points at one Person,
+// one WebSite and one Blog.
+export const personId = new URL('/en#person', seo.url).href
+export const websiteId = new URL('/en#website', seo.url).href
+export const blogId = new URL('/en/blog#blog', seo.url).href
+
+type PageCopy = { title: string; heading: string; description: string }
+
+/** WebPage-family JSON-LD node for an inner page, tied to the shared WebSite. */
+export function webPageJsonLd(path: string, copy: PageCopy, type = 'WebPage') {
+  const url = new URL(path, seo.url).href
+  return {
+    '@context': 'https://schema.org',
+    '@type': type,
+    '@id': `${url}#page`,
+    url,
+    name: copy.title,
+    description: copy.description,
+    inLanguage: 'en',
+    isPartOf: { '@id': websiteId },
+  }
+}
+
+/** The pair every plain inner page carries: its WebPage and its breadcrumb. */
+export function sectionJsonLd(path: string, copy: PageCopy, type = 'WebPage') {
+  return [webPageJsonLd(path, copy, type), breadcrumbJsonLd([{ name: copy.heading, path }])]
+}
+
+/** BreadcrumbList JSON-LD for an inner page; Home is always the first crumb. */
+export function breadcrumbJsonLd(trail: readonly { name: string; path: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [{ name: 'Home', path: '/en' }, ...trail].map(({ name, path }, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name,
+      item: new URL(path, seo.url).href,
+    })),
+  }
+}

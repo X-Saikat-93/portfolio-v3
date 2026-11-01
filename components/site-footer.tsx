@@ -1,13 +1,35 @@
 import { cacheLife } from 'next/cache'
 import Link from 'next/link'
 
-import { ExternalLabel } from '~/components/external-mark'
 import { FooterClock } from '~/components/footer-clock'
+import { FooterStage } from '~/components/footer-stage'
 import { FooterUtilities } from '~/components/footer-utilities'
-import { ColophonDevice } from '~/components/washi-art'
-import { formatDate } from '~/lib/date'
-import { nowBuilding, nowLastUpdated } from '~/lib/now'
-import { FEED, PROFILES, SITEMAP } from '~/lib/site-links'
+import { EmailCard, GitHubCard, LinkedInCard, type GitHubSnapshot } from '~/components/social-cards'
+import { Seal } from '~/components/washi-art'
+import { brailleText } from '~/lib/braille'
+import { T } from '~/lib/i18n'
+import { localePath, type Locale } from '~/lib/locale-route'
+
+function Tree({
+  zh,
+  en,
+  className,
+  children,
+}: {
+  zh: string
+  en: string
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className={className ? `footer-tree ${className}` : 'footer-tree'}>
+      <h2 className="footer-label">
+        <T zh={zh} en={en} />
+      </h2>
+      <ul>{children}</ul>
+    </div>
+  )
+}
 
 async function CopyrightYear() {
   'use cache'
@@ -16,90 +38,134 @@ async function CopyrightYear() {
   return new Date().getFullYear()
 }
 
-// The colophon, the closing page of the printed object: the printer's
-// device and signature, the sitemap, what is live (local time, the Now
-// line, utilities) and the imprint. Server-rendered except the clock.
-export function SiteFooter() {
-  const now = nowBuilding[0]
-
+// Three bands on one letterpress card — a maker's signature with local
+// time, the directory trees, and the utilities line — closed below the
+// card by an oversized wordmark that dissolves into the page. FooterStage
+// owns the entrance and the wordmark's light.
+export function SiteFooter({
+  github,
+  locale = 'en',
+}: {
+  github: GitHubSnapshot
+  locale?: Locale
+}) {
   return (
-    <footer className="colophon" aria-labelledby="colophon-title">
-      <div className="colophon-plate">
-        <span className="colophon-ticks" aria-hidden="true" />
-
-        <div className="colophon-signature">
-          <ColophonDevice className="colophon-device-mark" />
-          <div className="colophon-signature-copy">
-            <h2 id="colophon-title" className="colophon-name">
-              Saikat Das
-            </h2>
-            <p className="colophon-line">
-              Full-Stack Product Engineer. I build software that stays calm on a bad network.
-            </p>
-          </div>
-        </div>
-
-        <nav className="colophon-map" aria-label="Sitemap">
-          {SITEMAP.map((column) => (
-            <div key={column.heading} className="colophon-column">
-              <h3 className="colophon-heading">{column.heading}</h3>
-              <ul>
-                {column.links.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="ink-link">
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+    <footer className="site-footer">
+      <FooterStage>
+        <div className="footer-card">
+          <div className="footer-band footer-colophon" style={{ '--band': 0 } as React.CSSProperties}>
+            <div className="footer-signature">
+              <Seal className="footer-seal" />
+              <div className="footer-signature-copy">
+                <p className="footer-signature-name">Saikat Das</p>
+                <p className="footer-copyright">
+                  © <CopyrightYear />
+                </p>
+              </div>
+              <p className="footer-braille" aria-hidden="true">
+                {brailleText('saikat das')}
+              </p>
             </div>
-          ))}
-          <div className="colophon-column">
-            <h3 className="colophon-heading">Elsewhere</h3>
-            <ul>
-              {PROFILES.map((profile) => (
-                <li key={profile.href}>
-                  <a
-                    href={profile.href}
-                    target="_blank"
-                    rel="me noreferrer"
-                    className="ink-link"
-                    aria-label={`${profile.label} (opens in a new tab)`}
-                  >
-                    <ExternalLabel>{profile.name}</ExternalLabel>
-                  </a>
-                </li>
-              ))}
+            <div className="footer-whereabouts">
+              <FooterClock />
+              <div className="footer-geo" aria-hidden>
+                <svg className="footer-geo-globe" viewBox="0 0 20 20">
+                  <circle cx="10" cy="10" r="9" />
+                  <ellipse cx="10" cy="10" rx="4" ry="9" />
+                  <path d="M1 10h18M1.9 6h16.2M1.9 14h16.2" />
+                </svg>
+                <span className="footer-geo-lines">
+                  <span>INDIA</span>
+                  <span>OPEN TO REMOTE</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer-band footer-directory" style={{ '--band': 1 } as React.CSSProperties}>
+            <Tree zh="联系" en="contact">
               <li>
-                <a href={FEED.href} className="ink-link" aria-label={FEED.label}>
-                  {FEED.name}
+                <GitHubCard data={github} />
+              </li>
+              <li>
+                <LinkedInCard />
+              </li>
+              <li>
+                <EmailCard address="ibx.saikat37@gmail.com" />
+              </li>
+            </Tree>
+            <Tree zh="索引" en="index" className="footer-tree-index">
+              <li>
+                <Link href={localePath(locale, '/')} className="footer-tree-link">
+                  <T zh="首页" en="Home" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/projects')} className="footer-tree-link">
+                  <T zh="项目" en="Projects" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/photos')} className="footer-tree-link">
+                  <T zh="照片" en="Photos" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/books')} className="footer-tree-link">
+                  <T zh="书籍" en="Books" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/music')} className="footer-tree-link">
+                  <T zh="音乐" en="Music" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/blog')} className="footer-tree-link">
+                  <T zh="写作" en="Writing" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/resume')} className="footer-tree-link">
+                  <T zh="简历" en="Resume" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/now')} className="footer-tree-link">
+                  <T zh="现在" en="Now" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/uses')} className="footer-tree-link">
+                  <T zh="工具" en="Uses" />
+                </Link>
+              </li>
+              <li>
+                <Link href={localePath(locale, '/contact')} className="footer-tree-link">
+                  <T zh="联系" en="Contact" />
+                </Link>
+              </li>
+              <li>
+                <a href="/en/feed.xml" className="footer-tree-link">
+                  RSS
                 </a>
               </li>
-            </ul>
+            </Tree>
           </div>
-        </nav>
 
-        <div className="colophon-live">
-          <FooterClock />
-          {now ? (
-            <Link href="/en/now" className="colophon-now">
-              <span className="status-dot" aria-hidden="true" />
-              <span>
-                Now building <span className="colophon-now-title">{now.title}</span>
-              </span>
-              <span className="colophon-now-date">
-                Updated{' '}
-                <time dateTime={nowLastUpdated}>{formatDate(new Date(`${nowLastUpdated}T00:00:00Z`))}</time>
-              </span>
-            </Link>
-          ) : null}
-          <FooterUtilities locale="en" />
+          <div className="footer-band" style={{ '--band': 2 } as React.CSSProperties}>
+            <FooterUtilities locale={locale} />
+          </div>
         </div>
 
-        <p className="colophon-imprint">
-          Set in Funnel and Geist Mono · Printed on paper · © <CopyrightYear /> Saikat Das
+        <p className="footer-wordmark" aria-hidden="true">
+          {[...'Saikat'].map((letter, i) => (
+            <span key={i} className="footer-wordmark-letter" style={{ '--i': i } as React.CSSProperties}>
+              {letter}
+            </span>
+          ))}
         </p>
-      </div>
+      </FooterStage>
     </footer>
   )
 }

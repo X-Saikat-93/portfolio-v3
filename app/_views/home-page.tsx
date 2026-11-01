@@ -1,23 +1,24 @@
 import Link from 'next/link'
 
-import { CollectionPrints } from '~/components/collection-prints'
+import { ExperienceLedger } from '~/components/experience-ledger'
 import { ExternalLabel } from '~/components/external-mark'
 import { GitHubActivity } from '~/components/github-activity'
 import { HalftonePortrait } from '~/components/halftone-portrait'
+import { HeroProof } from '~/components/hero-proof'
 import { HireMeSection } from '~/components/hire-me-section'
 import { HomeSection, SectionLink } from '~/components/home-section'
+import { HomeShelf } from '~/components/home-shelf'
 import { PortraitHiddenStage } from '~/components/portrait-hidden-stage'
-import { PostTitleTransition } from '~/components/post-title-transition'
 import { RevealScope } from '~/components/reveal-scope'
 import { SelectedWork } from '~/components/selected-work'
 import { TechStackRegister } from '~/components/tech-stack-register'
-import { RegistrationMark, Sun } from '~/components/washi-art'
+import { Seal } from '~/components/washi-art'
+import { WritingSheets } from '~/components/writing-sheets'
 import { cloudinaryAvatarPublicId, cloudinaryImageUrl } from '~/lib/cloudinary/image-url'
 import { safeListPublishedBlogPosts } from '~/lib/blog/repository'
 import { safeListPublishedCollectionItems } from '~/lib/collections/repository'
-import { formatMonthDay } from '~/lib/date'
 import type { Locale } from '~/lib/locale-route'
-import { experience, resumeProfile } from '~/lib/personal'
+import { resumeProfile } from '~/lib/personal'
 import { safeListPublishedProjectCaseStudies } from '~/lib/project-case-studies/repository'
 import { selectFeaturedProjects } from '~/lib/projects'
 import { getGitHub } from '~/lib/social-live'
@@ -28,16 +29,42 @@ const POSITIONING =
 function Hero({ portraitUrl }: { portraitUrl: string }) {
   return (
     <section className="home-hero" aria-labelledby="home-title">
-      <span className="home-hero-ticks" aria-hidden="true" />
+      {/* an artist's proof: the halftone portrait printed inside a plate
+          mark on thick stock, the status pressed beneath it, the chop mark
+          at the corner */}
+      <div className="home-hero-proof">
+        <HeroProof>
+          <div className="proof-plate">
+            <PortraitHiddenStage label="Saikat's halftone portrait. Reveal the hidden topographic halo">
+              <HalftonePortrait
+                srcLight={portraitUrl}
+                srcDark={portraitUrl}
+                fallbackSrc="/images/saikat-avatar-preview.webp"
+                alt="Saikat's halftone portrait"
+                altEn="Saikat's halftone portrait"
+              />
+            </PortraitHiddenStage>
+          </div>
+          <div className="proof-caption">
+            <span className="proof-title">
+              <span className="status-dot" aria-hidden="true" />
+              Open to remote work
+            </span>
+            <span className="proof-role">India, UTC+5:30</span>
+            <Seal className="proof-chop" />
+          </div>
+          <span className="proof-light" aria-hidden="true" />
+        </HeroProof>
+      </div>
       <div className="home-hero-copy">
         <h1 id="home-title" className="home-hero-title">
           <span className="home-hero-name">Saikat Das</span>
           <span className="sr-only"> — </span>
-          <span className="home-hero-role">Full-Stack Product Engineer</span>
+          <span className="home-hero-role">Full-Stack Software Engineer</span>
         </h1>
         <p className="home-hero-line">{POSITIONING}</p>
         <p className="home-hero-body">
-          Product engineer across the full stack, from the interface people touch to the systems
+          Working across the full stack, from the interface people touch to the systems
           that keep it correct. Currently building marketplace and hiring platforms at Human
           Before Resource.
         </p>
@@ -57,26 +84,19 @@ function Hero({ portraitUrl }: { portraitUrl: string }) {
           .
         </p>
         <nav className="home-hero-paths" aria-label="Start here">
-          <a href="#selected-work-title" className="ink-link">Selected work</a>
-          <Link href="/en/blog" className="ink-link">Writing</Link>
-          <Link href="/en/resume" className="ink-link">Resume</Link>
+          <a href="#selected-work-title">
+            <span className="ink-link">Selected work</span>
+            <span aria-hidden> ↓</span>
+          </a>
+          <Link href="/en/blog">
+            <span className="ink-link">Writing</span>
+            <span aria-hidden> →</span>
+          </Link>
+          <Link href="/en/resume">
+            <span className="ink-link">Resume</span>
+            <span aria-hidden> →</span>
+          </Link>
         </nav>
-      </div>
-      <div className="home-hero-print">
-        <span className="contour-field home-hero-contours" aria-hidden="true" />
-        <Sun className="home-hero-sun" />
-        <RegistrationMark className="home-hero-register" />
-        <div className="home-hero-portrait">
-          <PortraitHiddenStage label="Saikat's halftone portrait. Reveal the hidden topographic halo">
-            <HalftonePortrait
-              srcLight={portraitUrl}
-              srcDark={portraitUrl}
-              fallbackSrc="/images/saikat-avatar-preview.webp"
-              alt="Saikat's halftone portrait"
-              altEn="Saikat's halftone portrait"
-            />
-          </PortraitHiddenStage>
-        </div>
       </div>
     </section>
   )
@@ -109,35 +129,8 @@ export async function HomePageView({ locale: _locale }: { locale: Locale }) {
     <RevealScope className="home">
       <Hero portraitUrl={portraitUrl} />
 
-      <HomeSection index={next()} id="experience-title" title="Experience" figure="ledger">
-        <ol className="ledger">
-          {experience.map((job) => (
-            <li key={job.company} className="ledger-row" data-current={job.to ? undefined : ''}>
-              <span className="ledger-dates">
-                {job.from}
-                <span aria-hidden> – </span>
-                <span className="sr-only"> to </span>
-                {job.to ?? 'now'}
-              </span>
-              <span className="ledger-entry">
-                <span className="ledger-role">{job.roleEn ?? job.role}</span>
-                {job.url ? (
-                  <a href={job.url} target="_blank" rel="noreferrer" className="ledger-company ink-link">
-                    <ExternalLabel>{job.companyEn}</ExternalLabel>
-                  </a>
-                ) : (
-                  <span className="ledger-company">{job.companyEn}</span>
-                )}
-              </span>
-              {job.to ? null : (
-                <span className="ledger-now">
-                  <span className="status-dot" aria-hidden="true" />
-                  Current
-                </span>
-              )}
-            </li>
-          ))}
-        </ol>
+      <HomeSection index={next()} id="experience-title" title="Experience">
+        <ExperienceLedger />
       </HomeSection>
 
       <SelectedWork index={next()} projects={featured} caseStudyIds={new Set(caseStudyIds)} />
@@ -146,47 +139,18 @@ export async function HomePageView({ locale: _locale }: { locale: Locale }) {
         index={next()}
         id="writing-title"
         title="Writing"
-        figure="manuscript"
         action={<SectionLink href="/en/blog">All writing</SectionLink>}
       >
-        {posts.length === 0 ? (
-          <p className="empty-state" role="status">
-            No posts yet. New writing will appear here.
-          </p>
-        ) : (
-          <ul className="index">
-            {posts.slice(0, 3).map((post) => (
-              <li key={post.slug} className="index-row">
-                <Link href={`/en/blog/${post.slug}`} className="index-link">
-                  <time className="index-date" dateTime={post.publishedAt.toISOString()}>
-                    {formatMonthDay(post.publishedAt)}
-                  </time>
-                  <span className="index-main">
-                    <PostTitleTransition slug={post.slug}>
-                      <span className="index-title">
-                        <span>{post.title}</span>
-                      </span>
-                    </PostTitleTransition>
-                    <span className="index-summary">{post.description}</span>
-                  </span>
-                  <span className="index-meta">
-                    <span className="index-category">{post.category}</span>
-                    <span className="index-time">{post.readingMinutes} min read</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+        <WritingSheets posts={posts.slice(0, 3)} />
       </HomeSection>
 
       {hasCollections ? (
-        <HomeSection index={next()} id="collections-title" title="Collections" figure="mats">
-          <CollectionPrints books={books} music={music} photos={photos} />
+        <HomeSection index={next()} id="collections-title" title="Collections">
+          <HomeShelf books={books} music={music} photos={photos} />
         </HomeSection>
       ) : null}
 
-      <HomeSection index={next()} id="tech-stack-title" title="Stack" figure="type-case">
+      <HomeSection index={next()} id="tech-stack-title" title="Stack">
         <TechStackRegister />
       </HomeSection>
 
@@ -194,10 +158,11 @@ export async function HomePageView({ locale: _locale }: { locale: Locale }) {
         index={next()}
         id="activity-title"
         title="Activity"
-        figure="density"
         action={
-          <a href={`https://github.com/${github.user}`} target="_blank" rel="noreferrer" className="section-link ink-link">
-            <ExternalLabel>@{github.user} on GitHub</ExternalLabel>
+          <a href={`https://github.com/${github.user}`} target="_blank" rel="noreferrer" className="section-link">
+            <span className="ink-link">
+              <ExternalLabel>@{github.user} on GitHub</ExternalLabel>
+            </span>
           </a>
         }
       >

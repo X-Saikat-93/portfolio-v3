@@ -42,6 +42,9 @@ export function ActivityReadout({
     setDay(inside && index < counts.length ? index : null)
   }
 
+  const week = day === null ? 0 : Math.floor(day / ACTIVITY_DAYS)
+  const weekday = day === null ? 0 : day % ACTIVITY_DAYS
+
   let label = idle
   if (day !== null && start) {
     const date = new Date(dateFromIso(start).getTime() + day * 86_400_000)
@@ -51,7 +54,16 @@ export function ActivityReadout({
 
   return (
     <div className="activity-field" onPointerMove={onMove} onPointerLeave={() => setDay(null)}>
-      {children}
+      <div className="activity-block">
+        {children}
+        {/* the cell under the pointer, pressed into the block */}
+        <span
+          className="activity-press"
+          aria-hidden="true"
+          data-active={day !== null || undefined}
+          style={{ '--week': week, '--day': weekday } as React.CSSProperties}
+        />
+      </div>
       <p className="activity-readout" aria-hidden="true" data-active={day !== null || undefined}>
         {label}
       </p>
