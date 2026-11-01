@@ -22,9 +22,10 @@ figure[data-rehype-pretty-code-figure] {
   max-width: 100%;
   min-width: 100%;
   overflow-x: auto;
-  padding: 1rem;
-  font-size: 0.8125rem;
-  line-height: 1.6;
+  padding: 0.875rem 1rem 1rem;
+  font-size: 0.78125rem;
+  line-height: 1.7;
+  tab-size: 2;
 }
 
 .code-frame pre::-webkit-scrollbar {

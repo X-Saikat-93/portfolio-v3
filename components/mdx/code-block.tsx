@@ -1,25 +1,41 @@
 'use client'
 
-import { isValidElement, useState, type ReactNode } from 'react'
+import { useRef, useState } from 'react'
 
-function textFromNode(node: ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') return String(node)
-  if (Array.isArray(node)) return node.map(textFromNode).join('')
-  if (!isValidElement(node)) return ''
-
-  const props = node.props as { children?: ReactNode; className?: string | string[] }
-  const className = Array.isArray(props.className)
-    ? props.className.join(' ')
-    : props.className ?? ''
-  const value = textFromNode(props.children)
-  return className.split(' ').includes('line') ? `${value}\n` : value
+const languageLabels: Record<string, string> = {
+  bash: 'Shell',
+  css: 'CSS',
+  html: 'HTML',
+  js: 'JavaScript',
+  json: 'JSON',
+  jsx: 'JSX',
+  md: 'Markdown',
+  mdx: 'MDX',
+  plaintext: 'Plain text',
+  py: 'Python',
+  python: 'Python',
+  sh: 'Shell',
+  sql: 'SQL',
+  text: 'Plain text',
+  ts: 'TypeScript',
+  tsx: 'TSX',
+  txt: 'Plain text',
+  yaml: 'YAML',
+  yml: 'YAML',
 }
+
+// Plain-text blocks are diagrams and traces, where numbers add noise.
+const unnumbered = new Set(['text', 'plaintext', 'txt'])
 
 export function MdxCodeBlock({ children, ...props }: React.ComponentPropsWithoutRef<'pre'>) {
   const [copied, setCopied] = useState(false)
+  const preRef = useRef<HTMLPreElement>(null)
+  const language = (props as { 'data-language'?: string })['data-language'] ?? 'text'
+  const numbered = !unnumbered.has(language)
 
   async function copyCode() {
-    const code = textFromNode(children).replace(/\n$/, '')
+    // line numbers are CSS pseudo-content, so textContent is the source alone
+    const code = preRef.current?.textContent?.replace(/\n$/, '')
     if (!code || !navigator.clipboard) return
 
     await navigator.clipboard.writeText(code)
@@ -28,17 +44,21 @@ export function MdxCodeBlock({ children, ...props }: React.ComponentPropsWithout
   }
 
   return (
-    <div className="code-frame">
-      <pre {...props}>{children}</pre>
-      <button
-        type="button"
-        className="code-copy"
-        data-copied={copied || undefined}
-        aria-label={copied ? 'Code copied' : 'Copy code'}
-        onClick={() => void copyCode()}
-      >
-        <span aria-hidden="true">{copied ? '✓' : '↗'}</span>
-      </button>
+    <div className="code-frame" data-numbered={numbered || undefined}>
+      <div className="code-head">
+        <span className="code-lang">{languageLabels[language] ?? language.toUpperCase()}</span>
+        <button
+          type="button"
+          className="code-copy"
+          data-copied={copied || undefined}
+          onClick={() => void copyCode()}
+        >
+          <span aria-live="polite">{copied ? 'Copied' : 'Copy'}</span>
+        </button>
+      </div>
+      <pre ref={preRef} {...props}>
+        {children}
+      </pre>
     </div>
   )
 }
