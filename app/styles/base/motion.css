@@ -46,6 +46,13 @@ html[data-visited] .enter-polaroid .polaroid {
   animation: none;
 }
 
+@keyframes polaroid-pop {
+  from {
+    opacity: 0;
+    transform: rotate(calc(var(--tilt, 0deg) + 1.5deg)) scale(0.85);
+  }
+}
+
 /* Scroll reveal (post prose): hidden state is applied by JS only to
    below-fold elements, so content without JS is simply there */
 .reveal-pending {
@@ -161,17 +168,6 @@ html[data-eclipse] .dock {
   animation-timing-function: var(--ease-enter);
 }
 
-/* The shared title owns the morph. Its supporting metadata develops once the
-   320ms morph window closes, then the post body follows as the next register. */
-.post-title-meta {
-  animation: ink-settle var(--duration-post-meta) var(--ease-settle) backwards;
-  animation-delay: var(--duration-route-morph);
-}
-
-.post-body-stage {
-  --enter-delay: var(--delay-post-body);
-}
-
 /* a revealing list hands its animation to the items, staggered */
 .prose ul.reveal-in,
 .prose ol.reveal-in {
@@ -234,7 +230,6 @@ html[data-eclipse] .dock {
   .enter-swing,
   .motion-list > *,
   .enter-polaroid .polaroid,
-  .post-title-meta,
   .reveal-in,
   .prose ul.reveal-in > li,
   .prose ol.reveal-in > li {

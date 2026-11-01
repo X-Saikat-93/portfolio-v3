@@ -29,6 +29,7 @@
 @import './styles/components/zoom-image.css';
 @import './styles/components/header-avatar.css';
 @import './styles/pages/writing-index.css';
+@import './styles/pages/page.css';
 @import './styles/base/motion.css';
 @import './styles/components/external-links.css';
 @import './styles/home/portrait.css';
@@ -52,3 +53,4 @@
 @import './styles/admin/sign-in.css';
 @import './styles/components/command-palette.css';
 @import './styles/pages/music.css';
+@import './styles/base/print.css';

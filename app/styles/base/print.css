@@ -1,0 +1,61 @@
+/* ── Print: clean ink on white ────────────────────────────────────────
+   Any page prints on white with black ink, without the dock, motion or
+   paper texture, and shows where its text links go. */
+
+@media print {
+  :root,
+  :root[data-theme='dark'] {
+    color-scheme: light;
+    --ground: #fff;
+    --surface: #fff;
+    --surface-deep: #fff;
+    --ink: #000;
+    --ink-soft: #222;
+    --ink-faint: #555;
+    --hairline: #bbb;
+    --shadow: none;
+    --shadow-lift: none;
+  }
+
+  html,
+  body {
+    background: #fff;
+  }
+
+  .paper-fibre,
+  .dock,
+  .skip-link,
+  .command-palette-discovery,
+  .post-progress,
+  .home-hero-paths,
+  .activity-table,
+  .copy-email {
+    display: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .site-frame {
+    overflow: visible;
+  }
+
+  .ink-link[href]::after,
+  .prose a[href]::after {
+    content: ' (' attr(href) ')';
+    color: var(--ink-faint);
+    font-size: 0.8em;
+    overflow-wrap: anywhere;
+  }
+
+  .home-section,
+  .plate,
+  .print,
+  .index-row {
+    break-inside: avoid;
+  }
+}
