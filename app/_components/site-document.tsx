@@ -7,14 +7,18 @@ import { CommandPalette, type CommandPaletteItem } from '~/components/command-pa
 import { Dock, DockFallback } from '~/components/dock'
 import { JsonLd } from '~/components/json-ld'
 import { SiteIntro } from '~/components/site-intro'
+import { PreviewCardTimingProvider } from '~/components/preview-card-timing'
 import { RouteViewTransition } from '~/components/route-motion-controller'
 import { SiteFooter } from '~/components/site-footer'
 import { ThemeProvider } from '~/components/theme-provider'
 import { WashiArtDefs } from '~/components/washi-art'
 import { safeListPublishedBlogPosts, type BlogPost } from '~/lib/blog/repository'
+import { cloudinaryAvatarPublicId, cloudinaryImageUrl } from '~/lib/cloudinary/image-url'
+import { resumeProfile } from '~/lib/personal'
 import { projects } from '~/lib/projects'
+import { getGitHub } from '~/lib/social-live'
 import { PREPAINT_SCRIPT } from '~/lib/security/inline-scripts'
-import { seo } from '~/lib/seo'
+import { personId, seo, websiteId } from '~/lib/seo'
 import { sameAs } from '~/lib/site-links'
 import { THEME_GROUND } from '~/lib/theme'
 import type { Locale } from '~/lib/locale-route'
@@ -23,6 +27,17 @@ import { cn } from '~/lib/utils'
 import { fontVariablesForLocale } from '../fonts'
 
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim()
+
+// Person facts for JSON-LD come from the resume registry and the published
+// portrait, never from free text.
+const personImage = cloudinaryImageUrl(cloudinaryAvatarPublicId, {
+  width: 512,
+  height: 512,
+  crop: 'fill',
+  gravity: 'face',
+  format: 'jpg',
+})
+const currentRole = resumeProfile.experience.find(({ period }) => period.endsWith('Present'))
 
 // Browser chrome follows the page ground in each scheme; ThemeProvider
 // re-points both tags at the active ground when a theme is chosen.
@@ -38,7 +53,7 @@ export const rootMetadata: Metadata = {
   description: seo.description,
   keywords: [
     'Saikat Das',
-    'full-stack product engineer',
+    'full-stack software engineer',
     'software engineer',
     'web products',
     'APIs',
@@ -219,9 +234,9 @@ export async function SiteDocument({
     )
   }
 
-  // The palette indexes published writing; the rest of the public chrome
-  // stays request-independent.
-  const posts = await safeListPublishedBlogPosts()
+  // The profile card is cached, while the rest of the public chrome stays
+  // request-independent.
+  const [github, posts] = await Promise.all([getGitHub(), safeListPublishedBlogPosts()])
   const commandItems = commandItemsFor(posts)
 
   return (
@@ -242,14 +257,23 @@ export async function SiteDocument({
             {
               '@context': 'https://schema.org',
               '@type': 'Person',
-              '@id': new URL('/en#person', seo.url).href,
+              '@id': personId,
               name: 'Saikat Das',
               url: new URL('/en', seo.url).href,
-              jobTitle: 'Full-Stack Software Engineer',
+              image: personImage ?? undefined,
+              jobTitle: resumeProfile.title,
               description: seo.description,
               mainEntityOfPage: new URL('/en', seo.url).href,
+              homeLocation: { '@type': 'Country', name: 'India' },
+              worksFor: currentRole
+                ? { '@type': 'Organization', name: currentRole.company }
+                : undefined,
+              alumniOf: resumeProfile.education.map(({ institution }) => ({
+                '@type': 'EducationalOrganization',
+                name: institution,
+              })),
               knowsAbout: [
-                'Web product engineering',
+                'Full-stack web engineering',
                 'API design',
                 'Real-time systems',
                 'Data systems',
@@ -265,37 +289,39 @@ export async function SiteDocument({
             {
               '@context': 'https://schema.org',
               '@type': 'WebSite',
-              '@id': new URL('/en#website', seo.url).href,
+              '@id': websiteId,
               name: 'Saikat Das',
               url: new URL('/en', seo.url).href,
               description: seo.description,
               inLanguage: 'en',
-              publisher: { '@id': new URL('/en#person', seo.url).href },
-              author: { '@id': new URL('/en#person', seo.url).href },
+              publisher: { '@id': personId },
+              author: { '@id': personId },
             },
           ]}
         />
       </head>
       <body className="antialiased">
         <ThemeProvider>
-          <AmbientBackground />
-          <WashiArtDefs />
-          <SiteIntro />
-          <div className="site-frame flex min-h-screen flex-col">
-            <a className="skip-link" href="#main-content">
-              Skip to content
-            </a>
-            <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
-              {/* Route content transitions independently of the persistent
-                  footer and dock. */}
-              <RouteViewTransition>{children}</RouteViewTransition>
-            </main>
-            <SiteFooter />
-          </div>
-          <Suspense fallback={<DockFallback locale={locale} />}>
-            <Dock />
-          </Suspense>
-          <CommandPalette items={commandItems} />
+          <PreviewCardTimingProvider>
+            <AmbientBackground />
+            <WashiArtDefs />
+            <SiteIntro />
+            <div className="site-frame flex min-h-screen flex-col">
+              <a className="skip-link" href="#main-content">
+                Skip to content
+              </a>
+              <main id="main-content" tabIndex={-1} className="flex-1 pt-14">
+                {/* Route content transitions independently of the persistent
+                    footer and dock. */}
+                <RouteViewTransition>{children}</RouteViewTransition>
+              </main>
+              <SiteFooter github={github} locale="en" />
+            </div>
+            <Suspense fallback={<DockFallback locale={locale} />}>
+              <Dock />
+            </Suspense>
+            <CommandPalette items={commandItems} />
+          </PreviewCardTimingProvider>
         </ThemeProvider>
       </body>
     </html>

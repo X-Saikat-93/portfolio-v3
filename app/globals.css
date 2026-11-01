@@ -34,7 +34,9 @@
 @import './styles/components/external-links.css';
 @import './styles/home/portrait.css';
 @import './styles/home/sections.css';
+@import './styles/components/email-envelope.css';
 @import './styles/components/post-images.css';
+@import './styles/components/social-cards.css';
 @import './styles/pages/books.css';
 @import './styles/pages/blog-rows.css';
 @import './styles/components/cta.css';
