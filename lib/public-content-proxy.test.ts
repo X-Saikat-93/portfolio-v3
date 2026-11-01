@@ -1,8 +1,12 @@
 import { NextRequest } from 'next/server'
 import type { NextFetchEvent } from 'next/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import { proxy, siteProxy } from '../proxy'
+vi.mock('./blog/published-slugs', () => ({
+  isPublishedBlogSlug: async (slug: string) => slug !== 'never-published',
+}))
+
+import { config, proxy, siteProxy } from '../proxy'
 
 const event = {
   passThroughOnException() {},
@@ -60,6 +64,53 @@ describe('public content proxy', () => {
     '/en/blog/not-yet-seeded',
   ])('lets a valid DB-backed slug reach the page: %s', (pathname) => {
     const response = siteProxy(new NextRequest(`https://xsaikat.vercel.app${pathname}`))
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-middleware-next')).toBe('1')
+  })
+
+  it.each([
+    '/blog/never-published',
+    '/en/blog/never-published',
+  ])('answers a well-formed but unpublished post with a 404: %s', async (pathname) => {
+    const response = await proxy(new NextRequest(`https://xsaikat.vercel.app${pathname}`), event)
+
+    expect(response.status).toBe(404)
+    expect(response.headers.get('x-middleware-rewrite')).toBe(
+      'https://xsaikat.vercel.app/_not-found',
+    )
+  })
+
+  it('lets a published post through the proxy', async () => {
+    const response = await proxy(
+      new NextRequest('https://xsaikat.vercel.app/en/blog/a-homepage-is-a-contract'),
+      event,
+    )
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-middleware-next')).toBe('1')
+  })
+
+  it.each([
+    '/en/projects/not-a-project',
+    '/en/projects/zaruro-v2',
+  ])('rewrites an unknown project id to a 404: %s', (pathname) => {
+    const response = siteProxy(new NextRequest(`https://xsaikat.vercel.app${pathname}`))
+
+    expect(response.status).toBe(404)
+    expect(response.headers.get('x-middleware-rewrite')).toBe(
+      'https://xsaikat.vercel.app/_not-found',
+    )
+  })
+
+  it('runs on project detail routes', () => {
+    expect(config.matcher).toContain('/en/projects/:id')
+  })
+
+  it('lets a registered project reach the page', () => {
+    const response = siteProxy(
+      new NextRequest('https://xsaikat.vercel.app/en/projects/human-before-resource-ats'),
+    )
 
     expect(response.status).toBe(200)
     expect(response.headers.get('x-middleware-next')).toBe('1')

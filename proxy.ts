@@ -2,15 +2,23 @@ import { getSessionCookie } from 'better-auth/cookies'
 import type { NextFetchEvent, NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
+import { isPublishedBlogSlug } from './lib/blog/published-slugs'
+import { getProjectById } from './lib/projects'
 import { isBlogPostSlug } from './lib/public-content-routes'
 
+function postSlug(pathname: string) {
+  const slug = pathname.match(/^\/(?:en\/)?blog\/([^/]+)\/?$/)?.[1]
+  return slug && !/^(?:opengraph-image|twitter-image)-/.test(slug) ? slug : null
+}
+
 function missingPublicContent(pathname: string) {
-  const postMatch = pathname.match(/^\/(?:en\/)?blog\/([^/]+)\/?$/)
-  if (postMatch) {
-    const slug = postMatch[1]
-    if (/^(?:opengraph-image|twitter-image)-/.test(slug)) return false
-    return !isBlogPostSlug(slug)
-  }
+  const slug = postSlug(pathname)
+  if (slug) return !isBlogPostSlug(slug)
+
+  // Projects are a code registry, so an unknown id is known to be missing
+  // here; the page alone would stream a 200 before notFound() lands.
+  const projectMatch = pathname.match(/^\/en\/projects\/([^/]+)\/?$/)
+  if (projectMatch) return !getProjectById(projectMatch[1])
 
   return false
 }
@@ -50,18 +58,27 @@ export function siteProxy(request: NextRequest) {
     return NextResponse.redirect(destination, 308)
   }
 
-  if (missingPublicContent(pathname) || missingLegacyAsset(pathname)) {
-    const notFoundUrl = request.nextUrl.clone()
-    notFoundUrl.pathname = '/_not-found'
-    return NextResponse.rewrite(notFoundUrl, { status: 404 })
-  }
+  if (missingPublicContent(pathname) || missingLegacyAsset(pathname)) return notFound(request)
 
   return NextResponse.next()
 }
 
-export function proxy(request: NextRequest, _event: NextFetchEvent) {
+function notFound(request: NextRequest) {
+  const notFoundUrl = request.nextUrl.clone()
+  notFoundUrl.pathname = '/_not-found'
+  return NextResponse.rewrite(notFoundUrl, { status: 404 })
+}
+
+export async function proxy(request: NextRequest, _event: NextFetchEvent) {
   const pathname = request.nextUrl.pathname
-  if (!usesBetterAuth(pathname)) return siteProxy(request)
+  if (!usesBetterAuth(pathname)) {
+    // a well-formed slug still needs the database to know it is published
+    const slug = postSlug(pathname)
+    if (slug && isBlogPostSlug(slug) && !(await isPublishedBlogSlug(slug))) {
+      return notFound(request)
+    }
+    return siteProxy(request)
+  }
 
   // Optimistic redirect only. Pages and mutation handlers validate the
   // session against Neon again; a cookie's presence is not authorization.
@@ -82,6 +99,7 @@ export const config = {
     '/api/admin/:path*',
     '/blog/:slug',
     '/en/blog/:slug',
+    '/en/projects/:id',
     '/images/:path*',
   ],
 }
