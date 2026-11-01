@@ -7,14 +7,18 @@ import { RevealScope } from '~/components/reveal-scope'
 import { formatDate } from '~/lib/date'
 import type { BlogPost } from '~/lib/blog/repository'
 
+export type PostSection = { id: string; title: string }
+
 export function BlogPostPageView({
   post,
   relatedPosts,
   content,
+  sections = [],
 }: {
   post: BlogPost
   relatedPosts: BlogPost[]
   content: React.ReactNode
+  sections?: readonly PostSection[]
 }) {
   return (
     <>
@@ -44,9 +48,16 @@ export function BlogPostPageView({
           </h1>
           <p className="post-title-meta mt-4 text-sm leading-relaxed">{post.description}</p>
           <dl
-            className="spec-plate enter"
+            className="spec-plate post-plate enter"
             style={{ '--enter-delay': '390ms' } as React.CSSProperties}
           >
+            <div>
+              <dt>Written by</dt>
+              <dd>
+                <span className="spec-signal" aria-hidden />
+                Saikat Das
+              </dd>
+            </div>
             <div>
               <dt>Published</dt>
               <dd>
@@ -66,15 +77,42 @@ export function BlogPostPageView({
               alt={post.coverImageAlt || `${post.title} cover artwork`}
               width={1200}
               height={800}
+              preserveAspectRatio
               sizes="(max-width: 640px) calc(100vw - 3rem), 600px"
               priority
               className="post-cover-image"
             />
           </figure>
         ) : null}
+        {sections.length > 2 ? (
+          <nav className="post-toc enter" aria-label="On this page">
+            <details>
+              <summary>
+                <span>On this page</span>
+                <span className="post-toc-count">{sections.length} sections</span>
+              </summary>
+              <ol>
+                {sections.map((section) => (
+                  <li key={section.id}>
+                    <a href={`#${section.id}`}>{section.title}</a>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          </nav>
+        ) : null}
         {/* the body enters as one register; blocks below the fold develop
             in as they're reached */}
         <RevealScope className="post-body-stage prose enter mt-10">{content}</RevealScope>
+        <footer className="post-signoff">
+          <p>
+            Written by <Link href="/en">Saikat Das</Link>. Filed under {post.category},{' '}
+            <time dateTime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>.
+          </p>
+          <a href="#top" className="post-signoff-top">
+            Back to top <span aria-hidden>↑</span>
+          </a>
+        </footer>
       </article>
       {relatedPosts.length > 0 ? (
         <RevealScope as="aside" className="post-related hairline-top">

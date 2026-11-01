@@ -146,6 +146,142 @@
   margin-top: 1.5rem;
 }
 
+/* cells size to their content and wrap, so a long date never runs into
+   its neighbour the way the fixed four-column grid let it */
+.post-title-card .post-plate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2.5rem;
+  padding: 0.875rem 0;
+}
+
+.post-title-card .post-plate dd {
+  color: var(--gray-11, var(--foreground));
+}
+
+/* contents: a closed ledger under the cover, opened on demand */
+.post-toc {
+  margin-top: 2rem;
+  border-top: var(--border-hairline) solid var(--border);
+  border-bottom: var(--border-hairline) solid var(--border);
+  --enter-delay: 480ms;
+}
+
+.post-toc summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  color: var(--gray-11, var(--foreground));
+  cursor: pointer;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  list-style: none;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.post-toc summary::-webkit-details-marker {
+  display: none;
+}
+
+.post-toc summary::after {
+  content: '+';
+  margin-left: 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1;
+  transition: transform 200ms var(--ease-swift);
+}
+
+.post-toc details[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.post-toc-count {
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.post-toc summary:focus-visible {
+  outline: 2px solid var(--ring, var(--signal));
+  outline-offset: 2px;
+}
+
+.post-toc ol {
+  counter-reset: post-toc;
+  padding-bottom: 0.875rem;
+}
+
+.post-toc li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  counter-increment: post-toc;
+}
+
+.post-toc li::before {
+  content: counter(post-toc, decimal-leading-zero);
+  padding-top: 0.3125rem;
+  color: color-mix(in oklab, var(--muted-foreground) 72%, transparent);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+.post-toc a {
+  padding: 0.1875rem 0;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+  transition: color 150ms ease;
+}
+
+.post-toc a:hover,
+.post-toc a:focus-visible {
+  color: var(--foreground);
+}
+
+/* sign-off: the article closes on a byline and a way back up */
+.post-signoff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-top: 3.5rem;
+  padding-top: 1rem;
+  border-top: var(--border-hairline) solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.post-signoff a {
+  color: var(--gray-11, var(--foreground));
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, currentColor 38%, transparent);
+  text-underline-offset: 0.16em;
+}
+
+.post-signoff .post-signoff-top {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-toc summary::after,
+  .post-toc a {
+    transition: none;
+  }
+}
+
 /* anchored headings clear the viewport edge fade */
 .prose h2,
 .prose h3 {
