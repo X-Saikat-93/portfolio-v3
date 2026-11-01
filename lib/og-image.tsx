@@ -253,10 +253,11 @@ async function render({
 }
 
 export function createHomeOgImage(_locale: Locale) {
+  const { ogKicker, ogHeading, ogDescription } = publicPageMetadata.home.en
   return render({
-    kicker: 'Full-Stack Software Engineer',
-    title: 'I build software that stays calm on a bad network.',
-    description: 'Web products, APIs, and data systems, from architecture to production.',
+    kicker: ogKicker,
+    title: ogHeading,
+    description: ogDescription,
     path: '/en',
   })
 }

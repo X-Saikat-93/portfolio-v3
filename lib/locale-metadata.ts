@@ -2,19 +2,22 @@ import type { Metadata } from 'next'
 
 import type { Locale } from './locale-route'
 import { localePath } from './locale-route'
+import { publicPageMetadata } from './public-page-metadata'
 import { seo } from './seo'
 
 interface LocaleMetadataOptions {
   locale: Locale
   path: string
   title: string
+  /** The headline the OG card prints, when it differs from the search title. */
+  heading?: string
   description: string
   type?: 'article' | 'website'
 }
 
 const SOCIAL_IMAGE_VERSION = process.env.VERCEL_GIT_COMMIT_SHA
-  ? 'v4-' + process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)
-  : 'v4'
+  ? 'v5-' + process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)
+  : 'v5'
 const SECTION_IMAGE_PATHS = new Set([
   '/blog',
   '/photos',
@@ -26,9 +29,15 @@ const SECTION_IMAGE_PATHS = new Set([
   '/contact',
   '/uses',
   '/privacy',
+  '/terms',
+  '/credits',
 ])
 
-const BASE_KEYWORDS = ['Saikat Das', 'Saikat Das portfolio', 'full-stack product engineer']
+const home = publicPageMetadata.home.en
+
+const FEED_TITLE = `${seo.title} — ${publicPageMetadata.blog.en.heading}`
+
+const BASE_KEYWORDS = ['Saikat Das', 'Saikat Das portfolio', 'full-stack software engineer']
 
 // Only facts already on the site: stack and sections it actually publishes.
 const SECTION_KEYWORDS: Record<string, string[]> = {
@@ -44,7 +53,7 @@ const SECTION_KEYWORDS: Record<string, string[]> = {
     'PostgreSQL',
     'Redis',
   ],
-  '/blog': ['engineering blog', 'engineering notes', 'AI systems', 'data architecture', 'real-time software', 'web applications'],
+  '/blog': ['software engineering blog', 'AI systems', 'AI agents', 'inference infrastructure', 'distributed systems', 'data systems', 'web applications'],
   '/projects': ['projects', 'case studies', 'Zaruro', 'recruitment operations platform', 'open-source', 'production software'],
   '/resume': ['resume', 'CV', 'full-stack software engineer resume', 'hire a full-stack engineer'],
   '/now': ['now page', 'current work', 'open to work'],
@@ -53,6 +62,8 @@ const SECTION_KEYWORDS: Record<string, string[]> = {
   '/photos': ['photography', 'photos'],
   '/books': ['reading list', 'books'],
   '/music': ['music', 'listening list'],
+  '/terms': ['terms of use'],
+  '/credits': ['credits', 'open-source licences'],
 }
 
 export function socialImageUrl(locale: Locale, path: string) {
@@ -81,6 +92,7 @@ export function localeMetadata({
   locale,
   path,
   title,
+  heading = title,
   description,
   type = 'website',
 }: LocaleMetadataOptions): Metadata {
@@ -93,9 +105,9 @@ export function localeMetadata({
     height: 630,
     alt:
       path === '/'
-        ? `${title}${sentenceSeparator}${description}`
+        ? `Saikat Das · ${home.ogKicker}${sentenceSeparator}${home.ogHeading} ${home.ogDescription}`
         : SECTION_IMAGE_PATHS.has(path)
-          ? `${title} · Saikat Das${sentenceSeparator}${description}`
+          ? `${heading} · Saikat Das${sentenceSeparator}${description}`
         : `${title} · Saikat Das`,
     type: 'image/jpeg',
   }
@@ -110,10 +122,11 @@ export function localeMetadata({
     alternates: {
       canonical,
       languages: pair.languages,
-      ...(path === '/'
+      // the writing feed is advertised wherever writing is listed or read
+      ...(path === '/' || path === '/blog' || path.startsWith('/blog/')
         ? {
             types: {
-              'application/rss+xml': new URL('/en/feed.xml', seo.url).href,
+              'application/rss+xml': [{ url: new URL('/en/feed.xml', seo.url).href, title: FEED_TITLE }],
             },
           }
         : {}),

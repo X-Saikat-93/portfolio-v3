@@ -12,8 +12,10 @@ export const publicPageMetadata = {
     title: 'Saikat Das | Full-Stack Software Engineer',
     description:
       'Saikat Das is a full-stack software engineer in India building web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
-    ogDescription:
-      'Saikat Das is a full-stack software engineer in India building web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
+    // what the home social card prints (lib/og-image.tsx); its alt reads the same
+    ogKicker: 'Full-Stack Software Engineer',
+    ogHeading: 'I build software that stays calm on a bad network.',
+    ogDescription: 'Web products, APIs, and data systems, from architecture to production.',
   }),
   blog: english({
     title: 'Writing on AI Systems and Software Engineering',
