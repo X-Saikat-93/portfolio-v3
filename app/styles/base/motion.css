@@ -11,6 +11,15 @@
   }
 }
 
+/* press-in without the fade, for the sheet that carries a page's largest
+   text or image: it is painted from the first frame (so it counts as LCP
+   at once) and only its press into place animates. */
+@keyframes press-settle {
+  from {
+    transform: translate3d(0, 6px, 0) scale(0.985);
+  }
+}
+
 @keyframes hairline-draw {
   from {
     transform: scaleX(0);

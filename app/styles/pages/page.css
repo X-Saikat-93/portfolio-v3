@@ -292,7 +292,7 @@
 }
 
 .page-body {
-  animation: press-in var(--dur-gentle) var(--ease-settle) 220ms backwards;
+  animation: press-settle var(--dur-gentle) var(--ease-settle) 220ms backwards;
 }
 
 .page-body.paper-edge::after,
