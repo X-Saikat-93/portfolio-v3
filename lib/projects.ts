@@ -633,6 +633,15 @@ export function getProjectById(id: string) {
   return projects.find((project) => project.id === id)
 }
 
+// The root layout appends " | Saikat Das"; the category is dropped when the
+// full title would run past 60 characters in search results.
+const TITLE_BUDGET = 60 - ' | Saikat Das'.length
+
+export function projectTitle(project: Pick<Project, 'nameEn' | 'category'>) {
+  const full = `${project.nameEn} — ${project.category}`
+  return full.length <= TITLE_BUDGET ? full : project.nameEn
+}
+
 export function projectPath(id: string) {
   return `/en/projects/${id}`
 }
