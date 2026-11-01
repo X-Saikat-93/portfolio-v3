@@ -13,7 +13,7 @@ describe('public content proxy', () => {
   it('redirects the unlocalized root before a page segment renders', () => {
     const response = siteProxy(new NextRequest('https://xsaikat.vercel.app/'))
 
-    expect(response.status).toBe(307)
+    expect(response.status).toBe(308)
     expect(response.headers.get('location')).toBe('https://xsaikat.vercel.app/en')
   })
 

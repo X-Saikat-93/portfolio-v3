@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 
 import { AmbientBackground } from '~/components/ambient-background'
@@ -22,6 +22,14 @@ import { fontVariablesForLocale } from '../fonts'
 
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim()
 
+// Browser chrome follows the page ground in each scheme.
+export const rootViewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fcfcfb' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f0d0a' },
+  ],
+}
+
 export const rootMetadata: Metadata = {
   metadataBase: seo.url,
   description: seo.description,
@@ -37,6 +45,11 @@ export const rootMetadata: Metadata = {
     'PostgreSQL',
   ],
   applicationName: 'Saikat Das',
+  appleWebApp: {
+    capable: true,
+    title: 'Saikat Das',
+    statusBarStyle: 'default',
+  },
   authors: [{ name: 'Saikat Das', url: new URL('/en', seo.url) }],
   creator: 'Saikat Das',
   publisher: 'Saikat Das',
@@ -244,6 +257,7 @@ export async function SiteDocument({
               sameAs: [
                 'https://github.com/X-Saikat-93',
                 'https://www.linkedin.com/in/saikat933/',
+                'https://x.com/Actually_Das',
               ],
             },
             {

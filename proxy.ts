@@ -46,7 +46,8 @@ export function siteProxy(request: NextRequest) {
   if (pathname === '/') {
     const destination = request.nextUrl.clone()
     destination.pathname = '/en'
-    return NextResponse.redirect(destination)
+    // permanent, so search engines consolidate the root onto /en
+    return NextResponse.redirect(destination, 308)
   }
 
   if (missingPublicContent(pathname) || missingLegacyAsset(pathname)) {
