@@ -35,7 +35,7 @@ export function CollectionShelf({
 }) {
   if (items.length === 0) {
     return (
-      <p className="empty-state enter mt-10 text-sm" role="status">
+      <p className="empty-state text-sm" role="status">
         {labels[kind].empty}
       </p>
     )

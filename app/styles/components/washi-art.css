@@ -74,41 +74,6 @@
   pointer-events: none;
 }
 
-/* the sun: solid by daylight; by lamplight a touch less saturated, lower,
-   with a low halo like a lantern through paper */
-.washi-sun {
-  position: relative;
-  display: block;
-  aspect-ratio: 1;
-  translate: 0 var(--sun-drop);
-}
-
-.washi-sun::before {
-  content: '';
-  position: absolute;
-  inset: -12%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, var(--sun-glow) 62%, transparent);
-  opacity: 0;
-}
-
-[data-theme='dark'] .washi-sun::before {
-  opacity: 1;
-}
-
-.washi-sun svg {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter: saturate(var(--sun-saturation));
-}
-
-.washi-sun-disc {
-  fill: var(--sun);
-}
-
 /* registration target */
 .registration-mark {
   width: 0.875rem;
@@ -119,8 +84,7 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* plate figures — ink line drawings at manual-figure scale */
-.section-figure,
+/* the colophon device — ink line drawing at manual-figure scale */
 .colophon-device {
   display: block;
   fill: none;
@@ -130,43 +94,13 @@
   stroke-linejoin: miter;
 }
 
-.section-figure {
-  width: 6rem;
-  height: 4rem;
-}
-
-.section-figure *,
 .colophon-device * {
   vector-effect: non-scaling-stroke;
 }
 
-.section-figure .figure-faint,
 .colophon-device .figure-faint {
   stroke: var(--ink-faint);
   opacity: 0.7;
-}
-
-.section-figure .figure-seal {
-  fill: var(--sun);
-  stroke: none;
-}
-
-.section-figure .figure-ink {
-  fill: var(--ink-soft);
-  stroke: none;
-}
-
-/* a figure inks in after its section settles, the first time it is seen */
-.reveal-in .section-figure {
-  animation: figure-ink var(--dur-slow) var(--ease-settle) backwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 120ms);
-}
-
-@keyframes figure-ink {
-  from {
-    opacity: 0;
-    filter: blur(2px);
-  }
 }
 
 .colophon-device {
@@ -178,26 +112,11 @@
   font-size: 12px;
 }
 
-/* the topographic field behind the hero, inked with the hairline colour */
-.contour-field {
-  position: absolute;
-  pointer-events: none;
-  background-color: var(--hairline);
-  -webkit-mask: url('/art/contours.svg') center / contain no-repeat;
-  mask: url('/art/contours.svg') center / contain no-repeat;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .seal-stamp[data-stamped] .seal,
-  .seal-stamp[data-stamped]::after,
-  .reveal-in .section-figure {
+  .seal-stamp[data-stamped]::after {
     animation: none;
   }
 }
 
-@media print {
-  .contour-field,
-  .washi-sun::before {
-    display: none;
-  }
-}
+
