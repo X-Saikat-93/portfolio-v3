@@ -1,0 +1,204 @@
+/* ── Washi art (components/washi-art.tsx) ─────────────────────────────
+   Seal, sun, plate figures and the colophon device. Ink comes from the
+   tokens; vermilion appears only as the sun and at seal/dot scale. */
+
+.washi-art-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* the seal */
+.seal {
+  display: block;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.seal-ground {
+  fill: var(--sun);
+}
+
+.seal-border {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 1;
+  opacity: 0.8;
+}
+
+.seal-mark {
+  fill: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* the success stamp: the seal presses in, one ink ring spreads and fades */
+@keyframes seal-press {
+  from {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes seal-ring {
+  from {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+.seal-stamp {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+
+.seal-stamp[data-stamped] .seal {
+  animation: seal-press var(--dur-quick) var(--ease-settle);
+}
+
+.seal-stamp[data-stamped]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--sun);
+  border-radius: var(--radius-2);
+  animation: seal-ring var(--dur-gentle) var(--ease-settle) forwards;
+  pointer-events: none;
+}
+
+/* the sun: solid by daylight; by lamplight a touch less saturated, lower,
+   with a low halo like a lantern through paper */
+.washi-sun {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  translate: 0 var(--sun-drop);
+}
+
+.washi-sun::before {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--sun-glow) 62%, transparent);
+  opacity: 0;
+}
+
+[data-theme='dark'] .washi-sun::before {
+  opacity: 1;
+}
+
+.washi-sun svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: saturate(var(--sun-saturation));
+}
+
+.washi-sun-disc {
+  fill: var(--sun);
+}
+
+/* registration target */
+.registration-mark {
+  width: 0.875rem;
+  height: 0.875rem;
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* plate figures — ink line drawings at manual-figure scale */
+.section-figure,
+.colophon-device {
+  display: block;
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 1;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.section-figure {
+  width: 6rem;
+  height: 4rem;
+}
+
+.section-figure *,
+.colophon-device * {
+  vector-effect: non-scaling-stroke;
+}
+
+.section-figure .figure-faint,
+.colophon-device .figure-faint {
+  stroke: var(--ink-faint);
+  opacity: 0.7;
+}
+
+.section-figure .figure-seal {
+  fill: var(--sun);
+  stroke: none;
+}
+
+.section-figure .figure-ink {
+  fill: var(--ink-soft);
+  stroke: none;
+}
+
+/* a figure prints in from left to right the first time it is seen */
+.reveal-in .section-figure,
+.enter .section-figure {
+  animation: figure-print var(--dur-slow) var(--ease-settle) backwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 120ms);
+}
+
+@keyframes figure-print {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+.colophon-device {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.colophon-device-mark {
+  font-size: 12px;
+}
+
+/* the topographic field behind the hero, inked with the hairline colour */
+.contour-field {
+  position: absolute;
+  pointer-events: none;
+  background-color: var(--hairline);
+  -webkit-mask: url('/art/contours.svg') center / contain no-repeat;
+  mask: url('/art/contours.svg') center / contain no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal-stamp[data-stamped] .seal,
+  .seal-stamp[data-stamped]::after,
+  .reveal-in .section-figure,
+  .enter .section-figure {
+    animation: none;
+  }
+}
+
+@media print {
+  .contour-field,
+  .washi-sun::before {
+    display: none;
+  }
+}

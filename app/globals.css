@@ -18,6 +18,7 @@
 @import './styles/pages/projects.css';
 @import './styles/pages/error.css';
 @import './styles/base/ambient.css';
+@import './styles/components/washi-art.css';
 @import './styles/components/instant-photo.css';
 @import './styles/pages/post-prose.css';
 @import './styles/components/print-register.css';

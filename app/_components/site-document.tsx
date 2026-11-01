@@ -11,6 +11,7 @@ import { PreviewCardTimingProvider } from '~/components/preview-card-timing'
 import { RouteViewTransition } from '~/components/route-motion-controller'
 import { SiteFooter } from '~/components/site-footer'
 import { ThemeProvider } from '~/components/theme-provider'
+import { WashiArtDefs } from '~/components/washi-art'
 import { safeListPublishedBlogPosts, type BlogPost } from '~/lib/blog/repository'
 import { projects } from '~/lib/projects'
 import { getGitHub } from '~/lib/social-live'
@@ -203,6 +204,7 @@ export async function SiteDocument({
           <ThemeProvider>
             <AdminMotion>
               <AmbientBackground />
+              <WashiArtDefs />
               <div className="flex min-h-screen flex-col pb-20">
                 <a className="skip-link" href="#main-content">
                   Skip to content
@@ -283,6 +285,7 @@ export async function SiteDocument({
         <ThemeProvider>
           <PreviewCardTimingProvider>
             <AmbientBackground />
+            <WashiArtDefs />
             <SiteIntro />
             <div className="flex min-h-screen flex-col">
               <a className="skip-link" href="#main-content">
