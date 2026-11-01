@@ -4,30 +4,49 @@
    draws in signal ink on focus; sending runs a thin line across the
    sheet's foot, and a sent letter settles with a check. */
 
-.contact-title {
-  max-width: 31rem;
-  font-size: clamp(2rem, 8vw, 3.2rem);
-  font-weight: 500;
-  letter-spacing: -0.055em;
-  line-height: 0.98;
+/* the desk: the letter, and the direct lines beside it from 56rem */
+.contact-desk {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
 }
 
+.contact-aside {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+.contact-channel {
+  min-width: 0;
+  color: var(--ink);
+  font-size: var(--text-small);
+  overflow-wrap: anywhere;
+}
+
+.contact-aside-note {
+  padding-top: var(--space-3);
+  border-top: var(--border-hairline) solid var(--hairline);
+}
+
+@media (min-width: 56rem) {
+  .contact-desk {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    gap: var(--space-8);
+  }
+}
+
+/* the letter is cut from the same stock as the other cards */
 .contact-form-shell {
+  --paper-ink: var(--ink);
+
   position: relative;
   overflow: hidden;
-  border: 1px solid color-mix(in oklab, var(--paper-ink) 28%, transparent);
-  background: color-mix(in oklab, var(--paper) 96%, var(--paper-ink));
+  border-radius: var(--radius-2);
+  background: var(--surface);
   box-shadow:
-    0 1px 0 color-mix(in oklab, var(--paper) 72%, transparent),
-    0 1px 1px color-mix(in oklab, var(--foreground) 4%, transparent),
-    0 0.75rem 2rem -0.75rem color-mix(in oklab, var(--foreground) 14%, transparent),
-    0 2.5rem 4rem -2rem color-mix(in oklab, var(--foreground) 9%, transparent);
-}
-
-[data-theme="dark"] .contact-form-shell {
-  --paper: var(--surface-2);
-  --paper-ink: var(--foreground);
-  background: var(--surface-2);
+    0 0 0 var(--border-hairline) var(--edge),
+    var(--sheet-shadow);
 }
 
 .contact-form-topline,
@@ -336,25 +355,6 @@
   pointer-events: none;
 }
 
-.contact-page-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  border-top: 1px solid var(--border);
-  margin-top: 1.5rem;
-  padding-top: 0.8rem;
-  color: var(--muted-foreground);
-  font-size: 0.78rem;
-}
-
-.contact-page-footer a {
-  color: var(--foreground);
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-underline-offset: 0.2em;
-  transition: color 150ms ease;
-}
-
 @media (max-width: 39.99rem) {
   .contact-form-fields {
     grid-template-columns: 1fr;
@@ -364,8 +364,7 @@
     grid-column: auto;
   }
 
-  .contact-form-bottomline,
-  .contact-page-footer {
+  .contact-form-bottomline {
     align-items: flex-start;
     flex-direction: column;
   }

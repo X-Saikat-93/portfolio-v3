@@ -1,33 +1,59 @@
 import { ContactForm } from '~/components/contact-form'
-import { PixelCluster } from '~/components/pixel-cluster'
+import { publicPageMetadata } from '~/lib/public-page-metadata'
+import { PROFILES } from '~/lib/site-links'
 
+const copy = publicPageMetadata.contact.en
+const EMAIL = 'ibx.saikat37@gmail.com'
+
+const channels = [
+  { label: 'Email', href: `mailto:${EMAIL}`, text: EMAIL, external: false },
+  ...PROFILES.map(({ name, href }) => ({
+    label: name,
+    href,
+    text: href.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, ''),
+    external: true,
+  })),
+]
+
+// The letter on the left; the direct lines beside it, on the same stock.
 export function ContactPageView() {
   return (
-    <div className="mx-auto w-full max-w-[37.5rem] px-6">
-      <div className="flex items-start justify-between gap-4">
-        <header className="max-w-[31rem]">
-          <p className="page-eyebrow enter">Contact</p>
-          <h1 className="contact-title enter mt-5 text-balance">
-            A thoughtful message is a good place to start.
-          </h1>
-          <p
-            className="page-introduction enter mt-4 text-balance"
-            style={{ '--enter-delay': '70ms' } as React.CSSProperties}
-          >
-            Tell me what you are making, considering, or trying to untangle. The note lands in
-            my private admin inbox.
-          </p>
-        </header>
-        <PixelCluster variant={4} className="enter shrink-0" />
-      </div>
+    <div className="page">
+      <header className="page-head">
+        <h1 className="page-title">{copy.heading}</h1>
+        <p className="page-lede">{copy.lede}</p>
+      </header>
 
-      <div className="mt-10">
+      <div className="page-body contact-desk">
         <ContactForm />
-      </div>
-
-      <div className="contact-page-footer enter-swing">
-        <span>Prefer a direct line?</span>
-        <a href="mailto:ibx.saikat37@gmail.com">ibx.saikat37@gmail.com</a>
+        <aside className="contact-aside paper paper-grain" aria-labelledby="contact-direct">
+          <h2 id="contact-direct" className="page-label">
+            Direct
+          </h2>
+          <ul className="register-rows">
+            {channels.map((channel) => (
+              <li key={channel.label} className="register-row register-row-wide">
+                <span className="register-meta">{channel.label}</span>
+                <span className="register-head">
+                  <span className="contact-channel">
+                    <a
+                      href={channel.href}
+                      className="register-link"
+                      {...(channel.external ? { target: '_blank', rel: 'noreferrer' } : {})}
+                    >
+                      {channel.text}
+                      {channel.external ? <span className="sr-only"> (opens in a new tab)</span> : null}
+                    </a>
+                  </span>
+                  <span className="register-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="register-note contact-aside-note">Based in India, UTC+5:30.</p>
+        </aside>
       </div>
     </div>
   )

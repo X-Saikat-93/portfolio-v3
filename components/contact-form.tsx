@@ -178,7 +178,7 @@ export function ContactForm() {
 
       <div className="contact-form-bottomline">
         <span className="contact-form-note">
-          Replies go to the address you leave above. <Link href="/en/privacy">Privacy policy</Link>.
+          Your name, email, and message are used only to reply. <Link href="/en/privacy">Privacy policy</Link>.
         </span>
         <span className="contact-submit-group">
           <kbd className="contact-submit-hint" aria-hidden="true">
