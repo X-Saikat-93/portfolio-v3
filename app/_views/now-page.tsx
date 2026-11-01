@@ -1,8 +1,5 @@
 import Link from 'next/link'
 
-import { ExternalLabel } from '~/components/external-mark'
-import { PixelCluster } from '~/components/pixel-cluster'
-import { RevealScope } from '~/components/reveal-scope'
 import type { PortfolioItem } from '~/lib/collections/repository'
 import { formatDate } from '~/lib/date'
 import {
@@ -12,99 +9,94 @@ import {
   nowOpenTo,
   type NowEntry,
 } from '~/lib/now'
+import { publicPageMetadata } from '~/lib/public-page-metadata'
 
-// A dated ledger: each thread's label hangs in the left margin (and stays
-// pinned there while its entries scroll past on wide screens).
-function NowThread({
+const copy = publicPageMetadata.now.en
+
+// A dated register: each thread is a labelled group on one sheet, its
+// entries ruled off beneath. A linked entry's name carries the link.
+function Thread({
   id,
+  numeral,
   label,
   children,
 }: {
   id: string
+  numeral: string
   label: string
   children: React.ReactNode
 }) {
   return (
-    <section className="now-thread" aria-labelledby={id}>
-      <h2 id={id} className="now-thread-label">
-        <span>{label}</span>
+    <section className="register-group" aria-labelledby={id}>
+      <h2 id={id} className="register-label page-label">
+        <span className="register-numeral" aria-hidden="true">
+          {numeral}
+        </span>
+        {label}
       </h2>
-      <div className="now-thread-body">{children}</div>
+      {children}
     </section>
   )
 }
 
-function EntryList({ entries }: { entries: readonly NowEntry[] }) {
+function Entries({ entries }: { entries: readonly NowEntry[] }) {
   return (
-    <ul className="now-list motion-list">
-      {entries.map((entry) => {
-        const copy = (
-          <>
-            <span className="now-entry-title-row">
-              <span className="now-entry-title">{entry.title}</span>
-              {entry.meta ? <span className="now-entry-meta">{entry.meta}</span> : null}
+    <ul className="register-rows">
+      {entries.map((entry) => (
+        <li key={entry.title} className="register-row">
+          <span className="register-head">
+            <span className="register-name">
+              {entry.href ? (
+                <Link href={entry.href} className="register-link">
+                  {entry.title}
+                </Link>
+              ) : (
+                entry.title
+              )}
             </span>
-            <span className="now-entry-description">{entry.description}</span>
-          </>
-        )
-
-        return (
-          <li key={entry.title}>
+            {entry.meta ? <span className="register-meta">{entry.meta}</span> : null}
             {entry.href ? (
-              <Link href={entry.href} className="now-entry">
-                <span className="now-entry-copy">{copy}</span>
-                <span className="now-entry-arrow" aria-hidden="true">
-                  ↗
-                </span>
-              </Link>
-            ) : (
-              <div className="now-entry">
-                <span className="now-entry-copy">{copy}</span>
-              </div>
-            )}
-          </li>
-        )
-      })}
+              <span className="register-arrow" aria-hidden="true">
+                ↗
+              </span>
+            ) : null}
+          </span>
+          <p className="register-note">{entry.description}</p>
+        </li>
+      ))}
     </ul>
   )
 }
 
-function ReadingList({ books }: { books: PortfolioItem[] }) {
+function Reading({ books }: { books: PortfolioItem[] }) {
   if (books.length === 0) {
     return (
-      <p className="empty-state text-sm" role="status">
+      <p className="register-note" role="status">
         No books have been published yet.
       </p>
     )
   }
 
   return (
-    <ul className="now-shelf motion-list">
-      {books.map((book) => {
-        const content = (
-          <>
-            <span className="now-book-copy">
-              <span className="now-book-title">
-                {book.url ? <ExternalLabel>{book.title}</ExternalLabel> : book.title}
-              </span>
-              {book.creator ? <span className="now-book-creator">{book.creator}</span> : null}
+    <ul className="register-rows">
+      {books.map((book) => (
+        <li key={book.id} className="register-row">
+          <span className="register-head">
+            <span className="register-name">
+              {book.url ? (
+                <a href={book.url} target="_blank" rel="noreferrer" className="register-link">
+                  {book.title}
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              ) : (
+                book.title
+              )}
             </span>
-            {book.year ? <span className="now-book-year">{book.year}</span> : null}
-          </>
-        )
-
-        return (
-          <li key={book.id}>
-            {book.url ? (
-              <a href={book.url} target="_blank" rel="noreferrer" className="now-book">
-                {content}
-              </a>
-            ) : (
-              <div className="now-book">{content}</div>
-            )}
-          </li>
-        )
-      })}
+            {book.year ? <span className="register-meta">{book.year}</span> : null}
+          </span>
+          {book.creator ? <p className="register-note">{book.creator}</p> : null}
+        </li>
+      ))}
     </ul>
   )
 }
@@ -113,61 +105,43 @@ export function NowPageView({ books }: { books: PortfolioItem[] }) {
   const updatedAt = new Date(`${nowLastUpdated}T00:00:00+05:30`)
 
   return (
-    <article className="now-page mx-auto w-full max-w-[37.5rem] px-6">
-      <header className="now-header">
-        <div className="flex items-start justify-between gap-4">
-          <p className="page-eyebrow enter">Now</p>
-          <PixelCluster variant={4} className="enter shrink-0" />
-        </div>
-        <h1
-          className="now-title enter mt-5 text-balance"
-          style={{ '--enter-delay': '50ms' } as React.CSSProperties}
-        >
-          A small public note about what currently has my attention.
-        </h1>
-        <p
-          className="now-lede enter mt-4"
-          style={{ '--enter-delay': '90ms' } as React.CSSProperties}
-        >
-          Work, study threads, books, and the kind of collaboration I am open to.
-        </p>
-        <p
-          className="now-dateline enter"
-          style={{ '--enter-delay': '130ms' } as React.CSSProperties}
-        >
-          <span className="now-dateline-lamp" aria-hidden="true" />
-          <span>Updated</span>
-          <time dateTime={nowLastUpdated}>{formatDate(updatedAt)}</time>
+    <article className="page">
+      <header className="page-head">
+        <h1 className="page-title">{copy.heading}</h1>
+        <p className="page-lede">{copy.lede}</p>
+        <p className="page-meta">
+          <span className="page-meta-item">
+            <span className="status-dot" aria-hidden="true" />
+            Updated <time dateTime={nowLastUpdated}>{formatDate(updatedAt)}</time>
+          </span>
         </p>
       </header>
 
-      <RevealScope className="now-ledger">
-        <NowThread id="now-building" label="Building">
-          <EntryList entries={nowBuilding} />
-        </NowThread>
-
-        <NowThread id="now-learning" label="Learning">
-          <EntryList entries={nowLearning} />
-        </NowThread>
-
-        <NowThread id="now-reading" label="Reading">
-          <ReadingList books={books} />
-        </NowThread>
-
-        <NowThread id="now-open-to" label="Open to">
-          <ul className="now-open-list motion-list">
-            {nowOpenTo.map((item) => (
-              <li key={item} className="now-open-item">
-                {item}
-              </li>
-            ))}
-          </ul>
-          <Link href="/en/contact" className="now-contact-link">
-            Send a note
-            <span aria-hidden="true">↗</span>
-          </Link>
-        </NowThread>
-      </RevealScope>
+      <div className="page-body register paper paper-grain paper-edge">
+        <Thread id="now-building" numeral="I" label="Building">
+          <Entries entries={nowBuilding} />
+        </Thread>
+        <Thread id="now-learning" numeral="II" label="Learning">
+          <Entries entries={nowLearning} />
+        </Thread>
+        <Thread id="now-reading" numeral="III" label="Reading">
+          <Reading books={books} />
+        </Thread>
+        <Thread id="now-open-to" numeral="IV" label="Open to">
+          <div>
+            <ul className="register-rows">
+              {nowOpenTo.map((item) => (
+                <li key={item} className="register-row register-row-wide">
+                  <span className="register-name">{item}</span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/en/contact" className="now-contact ink-link">
+              Get in touch <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </Thread>
+      </div>
     </article>
   )
 }

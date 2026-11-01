@@ -146,12 +146,26 @@ export const resumeProfile = {
           url: 'https://hire.humanbeforeresource.com',
           stack: 'React/Next.js, Node.js, PostgreSQL, Drizzle ORM, Redis, Docker',
           bullets: [
-            'Built candidate intake, pipeline, search, and reporting on top of 100K+ Postgres records, with materialized views handling dashboard aggregation instead of hitting the live tables on every load.',
-            'Swapped offset pagination for cursor pagination on candidate search once the table passed 100K rows and offset queries started slowing down.',
+            'Built candidate intake, pipeline, search, and reporting on top of a large Postgres candidate store, with materialized views handling dashboard aggregation instead of hitting the live tables on every load.',
+            'Swapped offset pagination for cursor pagination on candidate search once the table grew large enough for offset queries to slow down.',
             'Added a Gemini-based summary generator that gives recruiters a structured evaluation to start from instead of a blank notes field.',
             "Runs on Docker Compose, NGINX, and PM2, separate from the marketplace's deployment pipeline, with its own migrations, backups, and recovery steps.",
           ],
         },
+      ],
+    },
+  ],
+  // Facts from the project record in lib/projects.ts (id: embermeter).
+  openSource: [
+    {
+      name: 'Embermeter — Claude Code instrument panel',
+      url: 'https://github.com/X-Saikat-93/embermeter',
+      linkLabel: 'Source',
+      stack: 'TypeScript, Claude Code hooks, SVG + SMIL, Linux /sys + /proc, GitHub Actions',
+      bullets: [
+        'Built a Claude Code plugin that forecasts context runway, cost, and rate-limit time-to-full from per-turn context growth, and explains what fills the window with an A–F health grade.',
+        'Ships as a single hooks module with no server, network calls, or runtime dependencies; the same readings draw as animated SVG in VS Code and the desktop app and as cell graphics in the terminal.',
+        'Added a heat guard that holds builds, tests, and installs while the CPU runs hot or the battery runs low, and an opt-in loop breaker that makes the agent stop and ask.',
       ],
     },
   ],
