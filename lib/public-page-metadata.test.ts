@@ -1,77 +1,38 @@
 import { describe, expect, it } from 'vitest'
 
-import { publicPageMetadata } from './public-page-metadata'
+import { publicPageMetadata, type PublicSection } from './public-page-metadata'
+
+const sections = Object.keys(publicPageMetadata).filter(
+  (key): key is PublicSection => key !== 'home',
+)
 
 describe('public page metadata copy', () => {
-  it('uses Saikat’s English homepage copy', () => {
-    expect(publicPageMetadata.home.en).toEqual({
-      title: 'Saikat Das | Full-Stack Product Engineer',
-      description:
-        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
-      ogDescription:
-        'Saikat Das is a full-stack product engineer building reliable web products, APIs, and data systems with Node.js, React, Next.js, PostgreSQL, and Redis.',
-    })
-  })
-
-  it('keeps the available sections English and content-specific', () => {
-    expect(publicPageMetadata.blog.en).toEqual({
-      title: 'Writing',
-      description:
-        'Senior engineering notes on AI systems, data architecture, real-time software, product design, and reliable web applications.',
-    })
-    expect(publicPageMetadata.photos.en).toEqual({
-      title: 'Photos',
-      description: 'A collection of photographs by Saikat Das.',
-    })
-    expect(publicPageMetadata.books.en).toEqual({
-      title: 'Books',
-      description: 'Books Saikat Das is reading, keeping, or recommending.',
-    })
-    expect(publicPageMetadata.music.en).toEqual({
-      title: 'Music',
-      description: 'Music Saikat Das is listening to and returning to.',
-    })
-    expect(publicPageMetadata.projects.en).toEqual({
-      title: 'Projects',
-      description:
-        'Production software and open-source projects built by Saikat Das, including Zaruro and a recruitment operations platform.',
-    })
-    expect(publicPageMetadata.now.en).toEqual({
-      title: 'Now',
-      description: 'A current snapshot of what Saikat Das is building, learning, reading, and open to.',
-    })
-    expect(publicPageMetadata.resume.en).toEqual({
-    title: 'Resume',
-    description: 'Resume for Saikat Das, Full-Stack Software Engineer.',
-    })
-    expect(publicPageMetadata.contact.en).toEqual({
-      title: 'Contact',
-      description: 'Send a private message to Saikat Das.',
-    })
-    expect(publicPageMetadata.privacy.en).toEqual({
-      title: 'Privacy policy',
-      description:
-        'How Saikat Das’s portfolio handles contact messages, analytics, browser preferences, and service providers.',
-    })
-  })
-
-  it('keeps section descriptions within social preview budgets', () => {
-    for (const section of [
-      'blog',
-      'photos',
-      'books',
-      'music',
-      'projects',
-      'now',
-      'resume',
-      'contact',
-      'privacy',
-    ] as const) {
-      expect(publicPageMetadata[section].en.description.length, section).toBeLessThanOrEqual(160)
+  it('names Saikat Das in every search description', () => {
+    expect(publicPageMetadata.home.en.description).toMatch(/^Saikat Das is a full-stack software engineer/)
+    for (const section of sections) {
+      expect(publicPageMetadata[section].en.description, section).toContain('Saikat Das')
     }
   })
 
-  it('contains only Saikat Das brand language', () => {
-    expect(JSON.stringify(publicPageMetadata).toLowerCase()).not.toContain('cali')
+  it('keeps titles and descriptions inside search and social budgets', () => {
+    for (const section of sections) {
+      const copy = publicPageMetadata[section].en
+      // the root layout appends " | Saikat Das"
+      expect(`${copy.title} | Saikat Das`.length, section).toBeLessThanOrEqual(60)
+      expect(copy.description.length, section).toBeLessThanOrEqual(160)
+      expect(copy.heading.length, section).toBeGreaterThan(0)
+    }
+  })
+
+  it('serves the same English copy on the legacy locale key', () => {
+    for (const section of [...sections, 'home'] as const) {
+      expect(publicPageMetadata[section].zh, section).toEqual(publicPageMetadata[section].en)
+    }
+  })
+
+  it('keeps the copy plain and on brand', () => {
+    const text = JSON.stringify(publicPageMetadata).toLowerCase()
+    expect(text).not.toContain('senior')
+    expect(text).not.toContain('cali')
   })
 })

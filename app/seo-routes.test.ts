@@ -49,7 +49,7 @@ describe('localized discovery routes', () => {
     expect(xml).toContain('\n  <channel>')
     expect(xml).toContain('\n    <item>')
     expect(xml).toMatch(/\n<\/rss>\n$/)
-    expect(xml).toContain('<title><![CDATA[Saikat Das | Full-Stack Product Engineer — Writing]]></title>')
+    expect(xml).toContain('<title><![CDATA[Saikat Das | Full-Stack Software Engineer — Writing]]></title>')
     expect(xml).toContain('<generator>Saikat Das Portfolio</generator>')
     expect(xml).toContain('<docs>https://www.rssboard.org/rss-specification</docs>')
     expect(xml).toContain('<pubDate>Sat, 01 Aug 2026 06:30:00 GMT</pubDate>')
