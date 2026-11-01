@@ -13,8 +13,8 @@ interface LocaleMetadataOptions {
 }
 
 const SOCIAL_IMAGE_VERSION = process.env.VERCEL_GIT_COMMIT_SHA
-  ? 'v3-' + process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)
-  : 'v3'
+  ? 'v4-' + process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 12)
+  : 'v4'
 const SECTION_IMAGE_PATHS = new Set([
   '/blog',
   '/photos',
@@ -97,7 +97,7 @@ export function localeMetadata({
         : SECTION_IMAGE_PATHS.has(path)
           ? `${title} · Saikat Das${sentenceSeparator}${description}`
         : `${title} · Saikat Das`,
-    type: 'image/png',
+    type: 'image/jpeg',
   }
 
   return {
@@ -129,6 +129,8 @@ export function localeMetadata({
     },
     twitter: {
       card: 'summary_large_image',
+      site: seo.twitter,
+      creator: seo.twitter,
       title,
       description,
       images: [image],

@@ -23,6 +23,7 @@ export const seo = {
   title: publicPageMetadata.home.en.title,
   description: publicPageMetadata.home.en.description,
   url: publicSiteUrl(),
+  twitter: '@Actually_Das',
 } as const
 
 export const seoEn = {

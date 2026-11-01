@@ -6,6 +6,8 @@ export type CloudinaryImageOptions = {
   crop?: CloudinaryCrop
   gravity?: 'auto' | 'center' | 'face'
   version?: string
+  // social crawlers need a fixed format; f_auto may hand them WebP or AVIF
+  format?: 'auto' | 'jpg'
 }
 
 export const cloudinaryCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? ''
@@ -30,6 +32,7 @@ export function cloudinaryImageUrl(
     crop = 'fill',
     gravity = 'auto',
     version = publicId === cloudinaryAvatarPublicId ? cloudinaryAvatarVersion : '',
+    format = 'auto',
   }: CloudinaryImageOptions,
 ) {
   if (!cloudinaryCloudName || !publicId) return null
@@ -39,7 +42,7 @@ export function cloudinaryImageUrl(
     `w_${Math.max(1, Math.round(width))}`,
     height ? `h_${Math.max(1, Math.round(height))}` : null,
     gravity ? `g_${gravity}` : null,
-    'f_auto',
+    `f_${format}`,
     'q_auto',
   ]
     .filter(Boolean)

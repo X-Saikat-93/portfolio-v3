@@ -27,15 +27,17 @@ describe('localeMetadata', () => {
     expect(metadata.publisher).toBe('Saikat Das')
     expect(metadata.twitter).toEqual({
       card: 'summary_large_image',
+      site: '@Actually_Das',
+      creator: '@Actually_Das',
       title: 'A post',
       description: 'An English summary',
       images: [
         {
-          url: new URL('/og?locale=en&path=%2Fblog%2Fa-post&v=v3', seo.url),
+          url: new URL('/og?locale=en&path=%2Fblog%2Fa-post&v=v4', seo.url),
           width: 1200,
           height: 630,
           alt: 'A post · Saikat Das',
-          type: 'image/png',
+          type: 'image/jpeg',
         },
       ],
     })
@@ -79,7 +81,7 @@ describe('localeMetadata', () => {
       const image = Array.isArray(images) ? images[0] : images
 
       expect(image).toMatchObject({
-        url: new URL('/og?locale=en&path=' + encodeURIComponent(path) + '&v=v3', seo.url),
+        url: new URL('/og?locale=en&path=' + encodeURIComponent(path) + '&v=v4', seo.url),
         alt: `${path.slice(1)} · Saikat Das. A page description`,
       })
     }
