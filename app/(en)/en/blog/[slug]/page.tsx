@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { compileMDX } from 'next-mdx-remote/rsc'
-import { Suspense } from 'react'
 import rehypeSlug from 'rehype-slug'
 import rehypePrettyCode from 'rehype-pretty-code'
 import remarkGfm from 'remark-gfm'
@@ -103,15 +102,6 @@ export async function generateMetadata({
   }
 }
 
-function BlogPostLoading() {
-  return (
-    <div className="page" aria-busy="true">
-      <p className="page-label">Writing</p>
-      <p className="post-loading">Loading article…</p>
-    </div>
-  )
-}
-
 type HastNode = {
   type: string
   tagName?: string
@@ -166,19 +156,10 @@ async function compileBlogBody(source: string) {
   return { content, sections }
 }
 
-export default function EnglishBlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
-  return (
-    <Suspense fallback={<BlogPostLoading />}>
-      <EnglishBlogPostContent params={params} />
-    </Suspense>
-  )
-}
-
-async function EnglishBlogPostContent({
+// Awaited outside any Suspense boundary: generateStaticParams lists every
+// published slug, so the article itself is the static shell. A streamed
+// fallback here painted first and shifted the footer when the post landed.
+export default async function EnglishBlogPostPage({
   params,
 }: {
   params: Promise<{ slug: string }>

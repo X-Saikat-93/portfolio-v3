@@ -28,8 +28,8 @@ describe('admin CSP', () => {
     expect(policy).not.toContain('strict-dynamic')
   })
 
-  it('redirects protected admin pages without a session cookie', () => {
-    const response = proxy(
+  it('redirects protected admin pages without a session cookie', async () => {
+    const response = await proxy(
       new NextRequest('https://xsaikat.vercel.app/admin/media'),
       {} as never,
     )
@@ -40,8 +40,8 @@ describe('admin CSP', () => {
     )
   })
 
-  it('leaves the public admin login route unprotected', () => {
-    const response = proxy(
+  it('leaves the public admin login route unprotected', async () => {
+    const response = await proxy(
       new NextRequest('https://xsaikat.vercel.app/admin/login'),
       {} as never,
     )

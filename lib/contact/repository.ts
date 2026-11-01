@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, lt } from 'drizzle-orm'
 
 import { getDatabase } from '~/db'
 import { contactSubmissions } from '~/db/schema'
@@ -13,7 +13,25 @@ export type ContactNotificationStatus =
   | 'failed'
   | 'not_configured'
 
-export function listContactSubmissions() {
+// The privacy notice promises messages are kept 36 months. There is no
+// scheduler, so expired rows go whenever the inbox is read or a message
+// arrives.
+export const CONTACT_RETENTION_MONTHS = 36
+
+export function contactRetentionCutoff(now = new Date()) {
+  const cutoff = new Date(now)
+  cutoff.setUTCMonth(cutoff.getUTCMonth() - CONTACT_RETENTION_MONTHS)
+  return cutoff
+}
+
+export function deleteExpiredContactSubmissions() {
+  return getDatabase()
+    .delete(contactSubmissions)
+    .where(lt(contactSubmissions.createdAt, contactRetentionCutoff()))
+}
+
+export async function listContactSubmissions() {
+  await deleteExpiredContactSubmissions()
   return getDatabase()
     .select()
     .from(contactSubmissions)
@@ -21,17 +39,21 @@ export function listContactSubmissions() {
     .limit(100)
 }
 
-export function createContactSubmission(input: {
+export async function createContactSubmission(input: {
   name: string
   email: string
   subject: string
   message: string
 }) {
-  return getDatabase()
+  const [submission] = await getDatabase()
     .insert(contactSubmissions)
     .values(input)
     .returning()
-    .then(([submission]) => submission)
+  // never fail a visitor's message over housekeeping; the inbox retries it
+  await deleteExpiredContactSubmissions().catch((error: unknown) => {
+    console.error('Expired contact submissions were not deleted', error)
+  })
+  return submission
 }
 
 export function markContactSubmissionRead(id: string) {

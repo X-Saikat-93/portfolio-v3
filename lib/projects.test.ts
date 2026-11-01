@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getProjectById, projectPath, projects, selectFeaturedProjects } from './projects'
+import { getProjectById, projectPath, projectTitle, projects, selectFeaturedProjects } from './projects'
 
 describe('project records', () => {
   it('keeps stable, unique IDs for every internal detail route', () => {
@@ -9,6 +9,14 @@ describe('project records', () => {
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids.every((id) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))).toBe(true)
     expect(projects.map(({ id }) => projectPath(id))).toContain('/en/projects/zaruro')
+  })
+
+  it('keeps every project search title inside 60 characters', () => {
+    for (const project of projects) {
+      // the root layout appends " | Saikat Das"
+      expect(`${projectTitle(project)} | Saikat Das`.length, project.id).toBeLessThanOrEqual(60)
+    }
+    expect(projectTitle(getProjectById('human-before-resource-ats')!)).toBe('Human Before Resource ATS')
   })
 
   it('ships complete public summaries and valid project links', () => {

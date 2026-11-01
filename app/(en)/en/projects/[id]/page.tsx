@@ -5,7 +5,7 @@ import { ProjectDetailPage } from '~/app/_views/project-detail-page'
 import { JsonLd } from '~/components/json-ld'
 import { localeMetadata } from '~/lib/locale-metadata'
 import { safeGetPublishedProjectCaseStudy } from '~/lib/project-case-studies/repository'
-import { getProjectById, projectPath, projects } from '~/lib/projects'
+import { getProjectById, projectPath, projectTitle, projects } from '~/lib/projects'
 import { publicPageMetadata } from '~/lib/public-page-metadata'
 import { breadcrumbJsonLd, personId, seo } from '~/lib/seo'
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   return localeMetadata({
     locale: 'en',
     path: `/projects/${project.id}`,
-    title: project.nameEn + ' — ' + project.category,
+    title: projectTitle(project),
     description: project.descriptionEn ?? project.description,
   })
 }

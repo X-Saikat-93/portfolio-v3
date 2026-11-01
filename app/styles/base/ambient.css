@@ -62,16 +62,6 @@
   }
 }
 
-/* ── Ghost line art: a schematic at the edge of perception ────────── */
-
-.ghost-schematic {
-  position: absolute;
-  z-index: -1;
-  pointer-events: none;
-  user-select: none;
-  color: var(--ghost-ink);
-}
-
 /* ── Selective focus: hovering a row defocuses its siblings ───────── */
 
 @media (hover: hover) and (pointer: fine) {

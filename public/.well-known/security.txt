@@ -1,0 +1,5 @@
+Contact: mailto:ibx.saikat37@gmail.com
+Expires: 2027-11-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://xsaikat.vercel.app/.well-known/security.txt
+Policy: https://github.com/X-Saikat-93/portfolio-v3/blob/main/SECURITY.md

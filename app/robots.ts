@@ -7,10 +7,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: [
-        '/admin',
-        '/api/admin',
-      ],
+      // API routes are form and admin endpoints, never pages to index
+      disallow: ['/admin', '/api/'],
     },
     sitemap: new URL('/sitemap.xml', seo.url).href,
     host: seo.url.origin,

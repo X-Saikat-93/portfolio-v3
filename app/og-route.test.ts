@@ -32,6 +32,8 @@ describe('OG image route', () => {
       '/contact',
       '/uses',
       '/privacy',
+      '/terms',
+      '/credits',
     ]) {
       const response = await GET(requestFor(path))
 
@@ -40,7 +42,7 @@ describe('OG image route', () => {
     }
 
     expect(ogMocks.createHomeOgImage).toHaveBeenCalledTimes(2)
-    expect(ogMocks.createSectionOgImage).toHaveBeenCalledTimes(10)
+    expect(ogMocks.createSectionOgImage).toHaveBeenCalledTimes(12)
   })
 
   it('serves a preview for each project record', async () => {

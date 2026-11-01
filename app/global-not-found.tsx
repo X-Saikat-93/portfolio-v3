@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import './globals.css'
 import { AmbientBackground } from '~/components/ambient-background'
+import { WashiArtDefs } from '~/components/washi-art'
 import { PREPAINT_SCRIPT } from '~/lib/security/inline-scripts'
 import {
   nonPublicDescriptions,
@@ -30,6 +31,7 @@ export default function GlobalNotFound() {
       </head>
       <body className="antialiased">
         <AmbientBackground />
+        <WashiArtDefs />
         <main className="min-h-screen pt-14">
           <NotFoundPageView />
         </main>
