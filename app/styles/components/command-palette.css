@@ -14,15 +14,15 @@
   width: max-content;
   margin-inline: auto;
   padding: 0.48rem 0.62rem;
-  border: 1px solid var(--border);
-  border-left-color: var(--signal);
-  background: var(--background);
-  color: var(--muted-foreground);
-  font-size: 0.68rem;
+  border-radius: var(--radius-2);
+  background: var(--surface);
+  box-shadow: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow);
+  color: var(--ink-soft);
+  font-size: var(--text-label);
   line-height: 1;
   pointer-events: none;
-  animation: command-palette-discovery-in 320ms var(--ease-enter) both,
-    command-palette-discovery-out 220ms var(--ease-swift) 5.05s forwards;
+  animation: ink-settle var(--dur-gentle) var(--ease-settle) both,
+    command-palette-discovery-out var(--dur-exit-gentle) var(--ease-exit) 5.05s forwards;
 }
 
 .command-palette-discovery kbd {
@@ -30,9 +30,10 @@
   min-width: 1.2rem;
   height: 1.2rem;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
-  background: color-mix(in srgb, var(--foreground) 5%, transparent);
-  color: var(--foreground);
+  border: var(--border-hairline) solid var(--hairline);
+  border-radius: var(--radius-1);
+  background: var(--surface-deep);
+  color: var(--ink);
   font-family: var(--font-mono);
   font-size: 0.65rem;
 }
@@ -42,8 +43,11 @@
   font-family: var(--font-mono);
 }
 
+/* a paper sheet with a sumi hairline, lifted over a frosted page */
 .command-palette-dialog {
   overflow: hidden;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 var(--border-hairline) var(--hairline), var(--shadow-lift) !important;
 }
 
 .command-palette-header {
@@ -51,8 +55,8 @@
 }
 
 .command-palette-escape {
-  color: var(--muted-foreground);
-  font-size: 0.61rem;
+  color: var(--ink-faint);
+  font-size: var(--text-label);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -69,12 +73,12 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--border-hairline) solid var(--hairline);
   padding: 0.35rem 0.3rem 0.7rem;
 }
 
 .command-palette-input-mark {
-  color: var(--signal);
+  color: var(--ink-faint);
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1;
@@ -87,7 +91,7 @@
   outline: none;
   background: transparent;
   color: var(--foreground);
-  font-size: 0.95rem;
+  font-size: var(--text-body);
 }
 
 .command-palette-input-wrap input::placeholder {
@@ -108,24 +112,45 @@
 }
 
 .command-palette-result {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
   gap: 1rem;
   align-items: center;
-  border-left: 1px solid transparent;
-  padding: 0.7rem 0.65rem;
-  color: var(--foreground);
+  min-height: 2.75rem;
+  border-radius: var(--radius-2);
+  padding: 0.6rem 0.65rem 0.6rem 1.35rem;
+  color: var(--ink);
   text-decoration: none;
-  transition: border-color 160ms var(--ease-swift), background-color 160ms var(--ease-swift),
-    padding 160ms var(--ease-swift);
+  transition: background-color var(--dur-quick) var(--ease-ink);
 }
 
-.command-palette-result:hover,
+/* the active row carries the seal at dot scale */
+.command-palette-result::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0.55rem;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-1);
+  background: var(--sun);
+  opacity: 0;
+  transform: translateY(-50%) scale(0.6);
+  transition:
+    opacity var(--dur-quick) var(--ease-ink),
+    transform var(--dur-quick) var(--ease-settle);
+}
+
 .command-palette-result:focus-visible,
 .command-palette-result[data-active='true'] {
-  border-left-color: var(--signal);
-  background: color-mix(in srgb, var(--signal) 6%, transparent);
-  padding-left: 0.85rem;
+  background: var(--hover);
+}
+
+.command-palette-result:focus-visible::before,
+.command-palette-result[data-active='true']::before {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
 }
 
 .command-palette-result-main {
@@ -137,8 +162,8 @@
 
 .command-palette-result-label {
   overflow: hidden;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-medium);
   line-height: 1.3;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -146,18 +171,18 @@
 
 .command-palette-result-description {
   overflow: hidden;
-  color: var(--muted-foreground);
-  font-size: 0.72rem;
+  color: var(--ink-soft);
+  font-size: var(--text-meta);
   line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .command-palette-result-group {
-  color: var(--muted-foreground);
+  color: var(--kraft);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
 }
 
@@ -172,25 +197,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 1rem;
-  border-top: 1px solid var(--border);
+  border-top: var(--border-hairline) solid var(--hairline);
   margin-top: 0.65rem;
   padding: 0.7rem 0.3rem 0.1rem;
-  color: var(--muted-foreground);
-  font-size: 0.58rem;
+  color: var(--ink-faint);
+  font-size: var(--text-label);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-@keyframes command-palette-discovery-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.4rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @keyframes command-palette-discovery-out {
@@ -215,7 +228,7 @@
   }
 
   .command-palette-result-group {
-    font-size: 0.55rem;
+    font-size: 0.625rem;
   }
 }
 
@@ -224,7 +237,8 @@
     animation: none;
   }
 
-  .command-palette-result {
+  .command-palette-result,
+  .command-palette-result::before {
     transition: none;
   }
 }
