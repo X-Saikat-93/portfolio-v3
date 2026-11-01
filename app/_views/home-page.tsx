@@ -11,6 +11,7 @@ import { HomeShelf } from '~/components/home-shelf'
 import { PortraitHiddenStage } from '~/components/portrait-hidden-stage'
 import { RevealScope } from '~/components/reveal-scope'
 import { SelectedWork } from '~/components/selected-work'
+import { EmailCard, GitHubCard, LinkedInCard, type GitHubSnapshot } from '~/components/social-cards'
 import { TechStackRegister } from '~/components/tech-stack-register'
 import { Seal } from '~/components/washi-art'
 import { WritingSheets } from '~/components/writing-sheets'
@@ -26,7 +27,7 @@ import { getGitHub } from '~/lib/social-live'
 const POSITIONING =
   'I build software that stays calm on a bad network, honest about money, fast as the data grows, and safe to ship on a Friday.'
 
-function Hero({ portraitUrl }: { portraitUrl: string }) {
+function Hero({ portraitUrl, github }: { portraitUrl: string; github: GitHubSnapshot }) {
   return (
     <section className="home-hero" aria-labelledby="home-title">
       {/* an artist's proof: the halftone portrait printed inside a plate
@@ -69,18 +70,13 @@ function Hero({ portraitUrl }: { portraitUrl: string }) {
           Before Resource.
         </p>
         <p className="home-hero-contact">
-          Code on{' '}
-          <a href="https://github.com/X-Saikat-93" target="_blank" rel="noreferrer" className="ink-link">
-            <ExternalLabel>GitHub</ExternalLabel>
-          </a>
-          , background on{' '}
-          <a href="https://www.linkedin.com/in/saikat933/" target="_blank" rel="noreferrer" className="ink-link">
-            <ExternalLabel>LinkedIn</ExternalLabel>
-          </a>
-          , or write to{' '}
-          <a href={`mailto:${resumeProfile.email}`} className="ink-link">
-            {resumeProfile.email}
-          </a>
+          Code on <GitHubCard data={github} triggerClassName="ink-link" />, background
+          on <LinkedInCard triggerClassName="ink-link" />, or write to{' '}
+          <EmailCard
+            address={resumeProfile.email}
+            trigger={resumeProfile.email}
+            triggerClassName="ink-link"
+          />
           .
         </p>
         <nav className="home-hero-paths" aria-label="Start here">
@@ -127,7 +123,7 @@ export async function HomePageView({ locale: _locale }: { locale: Locale }) {
 
   return (
     <RevealScope className="home">
-      <Hero portraitUrl={portraitUrl} />
+      <Hero portraitUrl={portraitUrl} github={github} />
 
       <HomeSection index={next()} id="experience-title" title="Experience">
         <ExperienceLedger />
