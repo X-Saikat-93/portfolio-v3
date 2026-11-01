@@ -308,6 +308,13 @@
   }
 }
 
+/* The page frame: the sun, the portrait's halo and the contour field may
+   bleed past the stage, never past the viewport. clip (not hidden) keeps
+   sticky positioning working. */
+.site-frame {
+  overflow-x: clip;
+}
+
 /* Funnel Display carries the large voice; small headings stay in Sans */
 h1,
 .font-display {

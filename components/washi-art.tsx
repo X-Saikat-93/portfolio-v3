@@ -13,15 +13,15 @@ export function WashiArtDefs() {
         <filter id="washi-stamp" x="-6%" y="-6%" width="112%" height="112%">
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="noise" />
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.1" xChannelSelector="R" yChannelSelector="G" result="bitten" />
-          <feColorMatrix in="noise" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.9" result="specks" />
+          <feColorMatrix in="noise" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3.6 3.25" result="specks" />
           <feComposite in="bitten" in2="specks" operator="in" />
         </filter>
         {/* the woodblock sun: a paper-grain edge and pigment pooled along the grain */}
         <filter id="washi-sun" x="-4%" y="-4%" width="108%" height="108%" colorInterpolationFilters="sRGB">
           <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="edge" />
-          <feDisplacementMap in="SourceGraphic" in2="edge" scale="5" xChannelSelector="R" yChannelSelector="B" result="disc" />
+          <feDisplacementMap in="SourceGraphic" in2="edge" scale="3.5" xChannelSelector="R" yChannelSelector="B" result="disc" />
           <feTurbulence type="fractalNoise" baseFrequency="0.005 0.2" numOctaves="2" seed="11" result="grain" />
-          <feColorMatrix in="grain" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.55 -0.2" result="pool" />
+          <feColorMatrix in="grain" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.34 -0.14" result="pool" />
           <feComposite in="pool" in2="disc" operator="in" result="pooled" />
           <feMerge>
             <feMergeNode in="disc" />

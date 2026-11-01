@@ -204,7 +204,10 @@ main:focus:not(:focus-visible) {
 
 .empty-state::before {
   flex: none;
-  color: var(--signal);
-  content: '—';
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  align-self: center;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-1);
+  background: var(--sun);
+  content: '';
 }

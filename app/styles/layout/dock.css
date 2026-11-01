@@ -179,7 +179,7 @@
 
 [data-theme='dark'] .eclipse-icon[data-phase='auto'] .eclipse-disc,
 .eclipse-icon[data-phase='dark'] .eclipse-disc {
-  transform: translateX(1.5px);
+  transform: translateX(3px);
 }
 
 .eclipse-icon[data-phase='system'] .eclipse-disc {
@@ -259,7 +259,7 @@
 }
 
 /* first full load: the dock settles in from 8px below after the hero */
-@keyframes dock-settle {
+@keyframes first-dock {
   from {
     opacity: 0;
     translate: -50% var(--rise-max);
@@ -267,7 +267,7 @@
 }
 
 html[data-intro]:not([data-visited]) .dock {
-  animation: dock-settle var(--dur-gentle) var(--ease-spring-critical) 480ms backwards;
+  animation: first-dock var(--dur-gentle) var(--ease-spring-critical) 480ms backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

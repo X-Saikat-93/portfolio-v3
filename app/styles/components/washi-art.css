@@ -156,16 +156,16 @@
   stroke: none;
 }
 
-/* a figure prints in from left to right the first time it is seen */
-.reveal-in .section-figure,
-.enter .section-figure {
-  animation: figure-print var(--dur-slow) var(--ease-settle) backwards;
+/* a figure inks in after its section settles, the first time it is seen */
+.reveal-in .section-figure {
+  animation: figure-ink var(--dur-slow) var(--ease-settle) backwards;
   animation-delay: calc(var(--reveal-delay, 0ms) + 120ms);
 }
 
-@keyframes figure-print {
+@keyframes figure-ink {
   from {
-    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    filter: blur(2px);
   }
 }
 
@@ -190,8 +190,7 @@
 @media (prefers-reduced-motion: reduce) {
   .seal-stamp[data-stamped] .seal,
   .seal-stamp[data-stamped]::after,
-  .reveal-in .section-figure,
-  .enter .section-figure {
+  .reveal-in .section-figure {
     animation: none;
   }
 }

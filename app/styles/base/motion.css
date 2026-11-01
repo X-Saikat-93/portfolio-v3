@@ -17,7 +17,8 @@
   }
 }
 
-.enter {
+.enter,
+.enter-swing {
   animation: ink-settle var(--dur-gentle) var(--ease-settle) backwards;
   animation-delay: calc(var(--enter-delay, 0ms) + var(--mount, 0ms));
 }
@@ -230,6 +231,7 @@ html[data-eclipse] .dock {
 
 @media (prefers-reduced-motion: reduce) {
   .enter,
+  .enter-swing,
   .motion-list > *,
   .enter-polaroid .polaroid,
   .post-title-meta,
