@@ -55,7 +55,11 @@ async function seed() {
   let inTransaction = false
 
   try {
-    const entries = await readCaseStudies()
+    // Optional project IDs limit the upsert, so seeding one study never
+    // overwrites admin edits to the others.
+    const only = new Set(process.argv.slice(2))
+    const entries = (await readCaseStudies()).filter(({ projectId }) => only.size === 0 || only.has(projectId))
+    if (only.size > entries.length) throw new Error(`No case study file for: ${[...only].filter((id) => !entries.some((entry) => entry.projectId === id)).join(', ')}`)
     await client.query('BEGIN')
     inTransaction = true
 
