@@ -48,14 +48,14 @@ function Switch({
       name={name}
       className={cn(
         // 34x20 track; the thumb travels 2px -> 16px inside it.
-        "relative inline-flex h-5 w-[2.125rem] shrink-0 cursor-pointer items-center rounded-full outline-none",
+        "relative inline-flex h-5 w-[2.125rem] shrink-0 cursor-pointer items-center rounded-[2px]",
         "bg-border transition-colors duration-150 data-[checked]:bg-foreground motion-reduce:transition-none",
-        "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)]",
+        "focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[color:var(--sun)]",
         "disabled:cursor-default disabled:opacity-50",
         !label && className
       )}
     >
-      <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-0.5 rounded-full bg-background shadow-sm transition-transform duration-200 ease-[var(--ease-swift)] data-[checked]:translate-x-4 motion-reduce:transition-none" />
+      <SwitchPrimitive.Thumb className="block h-4 w-4 translate-x-0.5 rounded-[1px] bg-background shadow-sm transition-transform duration-[var(--dur-base)] ease-[var(--ease-spring-critical)] data-[checked]:translate-x-4 motion-reduce:transition-none" />
     </SwitchPrimitive.Root>
   );
 

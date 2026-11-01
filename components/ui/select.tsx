@@ -168,7 +168,7 @@ const triggerVariants = cva(
     "min-w-24 text-[14px]",
     "transition-[background-color,color,border-color,box-shadow] duration-150",
     "disabled:opacity-50 disabled:pointer-events-none",
-    "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring)]",
+    "focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[color:var(--sun)]",
   ],
   {
     variants: {
