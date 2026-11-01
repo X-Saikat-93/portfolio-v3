@@ -476,12 +476,6 @@
   text-shadow: var(--press-shadow);
 }
 
-.post-loading {
-  margin: var(--space-3) 0 0;
-  color: var(--ink-faint);
-  font-size: var(--text-small);
-}
-
 /* the cover, mounted on the same stock as the cards */
 .post-cover {
   margin: var(--block-gap) 0 0;
