@@ -1,0 +1,208 @@
+---
+title: Co-Creation Needs a Human Signature
+description: "AI adoption in software is close to universal, but trust is not. Human–machine co-creation works when the machine widens what we can attempt and a person still owns intent, judgment, and the signature on the result."
+keywords:
+  - human AI co-creation
+  - AI pair programming
+  - developer trust in AI
+  - Stack Overflow Developer Survey 2026
+  - DORA AI-assisted software development
+  - METR developer productivity study
+  - human in the loop software engineering
+  - AI code review and verification
+  - agentic coding governance
+  - responsible AI engineering
+category: Human + AI
+date: 2026-11-01
+readingMinutes: 13
+coverFile: co-creation-needs-a-human-signature.jpg
+coverSlug: co-creation-needs-a-human-signature
+coverAlt: Engraved illustration of a human hand holding a pen and a robotic hand touching the same sheet of paper, both shaping one mark together
+---
+
+Two hands on one sheet of paper. One holds the pen. The other, made of steel and servos, reaches in to touch the page beside it.
+
+It is a good picture of where software work stands at the end of 2026, because it leaves the important question open: whose mark is it?
+
+The machine has clearly arrived at the desk. What we have not settled is the contract between the two hands: who proposes, who decides, who checks, and whose name goes on the change when it reaches production. That contract, not the model, is now the thing that separates teams that compound their gains from teams that compound their mistakes.
+
+## Adoption won. Trust did not.
+
+The numbers this year are unusually clear.
+
+[Stack Overflow's 2026 Developer Survey](https://stackoverflow.co/company/press/archive/stack-overflow-annual-developer-survey-ai-trust-conditional), released on October 6 with more than 30,000 responses from 169 countries, found that 66% of respondents use coding assistants or coding agents and only 17.2% use no AI tools at all. When developers hit a technical problem, 70% now reach for an AI agent as a first step.
+
+Yet the same survey found that only 6.6% are prepared to trust AI with important decisions. Nearly half trust it when they can verify its work. And 78.7% say source attribution is important or very important when they evaluate AI-generated code or answers.
+
+> Developers have not rejected the machine. They have made their trust conditional on being able to check it.
+
+Organizations are behind their engineers. Only 24% of respondents say their organization publishes approved tools or an official AI policy. Automated agent workflows, the most autonomous form of the work, are used by 26.2%.
+
+So the shape of 2026 is this: the tools are everywhere, the autonomy is growing, and the rules for working together are mostly unwritten.
+
+## Speed was never the right first question
+
+For two years the loudest debate was whether AI makes developers faster. The best evidence on that question turned out to be more interesting than either side's slogan.
+
+In July 2025, [METR published a randomized trial](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/) in which 16 experienced open-source developers worked on 246 real issues in repositories they knew well. With early-2025 tools, they took 19% longer when AI was allowed. They had forecast a 24% speedup, and afterwards they still believed they had been sped up by about 20%.
+
+The headline was the slowdown. The lasting lesson was the gap between how fast the work felt and how fast it was.
+
+By February 2026, METR [reported that its follow-up had stopped giving a reliable signal](https://metr.org/blog/2026-02-24-uplift-update/). Late-2025 tools showed point estimates of a speedup, about 18% for returning developers and 4% for new ones, but with confidence intervals that crossed zero. The deeper problem was selection: a growing share of developers declined to take part because they did not want to work without AI, and 30% to 50% said they had held back tasks they did not want to do unassisted.
+
+That is a remarkable result in its own right. The control condition of the experiment, a developer working alone, had started to disappear.
+
+METR's [May 2026 note on task substitution](https://metr.org/blog/2026-05-08-task-substitution-and-uplift/) names the next trap. When AI collapses the cost of some tasks, people shift toward them. Those tasks can show enormous measured uplift while adding little value. METR calls them *Cadillac tasks*: work you do because it became cheap, not because it mattered.
+
+Put together, the evidence says something more useful than "faster" or "slower":
+
+- **Felt speed is not measured speed.** Fluent output feels like progress before it is progress.
+- **The baseline has moved.** Working without AI is no longer the natural comparison for most teams.
+- **Cheap work expands.** Without judgment about what is worth doing, extra capacity flows into the easiest tasks.
+
+None of those are model problems. They are collaboration problems.
+
+## AI amplifies the system it lands in
+
+Google's [2025 DORA report](https://dora.dev/dora-report-2025/), renamed *State of AI-assisted Software Development* and drawn from nearly 5,000 technology professionals, put the same idea in organizational terms. About 90% of respondents use AI at work. Most believe it has raised their productivity. Delivery throughput now rises with AI adoption, but software delivery instability continues to rise as well.
+
+DORA's central finding is that AI is an amplifier. It magnifies the strengths of high-performing organizations and the dysfunctions of struggling ones. The capabilities that turned AI into better outcomes were not prompts or plugins. They were things like clear AI policies, healthy data, good internal platforms, and a focus on users.
+
+That matches what most engineers see in practice. Give an agent a codebase with clear boundaries, fast tests, and a written definition of done, and it produces useful work. Give it a codebase where knowledge lives in three people's heads, and it produces confident guesses at scale.
+
+The machine does not bring a process with it. It speeds up whichever process it finds.
+
+## Divide authority, not just labour
+
+Most advice about working with AI divides *labour*: the machine writes the boilerplate, the human handles the hard parts. That split ages badly, because the line between boilerplate and hard parts moves every few months.
+
+A more durable split divides *authority*. Ask which decisions each hand is allowed to make, regardless of who did the typing.
+
+| Decision | Machine | Human |
+|---|---|---|
+| What problem are we solving? | Suggests framings and asks questions | Owns the intent and the definition of done |
+| How could it be built? | Proposes options, drafts, and spikes | Chooses the approach and its trade-offs |
+| Is it correct? | Runs tests, checks, and self-review | Decides what evidence is enough |
+| Is it safe to ship? | Flags risks it can see | Accepts the risk and signs the change |
+| Was it worth doing? | Reports cost and effort | Judges value, and stops Cadillac tasks |
+
+The machine's column is getting wider every quarter, and that is fine. Agents can now explore more options than any person, hold more of a codebase in view, and never get tired of running the test suite again.
+
+The human column should stay narrow and sharp. It is the set of decisions where accountability cannot be delegated: intent, acceptable risk, and the claim that the result is good. That is the signature.
+
+## The co-creation loop
+
+Good co-creation is not a single prompt and a single answer. It is a loop with explicit handoffs, and each handoff has an owner.
+
+```mermaid caption="A co-creation loop: the machine widens each stage, the human owns each gate"
+flowchart TD
+  I[Intent · human] --> D[Draft · machine]
+  D --> E[Evidence · machine]
+  E --> J{Judgment · human}
+  J -->|revise| D
+  J -->|accept| S[Signature · human]
+  S --> L[Learning · both]
+```
+
+**Intent.** A person states the goal, the constraints, and what done looks like. A vague intent produces a fluent answer to the wrong question.
+
+**Draft.** The machine proposes. It can produce several drafts, explore alternatives, and do the tedious parts quickly. This is where its breadth pays off.
+
+**Evidence.** The machine attaches proof: tests that ran, files it touched, sources it relied on, and what it did not check. A draft without evidence is a request for trust.
+
+**Judgment.** A person reads the evidence, not just the diff, and decides whether it is enough. Rejection here is cheap and normal.
+
+**Signature.** A person takes ownership of the change. The commit, the merge, or the release carries a human name that means "I understand this and I stand behind it."
+
+**Learning.** Both sides improve the next loop: the human sharpens the intent and the project's written rules, and the machine gets better context, tools, and tests.
+
+## Make the handoff a data structure
+
+The loop only works if the handoffs are visible. In practice that means a change carries a record of how it was made, the same way a commit carries an author.
+
+~~~ts
+type CoCreatedChange = {
+  intent: string
+  definitionOfDone: string[]
+  contributors: {
+    kind: 'human' | 'agent'
+    name: string
+    role: 'proposed' | 'drafted' | 'reviewed' | 'verified'
+  }[]
+  evidence: {
+    testsRun: string[]
+    sourcesCited: string[]
+    notChecked: string[]
+  }
+  signedBy: string | null
+}
+
+const readyToShip = (change: CoCreatedChange) =>
+  change.signedBy !== null &&
+  change.evidence.testsRun.length > 0 &&
+  change.definitionOfDone.length > 0
+~~~
+
+The most important field is `notChecked`. An honest list of what the machine did not verify is worth more than a long list of what it did, because it tells the human exactly where judgment is needed. It is also the field most tools leave out.
+
+You do not need a new platform to adopt this. A pull request template with sections for intent, agent contribution, evidence, and gaps gets most of the value. So does a commit trailer that names the agent that co-authored the change. What matters is that a reviewer can tell, at a glance, which parts of a change were proposed by a machine and which parts a person has vouched for.
+
+## Make the machine's work observable
+
+Verification needs visibility. A human cannot sign what they cannot see.
+
+This is the reason I built [Embermeter](/en/projects/embermeter), a live instrument panel for Claude Code. During a long agent session it shows how much of the context window is used and how many turns remain before it compacts, what each turn costs, which tools are slow or failing, which files keep changing, and whether the agent is repeating the same call in a loop.
+
+None of that makes the agent smarter. It makes the collaboration legible. When I can see that a turn read the same file four times, or that the context is two turns from compaction, I can step in at the right moment instead of discovering the problem in the diff.
+
+Observability is the same principle as attribution, applied to the process instead of the output. Developers in the 2026 survey asked to know *where an answer came from*. Teams running agents should be able to see *how a change came to be*.
+
+## Where co-creation goes wrong
+
+The failure modes are predictable, and most of them look like success at first.
+
+**Rubber-stamp review.** The agent produces a large, plausible change. The reviewer skims it, the tests pass, and it merges. The signature is there, but it no longer means anything. Keep agent changes small enough to actually read, and review the evidence along with the code.
+
+**Unowned output.** A change exists, but nobody can explain why it is shaped the way it is. When it breaks, there is no one to ask. Every merged change needs a human who can answer for it.
+
+**Fluency mistaken for correctness.** Well-written prose and tidy code earn trust they have not yet earned. METR's perception gap is the warning: the work felt 20% faster when it was 19% slower.
+
+**Cadillac tasks.** Extra capacity flows into easy, visible work: renames, rewrites, and dashboards nobody asked for. Judge work by its value to users, not by how cheap it became.
+
+**Skill atrophy.** In the 2026 survey, 17% of developers who resist AI cite fear of skill atrophy or self-replacement. That fear is reasonable. Skills you never exercise do fade. Keep doing the parts of the work that build judgment, and use the machine to go further rather than to avoid thinking.
+
+**The policy vacuum.** With only about a quarter of organizations publishing an approved AI policy, most engineers are making up the rules alone. DORA's capability model treats a clear AI policy as a foundation. Writing one down is cheap.
+
+## A practical playbook
+
+For a team that wants the gains without the drift, start here:
+
+1. **Write the contract down.** Decide which decisions agents may make alone, which need review, and which only a human may make. Put it in the repository, where both people and agents read it.
+2. **Require intent before generation.** Every agent task starts with a goal, constraints, and a definition of done written by a person.
+3. **Ask for evidence, including the gaps.** Agent output should list tests run, sources used, and what was not verified.
+4. **Keep changes reviewable.** Prefer several small changes a person can read over one large change they have to trust.
+5. **Attribute contributions.** Record which parts of a change came from an agent, in the pull request or the commit.
+6. **Instrument the session.** Make context, cost, tool failures, and loops visible while the work happens, not after.
+7. **Measure outcomes, not output.** Track delivery stability and user value alongside throughput, as DORA recommends. Lines of code and tokens are not results.
+8. **Protect deliberate practice.** Reserve some work for doing by hand, especially for engineers early in their careers.
+
+None of this slows a good team down. It is what lets a team hand the machine more work without handing it the signature.
+
+## The pen stays in a human hand
+
+Look at the picture again. The robotic hand is precise, tireless, and closer to the page every year. It is welcome at the desk. It can widen what we try, draft what we imagine, and check more than we ever could alone.
+
+But the mark that goes into the record, the one that says *this is right, this is worth doing, and I answer for it*, still belongs to a person. Not because the machine cannot make marks, but because accountability is not a capability. It is a commitment, and only someone who can be asked "why?" can make it.
+
+Co-creation is not humans versus machines, and it is not humans stepping aside. It is two very different kinds of hands working one page, with a clear agreement about who signs.
+
+## Further reading
+
+- [Stack Overflow 2026 Developer Survey: trust remains conditional](https://stackoverflow.co/company/press/archive/stack-overflow-annual-developer-survey-ai-trust-conditional)
+- [DORA 2025: State of AI-assisted Software Development](https://dora.dev/dora-report-2025/)
+- [METR: Measuring the impact of early-2025 AI on experienced open-source developers](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/)
+- [METR: We are changing our developer productivity experiment design](https://metr.org/blog/2026-02-24-uplift-update/)
+- [METR: Task substitution and uplift](https://metr.org/blog/2026-05-08-task-substitution-and-uplift/)
+- [Agent Authorization Needs Capabilities, Not Prompts](/en/blog/agent-authorization-needs-capabilities-not-prompts)
+- [Designing an Agent Loop That Can Stop](/en/blog/designing-an-agent-loop-that-can-stop)
+- [AI Observability Is Not Token Accounting](/en/blog/ai-observability-is-not-token-accounting)
