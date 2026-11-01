@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 const ogMocks = vi.hoisted(() => ({
   createHomeOgImage: vi.fn(async () => new Response('home-image')),
   createSectionOgImage: vi.fn(async (section: string) => new Response(`${section}-image`)),
+  createProjectOgImage: vi.fn(async (id: string) => (id === 'zaruro' ? new Response('project-image') : null)),
 }))
 
 vi.mock('~/lib/og-image', () => ogMocks)
@@ -42,7 +43,15 @@ describe('OG image route', () => {
     expect(ogMocks.createSectionOgImage).toHaveBeenCalledTimes(10)
   })
 
+  it('serves a preview for each project record', async () => {
+    const response = await GET(requestFor('/projects/zaruro'))
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('project-image')
+  })
+
   it('does not generate previews for unknown or non-English routes', async () => {
+    expect((await GET(requestFor('/projects/not-a-project'))).status).toBe(404)
     expect((await GET(requestFor('/unknown'))).status).toBe(404)
     expect((await GET(requestFor('/blog/not_a_published_post'))).status).toBe(404)
     expect((await GET(requestFor('/privacy', 'zh'))).status).toBe(404)

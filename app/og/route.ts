@@ -1,4 +1,4 @@
-import { createHomeOgImage, createSectionOgImage } from '~/lib/og-image'
+import { createHomeOgImage, createProjectOgImage, createSectionOgImage } from '~/lib/og-image'
 import type { Locale } from '~/lib/locale-route'
 import type { PublicSection } from '~/lib/public-page-metadata'
 import { isBlogPostSlug } from '~/lib/public-content-routes'
@@ -41,6 +41,10 @@ export async function GET(request: Request) {
   const section = segments[0] as PublicRouteSection | undefined
   if (section === 'blog' && segments.length === 2 && isBlogPostSlug(segments[1])) {
     return cached(await createSectionOgImage('blog', 'en'))
+  }
+  if (section === 'projects' && segments.length === 2) {
+    const image = await createProjectOgImage(segments[1], 'en')
+    if (image) return cached(image)
   }
   if (section && sections.has(section) && segments.length === 1) {
     return cached(await createSectionOgImage(section, 'en'))

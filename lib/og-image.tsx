@@ -1,8 +1,8 @@
-import path from 'node:path'
 import { ImageResponse } from 'next/og'
 
 import type { Locale } from './locale-route'
 import { ogColors, ogRuntimeFonts } from './og'
+import { getProjectById } from './projects'
 import { publicPageMetadata, type PublicSection } from './public-page-metadata'
 import { seo } from './seo'
 
@@ -21,137 +21,145 @@ const sectionCopy: Record<PublicSection, { title: string; description: string }>
 
 const WIDTH = 1200
 const HEIGHT = 630
+// the ruled footer strip, as on a print register
+const RULE_Y = 486
 // --signal (oklch 0.62 0.17 45) resolved to sRGB for satori
 const SIGNAL = '#d4642c'
 const INK = '#1b1a18'
+const PAPER = '#fafaf8'
 
-// ── Portrait art ───────────────────────────────────────────────────
-// The site's signature, printed as a two-ink riso plate: the avatar sampled
-// onto a hex halftone in ink, a second signal pass slightly off register,
-// and the topographic halo the homepage portrait hides, drawn behind the
-// head. One SVG, built once per server process.
-const ART = { width: 600, height: HEIGHT }
-// where the photo sits on the plate; it bleeds off the bottom edge
-const PRINT = { x: 50, y: 40, width: 500, height: 590, pitch: 6 }
-// head centre on the plate, from the crop below
-const HEAD = { x: 289, y: 188 }
+// ── Ember fan ──────────────────────────────────────────────────────
+// Hairlines fan up and left from just past the right end of the footer
+// rule, each one fading from a hot root to nothing. The palette walks the
+// ember from gold at the rule to wine at the top, so the card carries the
+// site's signal without a photograph. Built once; every render is identical.
+const EMBER = ['#f5b83d', '#ef8a2e', SIGNAL, '#d6363b', '#b0245a', '#5b2a86']
 
-let art: Promise<string | null> | undefined
-
-// a closed, gently wobbling contour; fixed phases keep every render identical
-function contour(radius: number, index: number) {
-  const points: string[] = []
-  for (let step = 0; step <= 96; step++) {
-    const angle = (step / 96) * Math.PI * 2
-    const wobble =
-      1 + 0.055 * Math.sin(3 * angle + index * 0.7) + 0.035 * Math.sin(5 * angle - index * 0.45)
-    const x = HEAD.x + Math.cos(angle) * radius * wobble
-    const y = HEAD.y + Math.sin(angle) * radius * wobble * 0.92
-    points.push(`${step ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`)
-  }
-  return `<path d="${points.join('')}Z"/>`
+function mix(a: string, b: string, t: number) {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16)
+  return `#${[0, 1, 2]
+    .map((i) => Math.round(channel(a, i) + (channel(b, i) - channel(a, i)) * t).toString(16).padStart(2, '0'))
+    .join('')}`
 }
 
-async function buildArt(): Promise<string | null> {
-  let sharp: typeof import('sharp').default
-  try {
-    sharp = (await import('sharp')).default
-  } catch {
-    return null // no sharp: the card prints without the portrait
+function emberAt(t: number) {
+  const scaled = t * (EMBER.length - 1)
+  const index = Math.min(EMBER.length - 2, Math.floor(scaled))
+  return mix(EMBER[index], EMBER[index + 1], scaled - index)
+}
+
+function buildFan() {
+  const origin = { x: WIDTH + 24, y: RULE_Y }
+  const lines = 132
+  const defs: string[] = []
+  const strokes: string[] = []
+
+  for (let i = 0; i < lines; i++) {
+    const t = i / (lines - 1)
+    // from just above the rule (180°) round to straight up (270°), packed
+    // tighter near the rule where the glow is hottest
+    const angle = Math.PI * (1 + 0.5 * Math.pow(t, 0.82))
+    const length = 640 + 180 * Math.sin(t * Math.PI)
+    const x = origin.x + Math.cos(angle) * length
+    const y = origin.y + Math.sin(angle) * length
+    const color = emberAt(t)
+    defs.push(
+      `<linearGradient id="l${i}" gradientUnits="userSpaceOnUse" x1="${origin.x}" y1="${origin.y}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}">` +
+        `<stop offset="0" stop-color="${color}" stop-opacity="1"/>` +
+        `<stop offset="0.5" stop-color="${color}" stop-opacity="0.55"/>` +
+        `<stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient>`,
+    )
+    strokes.push(
+      `<line x1="${origin.x}" y1="${origin.y}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="url(#l${i})"/>`,
+    )
   }
-
-  const { pitch } = PRINT
-  const cols = Math.floor(PRINT.width / pitch)
-  const rows = Math.floor(PRINT.height / (pitch * 0.866)) // hex row spacing
-  const source = path.join(process.cwd(), 'public/images/saikat-avatar-preview.webp')
-  // the avatar is a cut-out: flatten its transparency to paper, then frame
-  // head and shoulders (the source is a 1000px square)
-  const { data } = await sharp(source)
-    .flatten({ background: '#ffffff' })
-    .extract({ left: 270, top: 150, width: 460, height: 569 })
-    .resize(cols, rows, { fit: 'fill' })
-    .grayscale()
-    .normalise()
-    .raw()
-    .toBuffer({ resolveWithObject: true })
-
-  const dots: string[] = []
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const x = (col + (row % 2 ? 0.5 : 0) + 0.5) * pitch
-      const y = (row + 0.5) * pitch * 0.866
-      // the print thins out toward its sides so the crop never shows
-      const fade = Math.min(1, Math.min(x, PRINT.width - x) / PRINT.width / 0.22)
-      const tone = 1 - data[row * cols + col] / 255
-      const r = (pitch / 2) * Math.pow(tone, 1.35) * fade
-      if (r > 0.35) {
-        dots.push(
-          `<circle cx="${(PRINT.x + x).toFixed(1)}" cy="${(PRINT.y + y).toFixed(1)}" r="${r.toFixed(2)}"/>`,
-        )
-      }
-    }
-  }
-  const plate = dots.join('')
-
-  // halo rings start clear of the face, then widen and fade outward
-  const rings = Array.from({ length: 11 }, (_, i) => {
-    const opacity = (0.55 - i * 0.04).toFixed(2)
-    return `<g stroke-opacity="${opacity}">${contour(168 + i * 26, i)}</g>`
-  }).join('')
 
   const svg = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${ART.width}" height="${ART.height}" viewBox="0 0 ${ART.width} ${ART.height}">`,
-    `<g fill="none" stroke="${SIGNAL}" stroke-width="1">${rings}</g>`,
-    // the signal pass, off register like a second riso drum
-    `<g fill="${SIGNAL}" fill-opacity="0.42" transform="translate(4 3)">${plate}</g>`,
-    `<g fill="${INK}">${plate}</g>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">`,
+    `<defs>${defs.join('')}`,
+    `<radialGradient id="glow" cx="${origin.x}" cy="${origin.y}" r="460" gradientUnits="userSpaceOnUse">`,
+    `<stop offset="0" stop-color="${SIGNAL}" stop-opacity="0.5"/>`,
+    `<stop offset="0.45" stop-color="${EMBER[1]}" stop-opacity="0.14"/>`,
+    `<stop offset="1" stop-color="${EMBER[0]}" stop-opacity="0"/></radialGradient>`,
+    `<clipPath id="above"><rect width="${WIDTH}" height="${RULE_Y}"/></clipPath></defs>`,
+    `<g clip-path="url(#above)">`,
+    `<rect width="${WIDTH}" height="${RULE_Y}" fill="url(#glow)"/>`,
+    `<g stroke-width="1.1" fill="none">${strokes.join('')}</g>`,
+    `</g>`,
     `</svg>`,
   ].join('')
   return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`
 }
 
-function portraitArt() {
-  art ??= buildArt().catch(() => null)
-  return art
-}
+let fan: string | undefined
+const emberFan = () => (fan ??= buildFan())
 
 // ── Card ───────────────────────────────────────────────────────────
 
 // the OG font subset has no curly apostrophe; print a straight one
 const printable = (text: string) => text.replace(/’/g, "'")
 
-async function render({ title, description, path }: { title: string; description: string; path: string }) {
-  const artwork = await portraitArt()
-  const guide = `1px dashed ${ogColors.border}`
-  const titleSize = title.length > 28 ? 58 : 84
+// two lines of 24px copy hold about 110 characters; end on a whole word
+// with dots rather than letting the clamp cut mid-phrase (the OG face sets
+// its ellipsis glyph at mid-height)
+function fitDescription(text: string, max = 110) {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max).replace(/[\s,;:.]+\S*$/, '')
+  return `${cut}...`
+}
 
-  return new ImageResponse(
+function titleSize(title: string) {
+  if (title.length <= 16) return 112
+  if (title.length <= 30) return 88
+  return 64
+}
+
+// The ember hairlines leave thousands of distinct anti-aliased colours, which
+// PNG compresses poorly (~500 KB). A 4:4:4 JPEG keeps the thin coloured
+// lines sharp at a fraction of the size, under the limits chat apps such as
+// WhatsApp apply to link previews. Without sharp the PNG is served as is.
+async function toJpeg(image: ImageResponse) {
+  let sharp: typeof import('sharp').default
+  try {
+    sharp = (await import('sharp')).default
+  } catch {
+    return image
+  }
+  const jpeg = await sharp(Buffer.from(await image.arrayBuffer()))
+    .jpeg({ quality: 86, chromaSubsampling: '4:4:4', mozjpeg: true })
+    .toBuffer()
+  return new Response(new Uint8Array(jpeg), { headers: { 'content-type': 'image/jpeg' } })
+}
+
+async function render({
+  kicker,
+  title,
+  description,
+  path,
+}: {
+  kicker: string
+  title: string
+  description: string
+  path: string
+}) {
+  const size = titleSize(title)
+
+  const image = new ImageResponse(
     (
       <div
         style={{
           position: 'relative',
           display: 'flex',
+          flexDirection: 'column',
           width: '100%',
           height: '100%',
-          backgroundColor: ogColors.paper,
+          backgroundColor: PAPER,
           color: INK,
           fontFamily: 'Frex Sans GB',
         }}
       >
-        {/* drafting guides, as on the site's ambient sheet */}
-        <div style={{ position: 'absolute', top: 40, bottom: 40, left: 0, right: 0, borderTop: guide, borderBottom: guide, display: 'flex' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 48, right: 48, borderLeft: guide, borderRight: guide, display: 'flex' }} />
-
-        {artwork ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={artwork}
-            alt=""
-            width={ART.width}
-            height={ART.height}
-            style={{ position: 'absolute', top: 0, right: 0 }}
-          />
-        ) : null}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={emberFan()} alt="" width={WIDTH} height={HEIGHT} style={{ position: 'absolute', top: 0, left: 0 }} />
 
         <div
           style={{
@@ -159,25 +167,50 @@ async function render({ title, description, path }: { title: string; description
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            width: 660,
-            padding: '76px 0 76px 96px',
+            height: RULE_Y,
+            padding: '64px 80px 52px',
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ display: 'flex', fontSize: 26, fontWeight: 600, letterSpacing: -0.4 }}>Saikat Das</div>
-            <div style={{ display: 'flex', fontSize: 20, color: ogColors.mutedForeground }}>
-              Full-Stack Product Engineer
+          {/* the site mark: a framed monogram with its signal cell */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 46,
+                height: 46,
+                border: `2px solid ${INK}`,
+                fontSize: 16,
+                fontWeight: 600,
+                letterSpacing: 1,
+              }}
+            >
+              SD
+              <div
+                style={{
+                  position: 'absolute',
+                  right: -7,
+                  bottom: -7,
+                  display: 'flex',
+                  width: 10,
+                  height: 10,
+                  backgroundColor: SIGNAL,
+                }}
+              />
             </div>
+            <div style={{ display: 'flex', fontSize: 24, fontWeight: 600, letterSpacing: -0.4 }}>Saikat Das</div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 760 }}>
             <div
               style={{
                 display: 'flex',
-                fontSize: titleSize,
+                fontSize: size,
                 fontWeight: 600,
-                letterSpacing: titleSize > 60 ? -3 : -1.6,
-                lineHeight: 1.06,
+                letterSpacing: size >= 88 ? -4 : -2.4,
+                lineHeight: 1.02,
               }}
             >
               {printable(title)}
@@ -185,32 +218,51 @@ async function render({ title, description, path }: { title: string; description
             <div
               style={{
                 display: 'block',
+                maxWidth: 680,
                 fontSize: 24,
-                lineHeight: 1.45,
+                lineHeight: 1.42,
                 color: ogColors.paperInk,
-                lineClamp: 3,
+                lineClamp: 2,
               }}
             >
-              {printable(description)}
+              {printable(fitDescription(description))}
             </div>
           </div>
+        </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 18, color: ogColors.mutedForeground }}>
-            <div style={{ display: 'flex', width: 28, height: 2, backgroundColor: SIGNAL }} />
-            <div style={{ display: 'flex' }}>
-              {seo.url.host}
-              <span style={{ color: INK }}>{path}</span>
-            </div>
+        {/* footer strip under the rule: what this is, and where it lives */}
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 80px',
+            borderTop: '1px solid #e2dfd8',
+            fontSize: 19,
+            color: ogColors.mutedForeground,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, letterSpacing: 2.2 }}>
+            <div style={{ display: 'flex', width: 8, height: 8, backgroundColor: SIGNAL }} />
+            {kicker.toUpperCase()}
+          </div>
+          <div style={{ display: 'flex' }}>
+            {seo.url.host}
+            <span style={{ color: INK }}>{path}</span>
           </div>
         </div>
       </div>
     ),
     { width: WIDTH, height: HEIGHT, fonts: await ogRuntimeFonts() },
   )
+  return toJpeg(image)
 }
 
 export function createHomeOgImage(_locale: Locale) {
   return render({
+    kicker: 'Full-Stack Product Engineer',
     title: 'I build software that stays calm on a bad network.',
     description: 'Web products, APIs, and data systems, from architecture to production.',
     path: '/en',
@@ -219,5 +271,21 @@ export function createHomeOgImage(_locale: Locale) {
 
 export function createSectionOgImage(section: PublicSection, _locale: Locale) {
   const copy = sectionCopy[section]
-  return render({ title: copy.title, description: copy.description, path: `/en/${section}` })
+  return render({
+    kicker: 'Full-Stack Product Engineer',
+    title: copy.title,
+    description: copy.description,
+    path: `/en/${section}`,
+  })
+}
+
+export function createProjectOgImage(id: string, _locale: Locale) {
+  const project = getProjectById(id)
+  if (!project) return null
+  return render({
+    kicker: `Project · ${project.category}`,
+    title: project.nameEn,
+    description: project.descriptionEn ?? project.description,
+    path: `/en/projects/${project.id}`,
+  })
 }

@@ -40,6 +40,7 @@ const copyFiles = [
   ...contentFiles,
   path.join(root, 'lib/date.ts'),
   path.join(root, 'lib/og-image.tsx'),
+  path.join(root, 'lib/projects.ts'),
   path.join(root, 'lib/public-page-metadata.ts'),
 ]
 const sourceText = (
